@@ -57,7 +57,7 @@ def _get_valid_access_token():
     return secrets["access_token"]
 
 
-REPORT_LINK = "https://claude.ai/code/artifact/87ff7184-41ce-4c19-a7c8-67d65eda7af1"
+REPORT_LINK = "https://songuni999.github.io/songuni/"
 
 
 def send_text(message: str, link: str = None):

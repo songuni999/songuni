@@ -3,6 +3,9 @@
 주식비서 - 매일 아침 브리핑 생성
 실행: python main.py
 """
+import os
+import shutil
+import subprocess
 import sys
 import time
 
@@ -10,6 +13,32 @@ import config
 import data_fetch
 import indicators
 import report
+
+REPO_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def publish_to_github_pages(latest_path):
+    """docs/index.html을 갱신하고 GitHub Pages에 자동 배포합니다."""
+    docs_dir = os.path.join(REPO_DIR, "docs")
+    os.makedirs(docs_dir, exist_ok=True)
+    shutil.copyfile(latest_path, os.path.join(docs_dir, "index.html"))
+
+    def run(*args):
+        return subprocess.run(
+            ["git", *args], cwd=REPO_DIR, capture_output=True,
+            text=True, encoding="utf-8", errors="replace"
+        )
+
+    run("add", "docs/index.html")
+    commit = run("commit", "-m", f"자동 리포트 갱신 {time.strftime('%Y-%m-%d %H:%M')}")
+    if commit.returncode != 0 and "nothing to commit" not in commit.stdout:
+        print("    git commit 실패:", commit.stderr.strip())
+        return False
+    push = run("push", "origin", "main")
+    if push.returncode != 0:
+        print("    git push 실패:", push.stderr.strip())
+        return False
+    return True
 
 
 def main():
@@ -30,13 +59,20 @@ def main():
     us_candidates = indicators.rank_candidates(us_universe, top_n=3)
     coin_candidates = indicators.rank_candidates(coin_universe, top_n=2)
 
-    print("[3/4] 리포트 생성 중...")
+    print("[3/5] 리포트 생성 중...")
     daily_path, latest_path = report.build_report(
         data, kr_candidates, us_candidates, coin_candidates,
         out_dir=config.REPORT_DIR, holdings=getattr(config, "HOLDINGS", None)
     )
 
-    print("[4/4] 카카오톡 전송 중...")
+    print("[4/5] GitHub Pages 배포 중...")
+    try:
+        if publish_to_github_pages(latest_path):
+            print("    배포 완료")
+    except Exception as e:
+        print(f"    배포 실패: {e}")
+
+    print("[5/5] 카카오톡 전송 중...")
     try:
         import kakao_sender
         holdings_summary = report.build_holdings_summary(data, getattr(config, "HOLDINGS", None))
