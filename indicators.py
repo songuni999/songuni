@@ -35,14 +35,11 @@ def compute_indicators(history: pd.DataFrame):
     return df
 
 
-def evaluate(item: dict):
-    """
-    개별 종목에 대해 스코어 + 초보자용 설명을 만듭니다.
-    반환: dict(score, signals=[str], summary=str)
-    """
+def evaluate_technical(item: dict):
+    """차트(가격/거래량) 흐름만 보는 기술적 신호. 반환: (score, signals)"""
     history = item.get("history")
     if history is None or len(history) < 25:
-        return {"score": 0, "signals": [], "summary": "데이터가 부족해 분석할 수 없어요."}
+        return 0, []
 
     df = compute_indicators(history)
     last = df.iloc[-1]
@@ -60,51 +57,144 @@ def evaluate(item: dict):
             prev = df.iloc[-2]
             if pd.notna(prev.get("ma5")) and pd.notna(prev.get("ma20")) and prev["ma5"] <= prev["ma20"]:
                 score += 2
-                signals.append("골든크로스 발생 (5일선이 20일선을 막 돌파) — 단기 상승 전환 신호로 보는 경우가 많아요")
+                signals.append("📊 골든크로스 발생 (5일선이 20일선을 막 돌파) — 단기 상승 전환 신호로 보는 경우가 많아요")
             else:
                 score += 1
-                signals.append("5일 이동평균선이 20일선 위에 있어요 — 최근 흐름이 상승 쪽이에요")
+                signals.append("📊 5일 이동평균선이 20일선 위에 있어요 — 최근 흐름이 상승 쪽이에요")
 
     # 정배열: 5 > 20 > 60 이면 추세가 강함
     if pd.notna(ma5) and pd.notna(ma20) and pd.notna(ma60) and ma5 > ma20 > ma60:
         score += 1
-        signals.append("정배열 상태예요 (5일선 > 20일선 > 60일선) — 상승 추세가 이어지고 있다는 뜻이에요")
+        signals.append("📊 정배열 상태예요 (5일선 > 20일선 > 60일선) — 상승 추세가 이어지고 있다는 뜻이에요")
 
     # RSI: 과매도 구간에서 반등 가능성 / 과매수 구간 주의
     if pd.notna(rsi):
         if rsi < 30:
             score += 1
-            signals.append(f"RSI {rsi:.0f} — 과매도 구간이에요 (많이 빠져서 반등 기대가 나올 수 있는 구간, 반대로 더 빠질 수도 있어요)")
+            signals.append(f"📊 RSI {rsi:.0f} — 과매도 구간이에요 (많이 빠져서 반등 기대가 나올 수 있는 구간, 반대로 더 빠질 수도 있어요)")
         elif rsi > 70:
             score -= 1
-            signals.append(f"RSI {rsi:.0f} — 과매수 구간이에요 (단기간 많이 올라 조정 가능성도 염두에 둬야 해요)")
-
-    # 목표주가 대비 상승여력
-    target = item.get("target_price")
-    market = item.get("market")
-    if target and price:
-        target_str = _fmt_price(target, market)
-        upside = (target - price) / price * 100
-        if upside > 0:
-            signals.append(f"12개월 목표주가(컨센서스 평균) {target_str} — 현재가 대비 {upside:.1f}% 상승 여력 (증권사 전망치, 참고용)")
-            if upside > 15:
-                score += 1
-        else:
-            signals.append(f"12개월 목표주가(컨센서스 평균) {target_str} — 현재가가 이미 {abs(upside):.1f}% 더 높아요 (목표가 근접/초과)")
+            signals.append(f"📊 RSI {rsi:.0f} — 과매수 구간이에요 (단기간 많이 올라 조정 가능성도 염두에 둬야 해요)")
 
     # 거래량 급증
     if "volume" in df.columns and len(df) > 20:
         avg_vol20 = df["volume"].iloc[-21:-1].mean()
         if avg_vol20 and last["volume"] > avg_vol20 * 2:
             score += 1
-            signals.append("최근 거래량이 평소보다 2배 이상 늘었어요 — 관심이 몰리고 있다는 신호예요")
+            signals.append("📊 최근 거래량이 평소보다 2배 이상 늘었어요 — 관심이 몰리고 있다는 신호예요")
+
+    return score, signals
+
+
+def evaluate_fundamentals(item: dict):
+    """PER/PBR/ROE/성장률 등 회사 자체의 재무 상태를 보는 신호. 반환: (score, signals)"""
+    score = 0
+    signals = []
+    market = item.get("market")
+    price = item.get("price")
+
+    per = item.get("per")
+    cns_per = item.get("cns_per")  # KR: 컨센서스(향후 실적 반영) PER
+    forward_per = item.get("forward_per")  # US: 향후 12개월 예상 PER
+    future_per = cns_per or forward_per
+
+    # 이익 성장 기대: 미래 PER이 현재 PER보다 훨씬 낮으면 실적 개선을 시장이 반영 중
+    if per and future_per and per > 0 and future_per > 0:
+        if future_per < per * 0.8:
+            score += 2
+            signals.append(f"🏢 실적 개선 기대: 현재 PER {per:.1f}배 → 향후(컨센서스) {future_per:.1f}배로 낮아져요 — 이익이 늘어날 걸로 시장이 보고 있어요")
+        elif future_per > per * 1.2:
+            score -= 1
+            signals.append(f"🏢 현재 PER {per:.1f}배 → 향후(컨센서스) {future_per:.1f}배로 높아져요 — 이익 둔화가 예상돼요")
+
+    # PBR: 장부가치 대비 저평가/고평가
+    pbr = item.get("pbr")
+    if pbr:
+        if pbr < 1:
+            score += 1
+            signals.append(f"🏢 PBR {pbr:.2f}배 — 회사 장부가치보다 싸게 거래되고 있어요 (저평가 신호일 수 있어요)")
+        elif pbr > 5:
+            score -= 1
+            signals.append(f"🏢 PBR {pbr:.2f}배 — 장부가치 대비 많이 비싸게 거래되고 있어요")
+
+    # ROE: 자기자본이익률 (US는 직접 제공, KR은 EPS/BPS로 근사 계산)
+    roe = item.get("roe")
+    if roe is not None:
+        roe_pct = roe * 100
+    else:
+        eps, bps = item.get("eps"), item.get("bps")
+        roe_pct = (eps / bps * 100) if (eps and bps) else None
+    if roe_pct is not None:
+        if roe_pct >= 15:
+            score += 1
+            signals.append(f"🏢 ROE(자기자본이익률) 약 {roe_pct:.1f}% — 자기자본을 효율적으로 굴려서 이익을 내는 회사예요")
+        elif roe_pct < 0:
+            score -= 1
+            signals.append(f"🏢 ROE(자기자본이익률) 약 {roe_pct:.1f}% — 자기자본 대비 손실을 내고 있어요")
+
+    # 매출/이익 성장률 (US만 제공)
+    rev_g = item.get("revenue_growth")
+    earn_g = item.get("earnings_growth")
+    if rev_g is not None or earn_g is not None:
+        parts = []
+        if rev_g is not None:
+            parts.append(f"매출 {rev_g*100:+.1f}%")
+        if earn_g is not None:
+            parts.append(f"이익 {earn_g*100:+.1f}%")
+        signals.append(f"🏢 최근 1년 성장률: {', '.join(parts)} (전년 대비)")
+        if (rev_g or 0) > 0.1 and (earn_g or 0) > 0.1:
+            score += 1
+        elif (rev_g or 0) < 0 and (earn_g or 0) < 0:
+            score -= 1
+
+    # 부채비율 (US만 제공)
+    dte = item.get("debt_to_equity")
+    if dte is not None and dte > 200:
+        score -= 1
+        signals.append(f"🏢 부채비율 {dte:.0f}% — 부채가 자기자본보다 훨씬 많아요, 재무 리스크에 유의하세요")
+
+    # 배당수익률
+    div_yield = item.get("div_yield")
+    if div_yield and div_yield > 0.5:
+        signals.append(f"🏢 배당수익률 약 {div_yield:.1f}% — 꾸준히 배당을 주는 회사예요")
+
+    return score, signals
+
+
+def evaluate(item: dict):
+    """
+    개별 종목에 대해 기술적 신호 + 기업 펀더멘털 신호를 종합한 스코어를 만듭니다.
+    반환: dict(score, signals=[str], summary=str)
+    """
+    tech_score, tech_signals = evaluate_technical(item)
+    fund_score, fund_signals = evaluate_fundamentals(item)
+
+    score = tech_score + fund_score
+    signals = fund_signals + tech_signals  # 기업 분석을 먼저 보여줌
+
+    # 목표주가 대비 상승여력 (기술/펀더멘털 어느 쪽에도 넣기 애매해 별도로 계산)
+    target = item.get("target_price")
+    price = item.get("price")
+    market = item.get("market")
+    if target and price:
+        target_str = _fmt_price(target, market)
+        upside = (target - price) / price * 100
+        if upside > 0:
+            signals.append(f"🎯 12개월 목표주가(컨센서스 평균) {target_str} — 현재가 대비 {upside:.1f}% 상승 여력 (증권사 전망치, 참고용)")
+            if upside > 15:
+                score += 1
+        else:
+            signals.append(f"🎯 12개월 목표주가(컨센서스 평균) {target_str} — 현재가가 이미 {abs(upside):.1f}% 더 높아요 (목표가 근접/초과)")
 
     if not signals:
         summary = "특별한 신호는 없지만 꾸준히 지켜볼 만해요."
     else:
         summary = signals[0]
 
-    return {"score": score, "signals": signals, "rsi": rsi, "ma5": ma5, "ma20": ma20, "ma60": ma60, "summary": summary}
+    return {
+        "score": score, "tech_score": tech_score, "fund_score": fund_score,
+        "signals": signals, "summary": summary,
+    }
 
 
 def rank_candidates(items: list, top_n: int = 5):

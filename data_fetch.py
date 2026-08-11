@@ -22,22 +22,42 @@ def _days_ago_str(days):
     return (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y%m%d")
 
 
-def fetch_kr_target_price(code: str):
-    """네이버 금융 모바일 API에서 컨센서스 목표주가(평균)를 가져옵니다."""
+def _parse_num(raw):
+    if raw is None:
+        return None
+    try:
+        return float(str(raw).replace(",", "").replace("배", "").replace("%", "").replace("원", "").strip())
+    except (ValueError, TypeError):
+        return None
+
+
+def fetch_kr_naver_data(code: str):
+    """네이버 금융 모바일 API에서 목표주가 컨센서스 + 재무 펀더멘털을 한 번에 가져옵니다."""
+    result = {}
     try:
         r = requests.get(
             f"https://m.stock.naver.com/api/stock/{code}/integration",
             headers={"User-Agent": "Mozilla/5.0"}, timeout=10,
         )
-        info = r.json().get("consensusInfo") or {}
-        raw = info.get("priceTargetMean")
-        if not raw:
-            return None, None
-        target = float(str(raw).replace(",", ""))
-        recomm = info.get("recommMean")
-        return target, (float(recomm) if recomm else None)
+        data = r.json()
+
+        consensus = data.get("consensusInfo") or {}
+        target = _parse_num(consensus.get("priceTargetMean"))
+        recomm = _parse_num(consensus.get("recommMean"))
+        result["target_price"] = target
+        result["recomm_score"] = recomm  # 1(강력매수)~5(매도)
+
+        total = {item.get("code"): item for item in (data.get("totalInfos") or [])}
+        result["per"] = _parse_num(total.get("per", {}).get("value"))
+        result["eps"] = _parse_num(total.get("eps", {}).get("value"))
+        result["cns_per"] = _parse_num(total.get("cnsPer", {}).get("value"))  # 컨센서스(미래 실적 반영) PER
+        result["cns_eps"] = _parse_num(total.get("cnsEps", {}).get("value"))  # 컨센서스 EPS(내년 예상 실적)
+        result["pbr"] = _parse_num(total.get("pbr", {}).get("value"))
+        result["bps"] = _parse_num(total.get("bps", {}).get("value"))
+        result["div_yield"] = _parse_num(total.get("dividendYieldRatio", {}).get("value"))
     except Exception:
-        return None, None
+        pass
+    return result
 
 
 def fetch_kr_stock(code: str, name: str, lookback_days: int = 120):
@@ -72,7 +92,8 @@ def fetch_kr_stock(code: str, name: str, lookback_days: int = 120):
     except Exception:
         pass
 
-    target_price, recomm_score = fetch_kr_target_price(code)
+    naver_data = fetch_kr_naver_data(code)
+    fundamentals.update({k: v for k, v in naver_data.items() if v is not None})
 
     return {
         "market": "KR",
@@ -82,8 +103,6 @@ def fetch_kr_stock(code: str, name: str, lookback_days: int = 120):
         "change_pct": float(last.get("change_pct", 0.0)),
         "volume": int(last["volume"]),
         "history": df,
-        "target_price": target_price,
-        "recomm_score": recomm_score,  # 1(강력매수)~5(매도), 네이버 컨센서스 기준
         **fundamentals,
     }
 
@@ -121,7 +140,14 @@ def fetch_us_stock(ticker: str):
         "target_low": info.get("targetLowPrice"),
         "recommendation": info.get("recommendationKey"),
         "per": info.get("trailingPE"),
+        "forward_per": info.get("forwardPE"),
         "pbr": info.get("priceToBook"),
+        "roe": info.get("returnOnEquity"),
+        "revenue_growth": info.get("revenueGrowth"),
+        "earnings_growth": info.get("earningsGrowth"),
+        "profit_margin": info.get("profitMargins"),
+        "debt_to_equity": info.get("debtToEquity"),
+        "div_yield": info.get("dividendYield"),
     }
 
 

@@ -15,6 +15,10 @@ GLOSSARY = [
     ("PER", "주가수익비율. 주가가 1주당 순이익의 몇 배인지를 나타내요. 낮을수록 '저평가'일 가능성이 있지만 업종마다 기준이 달라요."),
     ("PBR", "주가순자산비율. 주가가 1주당 순자산의 몇 배인지를 나타내요. 1보다 낮으면 회사 자산가치보다 주가가 싸다는 뜻이에요."),
     ("목표주가 (컨센서스)", "여러 증권사 애널리스트들이 제시한 목표주가의 평균값이에요. 통상 '앞으로 12개월(1년)' 정도를 내다본 전망치이고, 미래를 보장하지 않아요."),
+    ("컨센서스 PER", "애널리스트들이 예상한 '내년 예상 실적' 기준으로 계산한 PER이에요. 지금 PER보다 훨씬 낮으면, 시장이 이 회사의 이익이 앞으로 크게 늘 거라고 보고 있다는 뜻이에요."),
+    ("ROE (자기자본이익률)", "회사가 자기 돈(자본)을 굴려서 얼마나 이익을 냈는지 보여주는 비율이에요. 보통 15% 이상이면 돈을 효율적으로 잘 굴리는 회사로 봐요."),
+    ("매출/이익 성장률", "작년 같은 기간 대비 매출과 이익이 얼마나 늘었는지예요. 둘 다 꾸준히 플러스면 회사가 커지고 있다는 뜻이에요."),
+    ("부채비율", "자기자본 대비 빚이 얼마나 많은지 보여줘요. 너무 높으면(200% 이상) 금리가 오르거나 경기가 나빠질 때 위험할 수 있어요."),
 ]
 
 DISCLAIMER = (
@@ -74,10 +78,19 @@ def _quote_card(item):
     chg_str = f"{chg:+.2f}%" if chg is not None else "-"
     spark = _sparkline(item.get("history"))
 
-    extra = ""
+    extra_lines = []
     tgt = item.get("target_price")
     if tgt:
-        extra = f'<div class="meta">목표주가 컨센서스(12개월): {_fmt_price(tgt, market)}</div>'
+        extra_lines.append(f"목표주가 컨센서스(12개월): {_fmt_price(tgt, market)}")
+    per, pbr = item.get("per"), item.get("pbr")
+    if per or pbr:
+        parts = []
+        if per:
+            parts.append(f"PER {per:.1f}배")
+        if pbr:
+            parts.append(f"PBR {pbr:.2f}배")
+        extra_lines.append(" · ".join(parts))
+    extra = "".join(f'<div class="meta">{line}</div>' for line in extra_lines)
 
     if item.get("error"):
         return f'''<div class="card error">
@@ -271,7 +284,8 @@ footer {{ margin-top: 32px; font-size: 12px; color: var(--sub-text); text-align:
 
 {f'<h2 class="section">💼 내 보유자산</h2>{holdings_html}' if holdings_html else ''}
 
-<h2 class="section">🌟 오늘의 주목 후보 (기술적 신호 기준)</h2>
+<h2 class="section">🌟 오늘의 주목 후보 (기업 분석 + 차트 신호 종합)</h2>
+<p style="color:var(--sub-text); font-size:12px; margin:-4px 0 12px;">🏢 기업 재무/실적 분석 · 📊 차트(가격·거래량) 흐름 · 🎯 목표주가</p>
 {cand_html or '<p style="color:var(--sub-text); font-size:13px;">오늘은 뚜렷한 후보가 없어요.</p>'}
 
 <h2 class="section">🇰🇷 한국 주식 관심종목</h2>
