@@ -19,6 +19,7 @@ GLOSSARY = [
     ("ROE (자기자본이익률)", "회사가 자기 돈(자본)을 굴려서 얼마나 이익을 냈는지 보여주는 비율이에요. 보통 15% 이상이면 돈을 효율적으로 잘 굴리는 회사로 봐요."),
     ("매출/이익 성장률", "작년 같은 기간 대비 매출과 이익이 얼마나 늘었는지예요. 둘 다 꾸준히 플러스면 회사가 커지고 있다는 뜻이에요."),
     ("부채비율", "자기자본 대비 빚이 얼마나 많은지 보여줘요. 너무 높으면(200% 이상) 금리가 오르거나 경기가 나빠질 때 위험할 수 있어요."),
+    ("최근 3개월 변동률", "최근 약 3개월간 주가가 실제로 얼마나 오르내렸는지 보여주는 과거 실적이에요. 목표주가(12개월 전망)와 달리 미래 예측이 아니라 이미 일어난 일이에요."),
 ]
 
 DISCLAIMER = (
@@ -90,6 +91,9 @@ def _quote_card(item):
         if pbr:
             parts.append(f"PBR {pbr:.2f}배")
         extra_lines.append(" · ".join(parts))
+    three_mo = indicators.three_month_change(item.get("history"))
+    if three_mo is not None:
+        extra_lines.append(f"최근 3개월 {three_mo:+.1f}%")
     extra = "".join(f'<div class="meta">{line}</div>' for line in extra_lines)
 
     if item.get("error"):
@@ -144,7 +148,7 @@ def _holding_card(holding, item, indicators_mod):
             <div><span class="hold-label">매수평균가</span>{avg_price:,.0f}원</div>
             <div><span class="hold-label">평가손익</span>{pnl:,.0f}원</div>
         </div>
-        {f'<div class="meta">📊 {trend}</div>' if trend else ''}
+        {f'<div class="meta">{trend}</div>' if trend else ''}
     </div>'''
 
 

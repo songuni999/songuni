@@ -17,6 +17,21 @@ def _fmt_price(p, market):
     return f"${p:,.2f}"
 
 
+def three_month_change(history: pd.DataFrame):
+    """최근 약 3개월(거래일 기준 63일)간의 가격 변동률(%)을 계산합니다."""
+    if history is None or len(history) < 2:
+        return None
+    closes = history["close"]
+    lookback = min(63, len(closes) - 1)
+    if lookback <= 0:
+        return None
+    past_price = closes.iloc[-1 - lookback]
+    now_price = closes.iloc[-1]
+    if not past_price:
+        return None
+    return (now_price - past_price) / past_price * 100
+
+
 def compute_indicators(history: pd.DataFrame):
     """OHLCV 데이터프레임에 이동평균/RSI를 추가합니다."""
     df = history.copy()
@@ -186,6 +201,11 @@ def evaluate(item: dict):
         else:
             signals.append(f"🎯 12개월 목표주가(컨센서스 평균) {target_str} — 현재가가 이미 {abs(upside):.1f}% 더 높아요 (목표가 근접/초과)")
 
+    # 최근 3개월 가격 변동률 (정보 제공용, 스코어에는 반영 안 함)
+    three_mo = three_month_change(item.get("history"))
+    if three_mo is not None:
+        signals.append(f"📊 최근 3개월간 {three_mo:+.1f}% 움직였어요 (과거 실적, 미래를 보장하지 않아요)")
+
     if not signals:
         summary = "특별한 신호는 없지만 꾸준히 지켜볼 만해요."
     else:
@@ -193,7 +213,7 @@ def evaluate(item: dict):
 
     return {
         "score": score, "tech_score": tech_score, "fund_score": fund_score,
-        "signals": signals, "summary": summary,
+        "signals": signals, "summary": summary, "three_month_change": three_mo,
     }
 
 
