@@ -51,9 +51,21 @@ def main():
     ok_coin = sum(1 for x in data["coin"] if not x.get("error"))
     print(f"    한국주식 {ok_kr}/{len(data['kr'])}, 미국주식 {ok_us}/{len(data['us'])}, 코인 {ok_coin}/{len(data['coin'])} 수집 완료")
 
+    # 스크리닝 대상은 관심목록보다 넓게 - 다양한 섹터에서 후보를 찾기 위함
+    kr_screen_extra = getattr(config, "KR_SCREEN_UNIVERSE", [])
+    us_screen_extra = getattr(config, "US_SCREEN_UNIVERSE", [])
+    if kr_screen_extra or us_screen_extra:
+        print(f"    후보 스크리닝 확장: 한국 +{len(kr_screen_extra)}종목, 미국 +{len(us_screen_extra)}종목 수집 중...")
+        extra_data = data_fetch.fetch_all(kr_screen_extra, us_screen_extra, [])
+        ok_kr_extra = sum(1 for x in extra_data["kr"] if not x.get("error"))
+        ok_us_extra = sum(1 for x in extra_data["us"] if not x.get("error"))
+        print(f"    확장 스캔 완료: 한국 {ok_kr_extra}/{len(extra_data['kr'])}, 미국 {ok_us_extra}/{len(extra_data['us'])}")
+    else:
+        extra_data = {"kr": [], "us": []}
+
     print("[2/3] 스크리닝 중...")
-    kr_universe = data["kr"]
-    us_universe = data["us"]
+    kr_universe = data["kr"] + extra_data["kr"]
+    us_universe = data["us"] + extra_data["us"]
     coin_universe = data["coin"]
     kr_candidates = indicators.rank_candidates(kr_universe, top_n=3)
     us_candidates = indicators.rank_candidates(us_universe, top_n=3)
