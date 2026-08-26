@@ -24,6 +24,24 @@ GLOSSARY = [
     ("증권거래세", "국내 주식을 팔 때 매도금액에서 자동으로 떼는 세금이에요(2025년 기준 약 0.18%). 미국주식·코인에는 이 세금이 없어요."),
 ]
 
+FAQ = [
+    ("요즘 코인에 돈이 몰리는데, 코인에 투자하는 게 나을까요?",
+     "코인은 주식보다 변동성이 훨씬 커요 — 하루에 ±10~20%씩 움직이는 일도 흔해요. '지금 몰린다'는 건 이미 많이 오른 뒤일 수도 있어서, 뒤늦게 따라 들어가면(추격매수) 고점에 물릴 위험도 커요. "
+     "코인이냐 주식이냐보다, 내가 잃어도 괜찮은 돈이 얼마인지 · 변동성을 얼마나 견딜 수 있는지에 따라 비중을 정하는 게 먼저예요. 어느 한쪽에 몰빵하기보다 나눠 담는 걸 많이 권해요."),
+    ("주식이랑 코인 중에 뭐가 더 안전해요?",
+     "일반적으로 코인 > 성장주 > 대형 우량주 > 채권/예금 순으로 변동성(위험)이 커요. '안전'의 기준은 사람마다 달라서, 원금을 최대한 지키고 싶으면 변동성 낮은 자산 비중을 높이고, 손실을 감수하고서라도 수익을 노린다면 변동성 높은 자산 비중을 늘리는 식으로 접근해요."),
+    ("지금 사도 될까요? 언제 사는 게 좋아요?",
+     "정확한 저점/고점은 아무도 미리 알 수 없어요. 그래서 초보자에게는 한 번에 몰아서 사기보다, 여러 번에 나눠서 사는 분할매수(DCA)가 타이밍 실수의 리스크를 줄여주는 방법으로 많이 소개돼요. 이 리포트의 RSI·이동평균 신호는 '지금 흐름이 어떤지' 참고용이지, 매수 타이밍을 정해주는 건 아니에요."),
+    ("목표주가에 도달하면 무조건 오르나요?",
+     "아니요. 목표주가는 증권사 애널리스트들이 실적 전망을 바탕으로 계산한 '예상치'일 뿐이에요. 실제로는 예상보다 실적이 나빠지거나 시장 분위기가 바뀌면 목표주가와 전혀 다르게 움직이는 경우도 많아요. 참고 지표 중 하나로만 보세요."),
+    ("분산투자가 뭐고, 왜 해야 해요?",
+     "한 종목/자산에 모든 돈을 넣지 않고 여러 종목·자산군(주식, 코인, 현금 등)에 나눠 담는 걸 말해요. 하나가 크게 떨어져도 전체 자산이 한 번에 무너지지 않게 막아주는 효과가 있어요. '몰빵'의 반대 개념이라고 보시면 돼요."),
+    ("손절/익절이 뭐예요?",
+     "손절은 손실이 더 커지기 전에 정해둔 가격에서 미리 파는 것, 익절은 목표한 만큼 이익이 나면 파는 거예요. 둘 다 '감정적으로 물타기하거나 계속 들고 있다가 더 크게 잃는 것'을 막기 위한 원칙이에요. 얼마에 팔지는 투자 전에 미리 정해두는 걸 많이 권해요."),
+    ("이 리포트만 보고 투자해도 되나요?",
+     "이 리포트는 공개 데이터를 모아서 보여주는 참고 자료예요. 회사 뉴스, 산업 전망, 거시경제 상황처럼 숫자에 안 잡히는 정보도 많으니, 이것만으로 판단하기보다 여러 정보를 같이 참고하시는 걸 권해요. 그리고 최종 투자 판단과 책임은 항상 본인에게 있어요."),
+]
+
 DISCLAIMER = (
     "이 리포트는 공개된 시세·재무 데이터를 기계적으로 계산한 참고 자료이며, "
     "투자 권유나 매수/매도 추천이 아닙니다. 모든 투자 판단과 책임은 본인에게 있습니다."
@@ -249,6 +267,11 @@ def build_report(data: dict, kr_candidates: list, us_candidates: list, coin_cand
         for t, d in GLOSSARY
     )
 
+    faq_html = "".join(
+        f'<div class="faq-item"><div class="faq-q">Q. {q}</div><div class="faq-a">{a}</div></div>'
+        for q, a in FAQ
+    )
+
     html = f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -303,6 +326,10 @@ h2.section {{ font-size: 16px; margin: 28px 0 12px; padding-bottom:6px; border-b
 .term:last-child {{ border-bottom: none; }}
 .term-name {{ font-weight: 700; font-size: 13px; color: var(--accent); }}
 .term-desc {{ font-size: 13px; color: var(--sub-text); margin-top: 2px; line-height:1.5; }}
+.faq-item {{ background: var(--card-bg); border:1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px; }}
+.faq-q {{ font-weight: 700; font-size: 14px; margin-bottom: 6px; }}
+.faq-a {{ font-size: 13px; color: var(--sub-text); line-height: 1.6; }}
 .hold-card {{ background: var(--card-bg); border:1px solid var(--border); border-radius: 12px;
     padding: 14px 16px; margin-bottom: 10px; }}
 .hold-top {{ display:flex; justify-content: space-between; align-items:center; margin-bottom: 8px; }}
@@ -336,6 +363,10 @@ footer {{ margin-top: 32px; font-size: 12px; color: var(--sub-text); text-align:
 
 <h2 class="section">🪙 코인 관심목록</h2>
 <div class="grid">{coin_cards}</div>
+
+<h2 class="section">💬 자주 묻는 질문</h2>
+<p style="color:var(--sub-text); font-size:12px; margin:-4px 0 12px;">"어느 쪽에 투자하세요"가 아니라, 판단에 참고할 관점을 정리한 답변이에요. 더 궁금한 게 있으면 언제든 클로드(Claude)한테 채팅으로 물어보세요.</p>
+<div class="faq">{faq_html}</div>
 
 <h2 class="section">📘 초보자를 위한 용어 설명</h2>
 <div class="glossary">{glossary_html}</div>
