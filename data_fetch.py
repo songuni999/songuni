@@ -55,6 +55,8 @@ def fetch_kr_naver_data(code: str):
         result["pbr"] = _parse_num(total.get("pbr", {}).get("value"))
         result["bps"] = _parse_num(total.get("bps", {}).get("value"))
         result["div_yield"] = _parse_num(total.get("dividendYieldRatio", {}).get("value"))
+        result["week52_high"] = _parse_num(total.get("highPriceOf52Weeks", {}).get("value"))
+        result["week52_low"] = _parse_num(total.get("lowPriceOf52Weeks", {}).get("value"))
     except Exception:
         pass
     return result
@@ -148,6 +150,8 @@ def fetch_us_stock(ticker: str):
         "profit_margin": info.get("profitMargins"),
         "debt_to_equity": info.get("debtToEquity"),
         "div_yield": info.get("dividendYield"),
+        "week52_high": info.get("fiftyTwoWeekHigh"),
+        "week52_low": info.get("fiftyTwoWeekLow"),
     }
 
 
@@ -187,6 +191,9 @@ def fetch_crypto(market: str, lookback_days: int = 120):
         "volume": t["acc_trade_volume_24h"],
         "history": df[["open", "high", "low", "close", "volume"]],
         "target_price": None,  # 코인은 애널리스트 목표가 개념이 없음
+        "week52_high": float(df["high"].max()),  # 조회 기간(최근 120일) 내 최고가
+        "week52_low": float(df["low"].min()),
+        "week52_is_approx": True,  # 진짜 52주가 아니라 조회기간 내 최고/최저임을 표시
     }
 
 

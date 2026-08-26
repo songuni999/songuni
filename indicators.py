@@ -17,6 +17,15 @@ def _fmt_price(p, market):
     return f"${p:,.2f}"
 
 
+def pct_off_high(item: dict):
+    """52주(코인은 조회기간) 최고가 대비 현재가가 몇 % 낮은지 계산합니다. 음수면 최고가 대비 하락."""
+    high = item.get("week52_high")
+    price = item.get("price")
+    if not high or not price:
+        return None
+    return (price - high) / high * 100
+
+
 def three_month_change(history: pd.DataFrame):
     """최근 약 3개월(거래일 기준 63일)간의 가격 변동률(%)을 계산합니다."""
     if history is None or len(history) < 2:

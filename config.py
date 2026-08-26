@@ -40,6 +40,10 @@ CRYPTO = [
 
 # 실제 보유중인 자산 - 평가손익을 계산해서 대시보드 맨 위에 보여줍니다.
 # type: "coin"(업비트 마켓코드) 또는 "kr"(종목코드) / "us"(티커)
+# 한 번에 산 경우: {"type":..., "code":..., "name":..., "qty":..., "avg_price":...}
+# 여러 번 나눠서 산 경우(분할매수): "qty"/"avg_price" 대신 "lots"에 차수별로 적으면
+#   가중평균 매수단가를 자동 계산해줍니다.
+#   예) "lots": [{"qty": 1.0, "price": 3000000}, {"qty": 1.07670898, "price": 3700000}]
 HOLDINGS = [
     {"type": "coin", "code": "KRW-ETH", "name": "이더리움", "qty": 2.07670898, "avg_price": 3369045},
     {"type": "coin", "code": "KRW-ENA", "name": "에테나", "qty": 37.5, "avg_price": 978},

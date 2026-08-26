@@ -20,6 +20,8 @@ GLOSSARY = [
     ("매출/이익 성장률", "작년 같은 기간 대비 매출과 이익이 얼마나 늘었는지예요. 둘 다 꾸준히 플러스면 회사가 커지고 있다는 뜻이에요."),
     ("부채비율", "자기자본 대비 빚이 얼마나 많은지 보여줘요. 너무 높으면(200% 이상) 금리가 오르거나 경기가 나빠질 때 위험할 수 있어요."),
     ("최근 3개월 변동률", "최근 약 3개월간 주가가 실제로 얼마나 오르내렸는지 보여주는 과거 실적이에요. 목표주가(12개월 전망)와 달리 미래 예측이 아니라 이미 일어난 일이에요."),
+    ("가중평균 매수단가", "여러 번에 나눠서 산 경우(분할매수), 각 차수의 '가격×수량'을 다 더해서 전체 수량으로 나눈 평균 매수가예요. 실제 계좌에 찍히는 평단가와 같은 계산 방식이에요."),
+    ("증권거래세", "국내 주식을 팔 때 매도금액에서 자동으로 떼는 세금이에요(2025년 기준 약 0.18%). 미국주식·코인에는 이 세금이 없어요."),
 ]
 
 DISCLAIMER = (
@@ -94,6 +96,10 @@ def _quote_card(item):
     three_mo = indicators.three_month_change(item.get("history"))
     if three_mo is not None:
         extra_lines.append(f"최근 3개월 {three_mo:+.1f}%")
+    off_high = indicators.pct_off_high(item)
+    if off_high is not None:
+        high_label = "조회기간 고점" if item.get("week52_is_approx") else "52주 고점"
+        extra_lines.append(f"{high_label} 대비 {off_high:+.1f}%")
     extra = "".join(f'<div class="meta">{line}</div>' for line in extra_lines)
 
     if item.get("error"):
@@ -116,10 +122,23 @@ def _quote_card(item):
     </div>'''
 
 
+KR_SELL_TAX_RATE = 0.0018  # 국내 주식 매도 시 증권거래세(2025년 기준 0.18%). 코인/미국주식은 미적용.
+
+
+def normalize_holding(holding):
+    """차수(lots)로 나눠 입력된 경우 가중평균 매수단가를 계산합니다. 단일 qty/avg_price 입력도 그대로 지원."""
+    lots = holding.get("lots")
+    if lots:
+        total_qty = sum(l["qty"] for l in lots)
+        total_cost = sum(l["qty"] * l["price"] for l in lots)
+        avg_price = total_cost / total_qty if total_qty else 0
+        return total_qty, avg_price, len(lots)
+    return holding["qty"], holding["avg_price"], 1
+
+
 def _holding_card(holding, item, indicators_mod):
     name = holding.get("name") or item.get("name")
-    qty = holding["qty"]
-    avg_price = holding["avg_price"]
+    qty, avg_price, lot_count = normalize_holding(holding)
     price = item.get("price")
     market = item.get("market")
 
@@ -129,6 +148,14 @@ def _holding_card(holding, item, indicators_mod):
     pnl_pct = (pnl / buy_amount * 100) if pnl is not None and buy_amount else None
     cls = _change_class(pnl)
 
+    tax_note = ""
+    if holding.get("type") == "kr" and eval_amount is not None:
+        tax = eval_amount * KR_SELL_TAX_RATE
+        net_pnl = pnl - tax
+        tax_note = f'<div class="meta">매도 시 거래세 약 {tax:,.0f}원 차감 → 세후 손익 {net_pnl:,.0f}원</div>'
+
+    lot_note = f'<div class="meta">분할매수 {lot_count}차 · 가중평균 매수단가 적용</div>' if lot_count > 1 else ""
+
     trend = ""
     try:
         ev = indicators_mod.evaluate(item)
@@ -136,6 +163,12 @@ def _holding_card(holding, item, indicators_mod):
             trend = ev["signals"][0]
     except Exception:
         pass
+
+    off_high = indicators_mod.pct_off_high(item)
+    high_note = ""
+    if off_high is not None:
+        high_label = "조회기간 고점" if item.get("week52_is_approx") else "52주 고점"
+        high_note = f'<div class="meta">{high_label} 대비 {off_high:+.1f}%</div>'
 
     return f'''<div class="hold-card">
         <div class="hold-top">
@@ -148,6 +181,9 @@ def _holding_card(holding, item, indicators_mod):
             <div><span class="hold-label">매수평균가</span>{avg_price:,.0f}원</div>
             <div><span class="hold-label">평가손익</span>{pnl:,.0f}원</div>
         </div>
+        {lot_note}
+        {tax_note}
+        {high_note}
         {f'<div class="meta">{trend}</div>' if trend else ''}
     </div>'''
 
@@ -361,8 +397,9 @@ def build_holdings_summary(data: dict, holdings: list):
             continue
         any_ok = True
         price = item.get("price")
-        buy_amount = h["qty"] * h["avg_price"]
-        eval_amount = h["qty"] * price
+        qty, avg_price, _ = normalize_holding(h)
+        buy_amount = qty * avg_price
+        eval_amount = qty * price
         pnl = eval_amount - buy_amount
         pnl_pct = pnl / buy_amount * 100 if buy_amount else 0
         total_pnl += pnl
