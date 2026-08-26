@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
 kakao_secrets.json
+upbit_secrets.json
 reports/*.html
 !docs/

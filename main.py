@@ -41,10 +41,32 @@ def publish_to_github_pages(latest_path):
     return True
 
 
+def build_holdings():
+    """업비트 실계좌 잔고(자동) + config.py 수동 입력분(주식 등)을 합칩니다."""
+    manual_holdings = getattr(config, "HOLDINGS", []) or []
+    try:
+        import upbit_client
+        upbit_holdings = upbit_client.fetch_balances()
+        print(f"    업비트 실계좌 연동: 보유 코인 {len(upbit_holdings)}개 자동 조회")
+    except FileNotFoundError:
+        upbit_holdings = []
+    except Exception as e:
+        print(f"    업비트 연동 실패: {e}")
+        upbit_holdings = []
+
+    upbit_codes = {h["code"] for h in upbit_holdings}
+    # 업비트에서 자동 조회되는 코인은 config.py 수동 입력분보다 우선 사용
+    manual_rest = [h for h in manual_holdings if h.get("code") not in upbit_codes]
+    return upbit_holdings + manual_rest
+
+
 def main():
     t0 = time.time()
+    holdings = build_holdings()
+    crypto_codes = sorted(set(config.CRYPTO) | {h["code"] for h in holdings if h.get("type") == "coin"})
+
     print("[1/3] 시세 데이터 수집 중...")
-    data = data_fetch.fetch_all(config.KR_STOCKS, config.US_STOCKS, config.CRYPTO)
+    data = data_fetch.fetch_all(config.KR_STOCKS, config.US_STOCKS, crypto_codes)
 
     ok_kr = sum(1 for x in data["kr"] if not x.get("error"))
     ok_us = sum(1 for x in data["us"] if not x.get("error"))
@@ -74,7 +96,7 @@ def main():
     print("[3/5] 리포트 생성 중...")
     daily_path, latest_path = report.build_report(
         data, kr_candidates, us_candidates, coin_candidates,
-        out_dir=config.REPORT_DIR, holdings=getattr(config, "HOLDINGS", None)
+        out_dir=config.REPORT_DIR, holdings=holdings
     )
 
     print("[4/5] GitHub Pages 배포 중...")
@@ -87,7 +109,7 @@ def main():
     print("[5/5] 카카오톡 전송 중...")
     try:
         import kakao_sender
-        holdings_summary = report.build_holdings_summary(data, getattr(config, "HOLDINGS", None))
+        holdings_summary = report.build_holdings_summary(data, holdings)
         if holdings_summary:
             kakao_sender.send_text(holdings_summary)
         summary = report.build_summary_text(kr_candidates, us_candidates, coin_candidates)
