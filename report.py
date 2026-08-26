@@ -126,7 +126,8 @@ def _quote_card(item):
             <div class="meta">데이터를 불러오지 못했어요 ({item["error"]})</div>
         </div>'''
 
-    return f'''<div class="card">
+    live_attr = f' data-live-market="{sub}"' if market == "COIN" else ""
+    return f'''<div class="card"{live_attr}>
         <div class="card-top">
             <div>
                 <div class="name">{name}</div>
@@ -134,8 +135,8 @@ def _quote_card(item):
             </div>
             {spark}
         </div>
-        <div class="price">{_fmt_price(price, market)}</div>
-        <div class="chg {cls}">{chg_str}</div>
+        <div class="price" data-field="price">{_fmt_price(price, market)}</div>
+        <div class="chg {cls}" data-field="chg">{chg_str}</div>
         {extra}
     </div>'''
 
@@ -188,16 +189,21 @@ def _holding_card(holding, item, indicators_mod):
         high_label = "조회기간 고점" if item.get("week52_is_approx") else "52주 고점"
         high_note = f'<div class="meta">{high_label} 대비 {off_high:+.1f}%</div>'
 
-    return f'''<div class="hold-card">
+    live_attr = ""
+    if market == "COIN":
+        market_code = item.get("market_code") or holding.get("code")
+        live_attr = f' data-live-market="{market_code}" data-qty="{qty}" data-avg-price="{avg_price}"'
+
+    return f'''<div class="hold-card"{live_attr}>
         <div class="hold-top">
             <div class="name">{name}</div>
-            <div class="chg {cls}">{pnl_pct:+.2f}%</div>
+            <div class="chg {cls}" data-field="pnl-pct">{pnl_pct:+.2f}%</div>
         </div>
         <div class="hold-grid">
             <div><span class="hold-label">보유수량</span>{qty:g}</div>
-            <div><span class="hold-label">평가금액</span>{eval_amount:,.0f}원</div>
+            <div><span class="hold-label">평가금액</span><span data-field="eval">{eval_amount:,.0f}</span>원</div>
             <div><span class="hold-label">매수평균가</span>{avg_price:,.0f}원</div>
-            <div><span class="hold-label">평가손익</span>{pnl:,.0f}원</div>
+            <div><span class="hold-label">평가손익</span><span data-field="pnl">{pnl:,.0f}</span>원</div>
         </div>
         {lot_note}
         {tax_note}
@@ -339,15 +345,30 @@ h2.section {{ font-size: 16px; margin: 28px 0 12px; padding-bottom:6px; border-b
     font-size: 14px; font-weight: 600; }}
 .hold-label {{ display:block; font-size: 11px; font-weight: 400; color: var(--sub-text); }}
 footer {{ margin-top: 32px; font-size: 12px; color: var(--sub-text); text-align:center; }}
+.header-row {{ display:flex; justify-content: space-between; align-items:flex-start; gap: 10px; flex-wrap: wrap; }}
+.refresh-btn {{ background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent);
+    border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+    white-space: nowrap; }}
+.refresh-btn:active {{ opacity: 0.7; }}
+.refresh-btn[disabled] {{ opacity: 0.5; cursor: default; }}
+.refresh-status {{ font-size: 12px; color: var(--sub-text); margin-top: 6px; min-height: 16px; }}
+.flash {{ animation: flash-bg 0.8s ease; }}
+@keyframes flash-bg {{ 0% {{ background: var(--accent-bg); }} 100% {{ background: transparent; }} }}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-<h1>📈 오늘의 주식비서</h1>
-<div class="date">{date_str} 아침 브리핑</div>
+<div class="header-row">
+    <div>
+        <h1>📈 오늘의 주식비서</h1>
+        <div class="date">{date_str} 아침 브리핑</div>
+    </div>
+    <button id="refresh-btn" class="refresh-btn" onclick="refreshCoinPrices()">🔄 코인 실시간 새로고침</button>
+</div>
+<div id="refresh-status" class="refresh-status"></div>
 </header>
-<div class="disclaimer">⚠️ {DISCLAIMER}</div>
+<div class="disclaimer">⚠️ {DISCLAIMER} 코인 시세는 새로고침 버튼으로 실시간 갱신할 수 있어요(업비트 기준). 한국·미국 주식은 데이터 제공처 정책상 실시간 갱신이 안 되고, 매일 아침 리포트 생성 시점 시세로 고정돼요.</div>
 
 {f'<h2 class="section">💼 내 보유자산</h2>{holdings_html}' if holdings_html else ''}
 
@@ -373,6 +394,95 @@ footer {{ margin-top: 32px; font-size: 12px; color: var(--sub-text); text-align:
 
 <footer>주식비서 · 데이터 출처: KRX(pykrx), Yahoo Finance, Upbit · 생성 시각 {now.strftime('%Y-%m-%d %H:%M')}</footer>
 </div>
+<script>
+function fmtCoinPrice(p) {{
+    if (p >= 1) return p.toLocaleString('ko-KR', {{maximumFractionDigits: 0}}) + '원';
+    return p.toLocaleString('ko-KR', {{maximumFractionDigits: 4}}) + '원';
+}}
+
+function fmtSignedWon(n) {{
+    const sign = n >= 0 ? '+' : '';
+    return sign + Math.round(n).toLocaleString('ko-KR') + '원';
+}}
+
+function flashEl(el) {{
+    if (!el) return;
+    el.classList.remove('flash');
+    void el.offsetWidth; // reflow to restart animation
+    el.classList.add('flash');
+}}
+
+async function refreshCoinPrices() {{
+    const btn = document.getElementById('refresh-btn');
+    const status = document.getElementById('refresh-status');
+    const liveEls = document.querySelectorAll('[data-live-market]');
+    if (liveEls.length === 0) {{
+        status.textContent = '실시간 갱신 대상 코인이 없어요.';
+        return;
+    }}
+    const markets = [...new Set([...liveEls].map(el => el.dataset.liveMarket))];
+
+    btn.disabled = true;
+    btn.textContent = '⏳ 불러오는 중...';
+    status.textContent = '';
+
+    try {{
+        const resp = await fetch('https://api.upbit.com/v1/ticker?markets=' + markets.join(','));
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        const byMarket = {{}};
+        data.forEach(d => {{ byMarket[d.market] = d; }});
+
+        liveEls.forEach(el => {{
+            const d = byMarket[el.dataset.liveMarket];
+            if (!d) return;
+            const price = d.trade_price;
+            const chgPct = d.signed_change_rate * 100;
+
+            const priceEl = el.querySelector('[data-field="price"]');
+            if (priceEl) {{
+                priceEl.textContent = fmtCoinPrice(price);
+                flashEl(priceEl);
+            }}
+            const chgEl = el.querySelector('[data-field="chg"]');
+            if (chgEl) {{
+                chgEl.textContent = (chgPct >= 0 ? '+' : '') + chgPct.toFixed(2) + '%';
+                chgEl.classList.remove('up', 'down', 'flat');
+                chgEl.classList.add(chgPct > 0 ? 'up' : (chgPct < 0 ? 'down' : 'flat'));
+            }}
+
+            // 보유자산 카드: 평가금액/손익/손익률 재계산
+            if (el.dataset.qty !== undefined) {{
+                const qty = parseFloat(el.dataset.qty);
+                const avgPrice = parseFloat(el.dataset.avgPrice);
+                const evalAmount = qty * price;
+                const buyAmount = qty * avgPrice;
+                const pnl = evalAmount - buyAmount;
+                const pnlPct = buyAmount ? (pnl / buyAmount * 100) : 0;
+
+                const evalEl = el.querySelector('[data-field="eval"]');
+                if (evalEl) {{ evalEl.textContent = Math.round(evalAmount).toLocaleString('ko-KR'); flashEl(evalEl.parentElement); }}
+                const pnlEl = el.querySelector('[data-field="pnl"]');
+                if (pnlEl) {{ pnlEl.textContent = fmtSignedWon(pnl); flashEl(pnlEl.parentElement); }}
+                const pnlPctEl = el.querySelector('[data-field="pnl-pct"]');
+                if (pnlPctEl) {{
+                    pnlPctEl.textContent = (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%';
+                    pnlPctEl.classList.remove('up', 'down', 'flat');
+                    pnlPctEl.classList.add(pnlPct > 0 ? 'up' : (pnlPct < 0 ? 'down' : 'flat'));
+                }}
+            }}
+        }});
+
+        const now = new Date();
+        status.textContent = '마지막 실시간 갱신: ' + now.toLocaleTimeString('ko-KR') + ' (업비트 기준)';
+    }} catch (e) {{
+        status.textContent = '실시간 시세를 불러오지 못했어요 (' + e.message + ')';
+    }} finally {{
+        btn.disabled = false;
+        btn.textContent = '🔄 코인 실시간 새로고침';
+    }}
+}}
+</script>
 </body>
 </html>"""
 
