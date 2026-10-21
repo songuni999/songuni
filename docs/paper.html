@@ -65,6 +65,70 @@ tr.tlink { cursor:pointer; }
 .flash { animation:flash-bg .8s ease; }
 @keyframes flash-bg { 0% { background:var(--accent-bg); } 100% { background:transparent; } }
 footer { margin-top:30px; font-size:12px; color:var(--sub-text); text-align:center; }
+/* ── 그래프 ── 코인 고유색(--c1~4)은 상승·하락 빨강/파랑과 겹치지 않게 보라·청록·노랑·분홍 (색약 검사 통과) */
+:root { --c1:#6250d6; --c2:#1baf7a; --c3:#eda100; --c4:#e87ba4; --c-other:#8a8f98; --cash:#b9bec7; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --c1:#9085e9; --c2:#199e70; --c3:#c98500; --c4:#d55181; --c-other:#7d838f; --cash:#5c6270; }
+}
+:root[data-theme="dark"] { --c1:#9085e9; --c2:#199e70; --c3:#c98500; --c4:#d55181; --c-other:#7d838f; --cash:#5c6270; }
+.viz { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:12px; min-width:0; }
+.viz-title { font-size:14px; font-weight:700; margin:0 0 8px; }
+.viz-plot { position:relative; min-height:60px; transition:opacity .2s; }
+.viz-plot.loading { opacity:.55; }
+.viz-plot svg { display:block; max-width:100%; overflow:visible; touch-action:pan-y; -webkit-tap-highlight-color:transparent; }
+.viz-plot svg:focus { outline:none; }
+.viz-plot svg:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+.viz-plot svg text { font-size:11px; fill:var(--sub-text); font-family:inherit; font-variant-numeric:tabular-nums; pointer-events:none; }
+.g-grid { stroke:var(--border); stroke-width:1; }
+.g-base { stroke:var(--sub-text); stroke-width:1; opacity:.7; }
+.a-up { fill:var(--up); opacity:.12; } .a-down { fill:var(--down); opacity:.12; }
+.l-up, .l-down { fill:none; stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
+.l-up { stroke:var(--up); } .l-down { stroke:var(--down); }
+.f-up { fill:var(--up); } .f-down { fill:var(--down); } .f-ink { fill:var(--text); }
+.ring { stroke:var(--card-bg); stroke-width:2; paint-order:stroke; }
+.wk-up { stroke:var(--up); stroke-width:1; } .wk-down { stroke:var(--down); stroke-width:1; }
+.xhair { stroke:var(--sub-text); stroke-width:1; opacity:.6; pointer-events:none; }
+.lv { stroke-width:1.25; fill:none; pointer-events:none; }
+.lv.lv-avg { stroke:var(--flat); } .lv.lv-sl { stroke:var(--down); stroke-dasharray:5 4; }
+.lv.lv-tp { stroke:var(--up); stroke-dasharray:5 4; } .lv.lv-cur { stroke:var(--text); opacity:.35; }
+.leader { stroke:var(--sub-text); stroke-width:1; fill:none; opacity:.6; }
+.viz-plot svg text.lv-cur { fill:var(--text); font-weight:700; }
+.viz-plot svg text.t-name { fill:var(--text); font-size:12px; font-weight:700; }
+.viz-plot svg text.t-val { fill:var(--text); font-size:12px; font-weight:600; }
+.viz-plot svg text.t-big { fill:var(--text); font-size:16px; font-weight:700; }
+.viz-plot svg text.t-cnt { font-size:10px; }
+.hit { cursor:crosshair; } .hitrow { cursor:pointer; }
+.slice { cursor:pointer; transition:opacity .15s; } .slice.on, .bar.on { opacity:.78; }
+.viz-tip { position:absolute; z-index:5; pointer-events:none; background:var(--card-bg); color:var(--text);
+  border:1px solid var(--border); border-radius:8px; padding:6px 9px; font-size:12px; line-height:1.5;
+  box-shadow:0 4px 14px rgba(0,0,0,.14); white-space:nowrap; }
+.viz-tip[hidden] { display:none; }
+.viz-tip .h { color:var(--sub-text); font-size:11px; }
+.viz-tip .r { display:flex; align-items:center; gap:6px; }
+.viz-tip b { font-variant-numeric:tabular-nums; }
+.viz-tip .r span { color:var(--sub-text); }
+.viz-tip .k { width:10px; height:3px; border-radius:2px; display:inline-block; }
+.ccards { display:grid; gap:12px; }
+.chead { display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+.chead .sym { font-weight:700; font-size:15px; }
+.chead .cprice { margin-left:auto; font-weight:700; font-size:16px; }
+.chead .cret { font-weight:700; font-size:13px; }
+.cstats { display:flex; gap:6px 14px; flex-wrap:wrap; font-size:12px; color:var(--sub-text); margin:4px 0 8px; }
+.cstats b { color:var(--text); font-variant-numeric:tabular-nums; }
+.swatch { width:10px; height:10px; border-radius:3px; display:inline-block; flex:none; align-self:center; }
+.vlegend { display:flex; flex-wrap:wrap; gap:4px 14px; font-size:12px; color:var(--sub-text); margin:-4px 0 10px; }
+.vlegend span { display:inline-flex; align-items:center; gap:5px; }
+.lk { display:inline-block; width:18px; height:0; border-top:2px solid var(--flat); }
+.lk.lk-sl { border-top:2px dashed var(--down); } .lk.lk-tp { border-top:2px dashed var(--up); }
+.duo { display:grid; gap:12px; }
+@media (min-width:720px) { .duo { grid-template-columns:1fr 1fr; } }
+.alloc-wrap { display:flex; align-items:center; gap:14px 18px; flex-wrap:wrap; justify-content:center; }
+.alloc-legend { flex:1 1 170px; list-style:none; margin:0; padding:0; font-size:13px; min-width:0; }
+.alloc-legend li { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); }
+.alloc-legend li:last-child { border-bottom:none; }
+.alloc-legend .nm { font-weight:600; }
+.alloc-legend b { margin-left:auto; font-variant-numeric:tabular-nums; }
+.alloc-legend .amt { color:var(--sub-text); font-size:12px; min-width:84px; text-align:right; font-variant-numeric:tabular-nums; }
 </style>
 </head>
 <body>
@@ -73,20 +137,29 @@ footer { margin-top:30px; font-size:12px; color:var(--sub-text); text-align:cent
 
 <header>
 <div class="header-row">
-  <div><h1>📊 업비트 코인 모의투자</h1><div class="date">마지막 봇 실행 2026-10-21 23:36 KST</div></div>
+  <div><h1>📊 업비트 코인 모의투자</h1><div class="date">마지막 봇 실행 2026-10-22 01:20 KST</div></div>
   <button id="refresh-btn" class="refresh-btn" type="button">🔄 실시간</button>
 </div>
 <div id="refresh-status" class="refresh-status"></div>
 </header>
 
 <h2 class="section">📊 요약</h2>
-<div class="grid"><div class="card hero"><div class="label">현재 총평가 (지금 전부 팔면 받는 금액)</div><div class="value" id="eq">998,550원</div><div class="label" style="margin-top:4px">누적손익 <b id="pnl" class="down">-1,450원</b> <b id="pnlpct" class="down">-0.14%</b></div></div><div class="card"><div class="label">시작금액</div><div class="value ">1,000,000원</div></div><div class="card"><div class="label">현금</div><div class="value ">1,465원</div></div><div class="card"><div class="label">실현손익</div><div class="value flat">+0원</div></div><div class="card"><div class="label">미실현손익</div><div class="value down" id="unreal">-1,450원</div></div><div class="card"><div class="label">누적 수수료</div><div class="value ">499원</div></div><div class="card"><div class="label">거래횟수</div><div class="value ">3회 <small>(매수 3 · 매도 0)</small></div></div><div class="card"><div class="label">승률 (수익 매도)</div><div class="value ">-</div></div><div class="card"><div class="label">마지막 업데이트</div><div class="value "><small>10/21 23:36</small></div></div></div>
+<div class="grid"><div class="card hero"><div class="label">현재 총평가 (지금 전부 팔면 받는 금액)</div><div class="value" id="eq">1,008,068원</div><div class="label" style="margin-top:4px">누적손익 <b id="pnl" class="up">+8,068원</b> <b id="pnlpct" class="up">+0.81%</b></div></div><div class="card"><div class="label">시작금액</div><div class="value ">1,000,000원</div></div><div class="card"><div class="label">현금</div><div class="value ">1,465원</div></div><div class="card"><div class="label">실현손익</div><div class="value flat">+0원</div></div><div class="card"><div class="label">미실현손익</div><div class="value up" id="unreal">+8,068원</div></div><div class="card"><div class="label">누적 수수료</div><div class="value ">499원</div></div><div class="card"><div class="label">거래횟수</div><div class="value ">3회 <small>(매수 3 · 매도 0)</small></div></div><div class="card"><div class="label">승률 (수익 매도)</div><div class="value ">-</div></div><div class="card"><div class="label">마지막 업데이트</div><div class="value "><small>10/22 01:20</small></div></div></div>
 
-<h2 class="section">📈 자산 변화</h2>
-<div class="chart"><svg viewBox="0 0 420 200" role="img" aria-label="총평가 변화 그래프"><polygon points="66.0,170 66.0,72.5 157.4,72.5 412.0,113.5 412.0,170" fill="var(--down)" opacity="0.10"/><line x1="66" y1="72.5" x2="412" y2="72.5" stroke="var(--sub-text)" stroke-dasharray="4 4" stroke-width="1"/><text x="412" y="68.5" text-anchor="end" font-size="12" fill="var(--sub-text)">시작 1,000,000</text><polyline points="66.0,72.5 157.4,72.5 412.0,113.5" fill="none" stroke="var(--down)" stroke-width="2" stroke-linejoin="round"/><circle cx="412.0" cy="113.5" r="3.5" fill="var(--down)"/><text x="60" y="26" text-anchor="end" font-size="12" fill="var(--sub-text)">1,002,000</text><text x="60" y="170" text-anchor="end" font-size="12" fill="var(--sub-text)">996,550</text><text x="66" y="192" font-size="12" fill="var(--sub-text)">10/21 22:49</text><text x="412" y="192" text-anchor="end" font-size="12" fill="var(--sub-text)">10/21 23:36</text></svg></div>
+<h2 class="section">📈 자산 변화 <span class="sub">가로선 = 시작금액 1,000,000원 · 위 빨강 수익, 아래 파랑 손실 · ▲매수 ▼매도</span></h2>
+<div class="viz"><div class="viz-plot" id="eq-plot"><div class="empty">그래프 준비 중…</div></div></div>
+
+<h2 class="section">💰 보유 코인 차트 <span class="sub">1시간봉 · 눌러서 값 보기</span></h2>
+<div class="vlegend"><span><i class="lk lk-avg"></i>평균 매수가</span><span><i class="lk lk-sl"></i>손절가</span><span><i class="lk lk-tp"></i>목표가</span><span><b class="up">▲</b>매수 시점</span><span><b class="up">▮</b>양봉 <b class="down">▮</b>음봉</span></div><div class="ccards"><div class="viz ccard" id="cc0"><div class="chead"><span class="swatch" style="background:var(--c1)"></span><span class="sym">ETH</span> <span class="sub">이더리움</span><span class="cprice" id="cp0">3,341,000원</span><span class="cret up" id="cr0">+1.03%</span></div><div class="cstats"><span>손절까지 <b id="csl0">-6.06%</b></span><span>목표까지 <b id="ctp0">+8.77%</b></span><span>평균 매수가 <b>3,304,000원</b></span></div><div class="viz-plot" id="cplot0"><div class="empty">그래프 준비 중…</div></div></div><div class="viz ccard" id="cc1"><div class="chead"><span class="swatch" style="background:var(--c2)"></span><span class="sym">BTC</span> <span class="sub">비트코인</span><span class="cprice" id="cp1">112,679,000원</span><span class="cret up" id="cr1">+0.45%</span></div><div class="cstats"><span>손절까지 <b id="csl1">-5.52%</b></span><span>목표까지 <b id="ctp1">+9.40%</b></span><span>평균 매수가 <b>112,064,000원</b></span></div><div class="viz-plot" id="cplot1"><div class="empty">그래프 준비 중…</div></div></div><div class="viz ccard" id="cc2"><div class="chead"><span class="swatch" style="background:var(--c3)"></span><span class="sym">SOL</span> <span class="sub">솔라나</span><span class="cprice" id="cp2">144,500원</span><span class="cret up" id="cr2">+0.95%</span></div><div class="cstats"><span>손절까지 <b id="csl2">-5.99%</b></span><span>목표까지 <b id="ctp2">+8.86%</b></span><span>평균 매수가 <b>143,000원</b></span></div><div class="viz-plot" id="cplot2"><div class="empty">그래프 준비 중…</div></div></div></div>
+
+<h2 class="section">🍩 자산 구성 · 코인별 손익</h2>
+<div class="duo">
+<div class="viz"><div class="viz-title">자산 구성 <span class="sub">현금 + 코인 평가금액(수수료 차감)</span></div><div class="viz-plot" id="alloc-plot"><div class="empty">그래프 준비 중…</div></div></div>
+<div class="viz"><div class="viz-title">코인별 손익 <span class="sub">판 것(실현) + 보유 중(미실현)</span></div><div class="viz-plot" id="pnl-plot"><div class="empty">그래프 준비 중…</div></div></div>
+</div>
 
 <h2 class="section">💼 보유 코인</h2>
-<div class="table-wrap"><table><thead><tr><th class="l">코인</th><th>수량</th><th>평균매수가</th><th>매수금액<br><span class="sub">수수료 포함</span></th><th>현재가</th><th>평가금액<br><span class="sub">수수료 차감</span></th><th>손익</th><th>손절가 / 목표가</th><th>보유시간</th></tr></thead><tbody><tr><td class="l"><b>ETH</b> <span class="sub">이더리움</span></td><td>0.1007453</td><td>3,304,000</td><td>332,999</td><td id="p0">3,302,000</td><td id="v0">332,495</td><td id="g0" class="down">-505 (-0.15%)</td><td><span class="down">3,139,000</span> / <span class="up">3,634,000</span></td><td id="h0">0.0시간</td></tr><tr><td class="l"><b>BTC</b> <span class="sub">비트코인</span></td><td>0.00296852</td><td>112,064,000</td><td>332,831</td><td id="p1">112,048,000</td><td id="v1">332,450</td><td id="g1" class="down">-380 (-0.11%)</td><td><span class="down">106,461,000</span> / <span class="up">123,270,000</span></td><td id="h1">0.0시간</td></tr><tr><td class="l"><b>SOL</b> <span class="sub">솔라나</span></td><td>2.32544755</td><td>143,000</td><td>332,705</td><td id="p2">142,900</td><td id="v2">332,140</td><td id="g2" class="down">-565 (-0.17%)</td><td><span class="down">135,800</span> / <span class="up">157,300</span></td><td id="h2">0.0시간</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th class="l">코인</th><th>수량</th><th>평균매수가</th><th>매수금액<br><span class="sub">수수료 포함</span></th><th>현재가</th><th>평가금액<br><span class="sub">수수료 차감</span></th><th>손익</th><th>손절가 / 목표가</th><th>보유시간</th></tr></thead><tbody><tr><td class="l"><b>ETH</b> <span class="sub">이더리움</span></td><td>0.1007453</td><td>3,304,000</td><td>332,999</td><td id="p0">3,341,000</td><td id="v0">336,422</td><td id="g0" class="up">+3,422 (+1.03%)</td><td><span class="down">3,139,000</span> / <span class="up">3,634,000</span></td><td id="h0">1.7시간</td></tr><tr><td class="l"><b>BTC</b> <span class="sub">비트코인</span></td><td>0.00296852</td><td>112,064,000</td><td>332,831</td><td id="p1">112,679,000</td><td id="v1">334,323</td><td id="g1" class="up">+1,492 (+0.45%)</td><td><span class="down">106,461,000</span> / <span class="up">123,270,000</span></td><td id="h1">1.7시간</td></tr><tr><td class="l"><b>SOL</b> <span class="sub">솔라나</span></td><td>2.32544755</td><td>143,000</td><td>332,705</td><td id="p2">144,500</td><td id="v2">335,859</td><td id="g2" class="up">+3,154 (+0.95%)</td><td><span class="down">135,800</span> / <span class="up">157,300</span></td><td id="h2">1.7시간</td></tr></tbody></table></div>
 
 <h2 class="section">🧾 전체 거래 내역 <span class="sub">최신순 · 행을 누르면 상세로 이동</span></h2>
 <div class="table-wrap"><table><thead><tr><th class="l">시각</th><th class="l">코인</th><th class="l">구분</th><th class="l">사유</th><th>평균체결가</th><th>수량</th><th>체결금액</th><th>수수료</th><th>현금 변화</th><th>이 거래 손익</th><th>거래 후 현금</th></tr></thead><tbody><tr class="tlink" onclick="location.hash='t3'"><td class="l">10-21 23:36</td><td class="l"><b>SOL</b></td><td class="l"><span class="badge buy">매수</span></td><td class="l">눌림목: 상승추세 중 20일선 근처 반등, RSI 59, 거래량 4.1배</td><td>143,000</td><td>2.32544755</td><td>332,539</td><td>166</td><td class="down">-332,705</td><td>-</td><td>1,465</td></tr><tr class="tlink" onclick="location.hash='t2'"><td class="l">10-21 23:36</td><td class="l"><b>BTC</b></td><td class="l"><span class="badge buy">매수</span></td><td class="l">돌파: 최근 24시간 고점 111,359,000원 돌파, 거래량 3.4배, RSI 72</td><td>112,064,000</td><td>0.00296852</td><td>332,664</td><td>166</td><td class="down">-332,831</td><td>-</td><td>334,170</td></tr><tr class="tlink" onclick="location.hash='t1'"><td class="l">10-21 23:36</td><td class="l"><b>ETH</b></td><td class="l"><span class="badge buy">매수</span></td><td class="l">돌파: 최근 24시간 고점 3,297,000원 돌파, 거래량 4.1배, RSI 66</td><td>3,304,000</td><td>0.1007453</td><td>332,833</td><td>166</td><td class="down">-332,999</td><td>-</td><td>667,001</td></tr></tbody></table></div>
@@ -97,51 +170,329 @@ footer { margin-top:30px; font-size:12px; color:var(--sub-text); text-align:cent
 <div class="note">매수(1시간봉, 하나라도 맞으면 점수 높은 순): 상승전환(EMA20/50 골든크로스 최근 6봉 이내, RSI 40~75, 거래량 0.8배↑) · 눌림목(상승추세 10봉↑ 중 EMA20 +0.5% 이내 터치 후 양봉, RSI 42~68, 거래량 0.7배↑) · 돌파(직전 24봉 고점 돌파, 거래량 1.5배↑, RSI 78 이하, 상승추세). 총평가의 33.3%씩 최대 3종목. 매도: 손절 -5% · 익절 +10% · 추세이탈 · 48시간 경과. 체결은 업비트 호가창을 소진하는 방식으로 계산하고 수수료 0.05%를 매수·매도마다 뗍니다.<br>평가금액 = 수량 × 최우선 매수호가 × (1−수수료). 🔄 실시간은 업비트 현재가(체결가)로 다시 계산해요.</div>
 <footer>※ 모의투자 — 실제 주문 아님 · 투자 권유가 아닙니다</footer>
 </div>
-<script type="application/json" id="paper-data">{"pos": [{"m": "KRW-ETH", "qty": 0.1007453, "cost": 332999.39783066994, "val": 332494.65010970004, "entry": "2026-10-21T23:36:25+09:00"}, {"m": "KRW-BTC", "qty": 0.00296852, "cost": 332830.55739264004, "val": 332450.42059552006, "entry": "2026-10-21T23:36:25+09:00"}, {"m": "KRW-SOL", "qty": 2.32544755, "cost": 332705.269149825, "val": 332140.3016675525, "entry": "2026-10-21T23:36:25+09:00"}], "cash": 1464.7756268649828, "initial": 1000000.0, "fee": 0.0005, "ticks": [[2000000, 1000], [1000000, 1000], [500000, 500], [100000, 100], [50000, 50], [10000, 10], [5000, 5], [1000, 1], [100, 1], [10, 0.1], [1, 0.01], [0.1, 0.001], [0.01, 0.0001], [0.001, 1e-05], [0.0001, 1e-06], [1e-05, 1e-07], [0, 1e-08]]}</script>
+<script type="application/json" id="paper-data">{"pos": [{"m": "KRW-ETH", "sym": "ETH", "qty": 0.1007453, "cost": 332999.39783066994, "val": 336421.75227635, "entry": "2026-10-21T23:36:25+09:00", "ep": 3303707.283019654, "sl": 3138521.918868671, "tp": 3634078.0113216196, "cur": 3341000.0}, {"m": "KRW-BTC", "sym": "BTC", "qty": 0.00296852, "cost": 332830.55739264004, "val": 334322.62014746, "entry": "2026-10-21T23:36:25+09:00", "ep": 112064000.0, "sl": 106460800.0, "tp": 123270400.00000001, "cur": 112679000.0}, {"m": "KRW-SOL", "sym": "SOL", "qty": 2.32544755, "cost": 332705.269149825, "val": 335859.15738951246, "entry": "2026-10-21T23:36:25+09:00", "ep": 143000.0, "sl": 135850.0, "tp": 157300.0, "cur": 144500.0}], "cash": 1464.7756268649828, "initial": 1000000.0, "fee": 0.0005, "ticks": [[2000000, 1000], [1000000, 1000], [500000, 500], [100000, 100], [50000, 50], [10000, 10], [5000, 5], [1000, 1], [100, 1], [10, 0.1], [1, 0.01], [0.1, 0.001], [0.01, 0.0001], [0.001, 1e-05], [0.0001, 1e-06], [1e-05, 1e-07], [0, 1e-08]], "eqh": [[1792590580000, 1000000.0], [1792591321000, 1000000.0], [1792593385000, 998550.15], [1792594924000, 1003182.82], [1792598523000, 1006484.24], [1792599642000, 1008068.31]], "marks": [{"i": 2, "s": "b", "no": "1", "sym": "ETH"}, {"i": 2, "s": "b", "no": "2", "sym": "BTC"}, {"i": 2, "s": "b", "no": "3", "sym": "SOL"}], "candles": {"KRW-ETH": [[1792324800000, 3264000.0, 3270000.0, 3258000.0, 3264000.0], [1792328400000, 3264000.0, 3264000.0, 3220000.0, 3237000.0], [1792332000000, 3237000.0, 3238000.0, 3202000.0, 3213000.0], [1792335600000, 3213000.0, 3221000.0, 3207000.0, 3220000.0], [1792339200000, 3219000.0, 3219000.0, 3196000.0, 3199000.0], [1792342800000, 3199000.0, 3201000.0, 3199000.0, 3201000.0], [1792360800000, 3201000.0, 3244000.0, 3199000.0, 3239000.0], [1792364400000, 3239000.0, 3257000.0, 3219000.0, 3248000.0], [1792368000000, 3248000.0, 3260000.0, 3240000.0, 3254000.0], [1792371600000, 3255000.0, 3270000.0, 3253000.0, 3267000.0], [1792375200000, 3267000.0, 3277000.0, 3250000.0, 3263000.0], [1792378800000, 3263000.0, 3266000.0, 3255000.0, 3260000.0], [1792382400000, 3260000.0, 3269000.0, 3254000.0, 3267000.0], [1792386000000, 3266000.0, 3268000.0, 3254000.0, 3264000.0], [1792389600000, 3264000.0, 3270000.0, 3262000.0, 3265000.0], [1792393200000, 3265000.0, 3282000.0, 3263000.0, 3265000.0], [1792396800000, 3265000.0, 3280000.0, 3260000.0, 3272000.0], [1792400400000, 3272000.0, 3287000.0, 3267000.0, 3277000.0], [1792404000000, 3277000.0, 3278000.0, 3250000.0, 3263000.0], [1792407600000, 3262000.0, 3262000.0, 3243000.0, 3254000.0], [1792411200000, 3254000.0, 3264000.0, 3252000.0, 3256000.0], [1792414800000, 3256000.0, 3264000.0, 3222000.0, 3229000.0], [1792418400000, 3225000.0, 3259000.0, 3210000.0, 3241000.0], [1792422000000, 3243000.0, 3254000.0, 3219000.0, 3219000.0], [1792425600000, 3219000.0, 3235000.0, 3213000.0, 3231000.0], [1792429200000, 3231000.0, 3237000.0, 3221000.0, 3227000.0], [1792432800000, 3230000.0, 3239000.0, 3218000.0, 3233000.0], [1792436400000, 3233000.0, 3235000.0, 3219000.0, 3222000.0], [1792440000000, 3222000.0, 3237000.0, 3222000.0, 3233000.0], [1792443600000, 3234000.0, 3243000.0, 3232000.0, 3234000.0], [1792447200000, 3237000.0, 3252000.0, 3236000.0, 3242000.0], [1792450800000, 3241000.0, 3242000.0, 3235000.0, 3238000.0], [1792454400000, 3238000.0, 3239000.0, 3215000.0, 3221000.0], [1792458000000, 3222000.0, 3222000.0, 3189000.0, 3218000.0], [1792461600000, 3217000.0, 3226000.0, 3201000.0, 3220000.0], [1792465200000, 3219000.0, 3234000.0, 3218000.0, 3232000.0], [1792468800000, 3232000.0, 3234000.0, 3222000.0, 3224000.0], [1792472400000, 3226000.0, 3226000.0, 3207000.0, 3207000.0], [1792476000000, 3207000.0, 3212000.0, 3198000.0, 3203000.0], [1792479600000, 3204000.0, 3206000.0, 3189000.0, 3194000.0], [1792483200000, 3193000.0, 3198000.0, 3181000.0, 3187000.0], [1792486800000, 3188000.0, 3194000.0, 3181000.0, 3187000.0], [1792490400000, 3188000.0, 3196000.0, 3185000.0, 3188000.0], [1792494000000, 3188000.0, 3195000.0, 3181000.0, 3186000.0], [1792497600000, 3186000.0, 3208000.0, 3182000.0, 3199000.0], [1792501200000, 3199000.0, 3221000.0, 3185000.0, 3220000.0], [1792504800000, 3221000.0, 3297000.0, 3216000.0, 3293000.0], [1792508400000, 3290000.0, 3293000.0, 3232000.0, 3257000.0], [1792512000000, 3256000.0, 3272000.0, 3242000.0, 3268000.0], [1792515600000, 3265000.0, 3272000.0, 3258000.0, 3263000.0], [1792519200000, 3261000.0, 3263000.0, 3244000.0, 3247000.0], [1792522800000, 3247000.0, 3251000.0, 3233000.0, 3247000.0], [1792526400000, 3245000.0, 3259000.0, 3242000.0, 3259000.0], [1792530000000, 3259000.0, 3273000.0, 3259000.0, 3271000.0], [1792533600000, 3270000.0, 3280000.0, 3268000.0, 3269000.0], [1792537200000, 3269000.0, 3271000.0, 3255000.0, 3259000.0], [1792540800000, 3259000.0, 3272000.0, 3253000.0, 3263000.0], [1792544400000, 3262000.0, 3280000.0, 3253000.0, 3272000.0], [1792548000000, 3270000.0, 3273000.0, 3257000.0, 3262000.0], [1792551600000, 3261000.0, 3264000.0, 3251000.0, 3254000.0], [1792555200000, 3252000.0, 3256000.0, 3251000.0, 3253000.0], [1792558800000, 3253000.0, 3259000.0, 3244000.0, 3244000.0], [1792562400000, 3244000.0, 3256000.0, 3243000.0, 3248000.0], [1792566000000, 3248000.0, 3270000.0, 3247000.0, 3267000.0], [1792569600000, 3267000.0, 3280000.0, 3260000.0, 3264000.0], [1792573200000, 3263000.0, 3285000.0, 3263000.0, 3269000.0], [1792576800000, 3270000.0, 3276000.0, 3256000.0, 3274000.0], [1792580400000, 3274000.0, 3294000.0, 3274000.0, 3290000.0], [1792584000000, 3289000.0, 3293000.0, 3281000.0, 3283000.0], [1792587600000, 3284000.0, 3324000.0, 3278000.0, 3301000.0], [1792591200000, 3298000.0, 3328000.0, 3287000.0, 3320000.0], [1792594800000, 3320000.0, 3347000.0, 3318000.0, 3340000.0]], "KRW-BTC": [[1792324800000, 110789000.0, 110895000.0, 110605000.0, 110703000.0], [1792328400000, 110703000.0, 110705000.0, 109896000.0, 110072000.0], [1792332000000, 110072000.0, 110101000.0, 109630000.0, 109640000.0], [1792335600000, 109639000.0, 109869000.0, 109632000.0, 109760000.0], [1792339200000, 109762000.0, 109879000.0, 109674000.0, 109696000.0], [1792342800000, 109701000.0, 109701000.0, 109697000.0, 109701000.0], [1792360800000, 109701000.0, 110555000.0, 109701000.0, 110507000.0], [1792364400000, 110507000.0, 110850000.0, 110185000.0, 110525000.0], [1792368000000, 110599000.0, 111240000.0, 110464000.0, 110863000.0], [1792371600000, 110852000.0, 111210000.0, 110813000.0, 111062000.0], [1792375200000, 111050000.0, 111254000.0, 110752000.0, 111190000.0], [1792378800000, 111179000.0, 111235000.0, 110947000.0, 110950000.0], [1792382400000, 110950000.0, 111410000.0, 110926000.0, 111300000.0], [1792386000000, 111300000.0, 111300000.0, 111009000.0, 111102000.0], [1792389600000, 111090000.0, 111321000.0, 111061000.0, 111293000.0], [1792393200000, 111268000.0, 111634000.0, 111037000.0, 111131000.0], [1792396800000, 111076000.0, 111498000.0, 111074000.0, 111329000.0], [1792400400000, 111260000.0, 111637000.0, 111150000.0, 111188000.0], [1792404000000, 111188000.0, 111315000.0, 110505000.0, 110923000.0], [1792407600000, 110887000.0, 110898000.0, 110465000.0, 110746000.0], [1792411200000, 110787000.0, 111090000.0, 110744000.0, 110904000.0], [1792414800000, 110905000.0, 111109000.0, 110322000.0, 110438000.0], [1792418400000, 110353000.0, 110900000.0, 110012000.0, 110496000.0], [1792422000000, 110552000.0, 110893000.0, 110143000.0, 110190000.0], [1792425600000, 110190000.0, 110410000.0, 110000000.0, 110255000.0], [1792429200000, 110256000.0, 110431000.0, 110149000.0, 110280000.0], [1792432800000, 110279000.0, 110501000.0, 110112000.0, 110350000.0], [1792436400000, 110337000.0, 110423000.0, 110118000.0, 110150000.0], [1792440000000, 110151000.0, 110426000.0, 110120000.0, 110424000.0], [1792443600000, 110424000.0, 110661000.0, 110353000.0, 110386000.0], [1792447200000, 110361000.0, 110660000.0, 110327000.0, 110458000.0], [1792450800000, 110458000.0, 110466000.0, 110199000.0, 110199000.0], [1792454400000, 110236000.0, 110240000.0, 109410000.0, 109622000.0], [1792458000000, 109622000.0, 109702000.0, 109100000.0, 109651000.0], [1792461600000, 109671000.0, 109768000.0, 109390000.0, 109691000.0], [1792465200000, 109700000.0, 110000000.0, 109646000.0, 109950000.0], [1792468800000, 109950000.0, 109990000.0, 109797000.0, 109810000.0], [1792472400000, 109810000.0, 109834000.0, 109377000.0, 109377000.0], [1792476000000, 109377000.0, 109516000.0, 109233000.0, 109365000.0], [1792479600000, 109365000.0, 109455000.0, 109000000.0, 109000000.0], [1792483200000, 109001000.0, 109169000.0, 108813000.0, 108961000.0], [1792486800000, 108961000.0, 109198000.0, 108773000.0, 108959000.0], [1792490400000, 108959000.0, 109200000.0, 108904000.0, 108926000.0], [1792494000000, 108926000.0, 109097000.0, 108800000.0, 108950000.0], [1792497600000, 108995000.0, 109101000.0, 108771000.0, 109021000.0], [1792501200000, 109021000.0, 109720000.0, 108700000.0, 109720000.0], [1792504800000, 109720000.0, 111099000.0, 109624000.0, 110948000.0], [1792508400000, 110867000.0, 110924000.0, 109642000.0, 110206000.0], [1792512000000, 110205000.0, 110413000.0, 109766000.0, 110311000.0], [1792515600000, 110311000.0, 110442000.0, 110166000.0, 110341000.0], [1792519200000, 110344000.0, 110344000.0, 109824000.0, 109935000.0], [1792522800000, 109935000.0, 110110000.0, 109757000.0, 109999000.0], [1792526400000, 109958000.0, 110240000.0, 109809000.0, 110234000.0], [1792530000000, 110171000.0, 110444000.0, 110171000.0, 110435000.0], [1792533600000, 110442000.0, 110672000.0, 110436000.0, 110584000.0], [1792537200000, 110584000.0, 110586000.0, 110214000.0, 110377000.0], [1792540800000, 110377000.0, 110789000.0, 110224000.0, 110548000.0], [1792544400000, 110548000.0, 110699000.0, 110155000.0, 110532000.0], [1792548000000, 110568000.0, 110619000.0, 110138000.0, 110318000.0], [1792551600000, 110318000.0, 110327000.0, 110138000.0, 110181000.0], [1792555200000, 110180000.0, 110220000.0, 110089000.0, 110092000.0], [1792558800000, 110091000.0, 110316000.0, 110000000.0, 110037000.0], [1792562400000, 110037000.0, 110352000.0, 110011000.0, 110200000.0], [1792566000000, 110200000.0, 110700000.0, 110042000.0, 110631000.0], [1792569600000, 110571000.0, 111201000.0, 110392000.0, 110734000.0], [1792573200000, 110700000.0, 111289000.0, 110700000.0, 111130000.0], [1792576800000, 111067000.0, 111189000.0, 110735000.0, 111131000.0], [1792580400000, 111131000.0, 111312000.0, 111025000.0, 111232000.0], [1792584000000, 111232000.0, 111359000.0, 111111000.0, 111148000.0], [1792587600000, 111132000.0, 112000000.0, 111060000.0, 111841000.0], [1792591200000, 111799000.0, 112750000.0, 111540000.0, 112536000.0], [1792594800000, 112487000.0, 112750000.0, 112321000.0, 112487000.0]], "KRW-SOL": [[1792321200000, 140400.0, 140800.0, 140100.0, 140400.0], [1792324800000, 140300.0, 140900.0, 140300.0, 140400.0], [1792328400000, 140400.0, 140500.0, 138200.0, 139000.0], [1792332000000, 139000.0, 139200.0, 137800.0, 138000.0], [1792335600000, 138000.0, 138600.0, 137700.0, 138100.0], [1792339200000, 138100.0, 138300.0, 137800.0, 138200.0], [1792360800000, 138200.0, 140400.0, 138200.0, 140200.0], [1792364400000, 140300.0, 140500.0, 139500.0, 140200.0], [1792368000000, 140300.0, 141000.0, 139900.0, 140500.0], [1792371600000, 140600.0, 141500.0, 140600.0, 141200.0], [1792375200000, 141300.0, 142400.0, 140900.0, 141800.0], [1792378800000, 141800.0, 142000.0, 141300.0, 141500.0], [1792382400000, 141500.0, 142400.0, 141300.0, 142000.0], [1792386000000, 142000.0, 142300.0, 141500.0, 141900.0], [1792389600000, 141900.0, 142300.0, 141700.0, 142200.0], [1792393200000, 142100.0, 142500.0, 141800.0, 142000.0], [1792396800000, 142000.0, 142500.0, 141700.0, 142100.0], [1792400400000, 141900.0, 142300.0, 141600.0, 141700.0], [1792404000000, 141700.0, 141900.0, 140500.0, 141100.0], [1792407600000, 141100.0, 141200.0, 140300.0, 140900.0], [1792411200000, 140800.0, 141700.0, 140700.0, 141400.0], [1792414800000, 141300.0, 141900.0, 140000.0, 140000.0], [1792418400000, 140000.0, 141300.0, 139200.0, 140600.0], [1792422000000, 140700.0, 141500.0, 139900.0, 140100.0], [1792425600000, 140100.0, 140900.0, 139700.0, 140500.0], [1792429200000, 140500.0, 140800.0, 139700.0, 140100.0], [1792432800000, 140100.0, 140600.0, 139600.0, 140000.0], [1792436400000, 140000.0, 140500.0, 139700.0, 140000.0], [1792440000000, 140100.0, 141000.0, 139800.0, 140600.0], [1792443600000, 140800.0, 141300.0, 140800.0, 140900.0], [1792447200000, 141000.0, 142100.0, 141000.0, 141400.0], [1792450800000, 141500.0, 141600.0, 141100.0, 141200.0], [1792454400000, 141200.0, 141400.0, 140200.0, 140600.0], [1792458000000, 140600.0, 140800.0, 139300.0, 140700.0], [1792461600000, 140700.0, 141300.0, 139900.0, 141000.0], [1792465200000, 140900.0, 141300.0, 140600.0, 141000.0], [1792468800000, 141000.0, 141200.0, 140500.0, 140800.0], [1792472400000, 140800.0, 140800.0, 139800.0, 139800.0], [1792476000000, 139800.0, 140300.0, 139500.0, 140000.0], [1792479600000, 140000.0, 140000.0, 139500.0, 139500.0], [1792483200000, 139500.0, 139700.0, 138700.0, 139000.0], [1792486800000, 139100.0, 139500.0, 138800.0, 139000.0], [1792490400000, 139100.0, 139500.0, 138900.0, 139400.0], [1792494000000, 139200.0, 139500.0, 138900.0, 139200.0], [1792497600000, 139200.0, 139900.0, 139000.0, 139600.0], [1792501200000, 139500.0, 140400.0, 138900.0, 140400.0], [1792504800000, 140400.0, 144400.0, 140400.0, 143500.0], [1792508400000, 143500.0, 143700.0, 140100.0, 141200.0], [1792512000000, 141200.0, 142400.0, 140500.0, 141900.0], [1792515600000, 141900.0, 142300.0, 141600.0, 142200.0], [1792519200000, 142200.0, 142300.0, 141000.0, 141100.0], [1792522800000, 141100.0, 141500.0, 140300.0, 141300.0], [1792526400000, 141100.0, 142300.0, 141100.0, 142200.0], [1792530000000, 142200.0, 142400.0, 141700.0, 142200.0], [1792533600000, 142100.0, 142500.0, 142100.0, 142200.0], [1792537200000, 142200.0, 142200.0, 141500.0, 141500.0], [1792540800000, 141500.0, 142400.0, 141400.0, 141800.0], [1792544400000, 141800.0, 142500.0, 141500.0, 142200.0], [1792548000000, 142100.0, 142200.0, 141200.0, 141600.0], [1792551600000, 141600.0, 141600.0, 141000.0, 141000.0], [1792555200000, 140900.0, 141100.0, 140700.0, 140900.0], [1792558800000, 140800.0, 141200.0, 140600.0, 140800.0], [1792562400000, 140700.0, 141400.0, 140700.0, 141200.0], [1792566000000, 141000.0, 142200.0, 141000.0, 142200.0], [1792569600000, 142100.0, 142600.0, 141600.0, 141800.0], [1792573200000, 141800.0, 142700.0, 141700.0, 142100.0], [1792576800000, 141900.0, 142300.0, 141200.0, 142100.0], [1792580400000, 142100.0, 142600.0, 142100.0, 142400.0], [1792584000000, 142300.0, 142700.0, 142200.0, 142400.0], [1792587600000, 142300.0, 143300.0, 141700.0, 142500.0], [1792591200000, 142500.0, 143800.0, 141800.0, 143400.0], [1792594800000, 143400.0, 144900.0, 143400.0, 144400.0]]}, "coins": [{"m": "KRW-ETH", "sym": "ETH", "r": 0.0}, {"m": "KRW-SOL", "sym": "SOL", "r": 0.0}, {"m": "KRW-BTC", "sym": "BTC", "r": 0.0}]}</script>
 <script>
 (function(){
   var D = JSON.parse(document.getElementById('paper-data').textContent);
+  D.candles = D.candles || {};
   var btn = document.getElementById('refresh-btn'), st = document.getElementById('refresh-status');
+  var NS = 'http://www.w3.org/2000/svg', HOUR = 3600000, KST = 9 * HOUR;
   function won(x){ return Math.round(x).toLocaleString('ko-KR'); }
   function signed(x){ var v=Math.round(x); return (v>=0?'+':'-')+Math.abs(v).toLocaleString('ko-KR'); }
   function cls(x){ return x>0.5?'up':(x<-0.5?'down':'flat'); }
+  function pcls(x){ return x>0.005?'up':(x<-0.005?'down':'flat'); }
+  function pct(x){ return (x>=0?'+':'')+x.toFixed(2)+'%'; }
   function tick(p){ var T=D.ticks; for(var i=0;i<T.length;i++){ if(p>=T[i][0]) return T[i][1]; } return 1e-8; }
   function price(p){ var t=tick(p), d=0, s=t.toFixed(8).replace(/0+$/,''); if(s.indexOf('.')>=0) d=s.split('.')[1].length;
     return (Math.round(p/t)*t).toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d}); }
-  function set(id, txt, c){ var el=document.getElementById(id); if(!el) return; el.textContent=txt;
-    if(c!==undefined){ el.classList.remove('up','down','flat'); el.classList.add(c); }
-    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+  function set(id, txt, c, noflash){ var el=document.getElementById(id); if(!el) return; el.textContent=txt;
+    if(c!==undefined && c!==null){ el.classList.remove('up','down','flat'); el.classList.add(c); }
+    if(noflash) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
   function hours(){ var now=Date.now(); D.pos.forEach(function(p,i){
     var h=(now-new Date(p.entry).getTime())/3600000; var el=document.getElementById('h'+i);
     if(el && h>=0) el.textContent=h.toFixed(1)+'시간'; }); }
+  function curVal(p){ return p.qty*p.cur*(1-D.fee); }
+
+  // ── 차트 공통 (라이브러리 없이 SVG 직접 그림) ──
+  function E(parent, tag, attrs, text){ var e=document.createElementNS(NS, tag);
+    if(attrs) for(var k in attrs) e.setAttribute(k, attrs[k]);
+    if(text!==undefined && text!==null) e.textContent=text;
+    if(parent) parent.appendChild(e); return e; }
+  function clear(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+  function msg(plot, text){ clear(plot); var d=document.createElement('div'); d.className='empty'; d.textContent=text; plot.appendChild(d); }
+  function mkSvg(plot, w, h, label){ var s=E(null,'svg',{viewBox:'0 0 '+w+' '+h, width:w, height:h, role:'img', 'aria-label':label}); plot.appendChild(s); return s; }
+  function width(plot){ return Math.max(260, Math.floor(plot.clientWidth || 320)); }
+  function textW(t){ var w=0; try{ w=t.getComputedTextLength(); }catch(e){} return w || t.textContent.length*7; }
+  function man(v, step){ var d=step>=10000?0:(step>=1000?1:2);
+    return (v/10000).toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d})+'만'; }
+  function niceStep(lo, hi, n){ var span=hi-lo; if(!(span>0)) span=Math.abs(hi)||1;
+    var raw=span/Math.max(n,1), p=Math.pow(10, Math.floor(Math.log(raw)/Math.LN10)), f=raw/p;
+    return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p; }
+  function kd(t){ return new Date(t+KST); }
+  function two(n){ return (n<10?'0':'')+n; }
+  function tFull(t){ var d=kd(t); return (d.getUTCMonth()+1)+'/'+d.getUTCDate()+' '+two(d.getUTCHours())+':'+two(d.getUTCMinutes()); }
+  function tTick(t, first){ var d=kd(t), h=d.getUTCHours(), mi=d.getUTCMinutes(), md=(d.getUTCMonth()+1)+'/'+d.getUTCDate();
+    if(mi) return (first?md+' ':'')+two(h)+':'+two(mi);
+    if(h===0) return md;
+    return (first?md+' ':'')+h+'시'; }
+  function timeTicks(t0, t1, maxN){ var steps=[1,2,3,6,12,24,48,96,168], s=steps[steps.length-1]*HOUR;
+    for(var i=0;i<steps.length;i++){ if((t1-t0)/(steps[i]*HOUR) <= maxN){ s=steps[i]*HOUR; break; } }
+    var out=[]; for(var t=Math.ceil((t0+KST)/s)*s-KST; t<=t1; t+=s) out.push(t);
+    if(out.length<2) out = t1>t0 ? [t0, t1] : [t0];
+    return out; }
+  function xLabels(svg, ticks, xOf, y, L, R, W){ ticks.forEach(function(t, k){ var xx=xOf(t);
+    var anc = xx<L+34 ? 'start' : (xx>W-R-34 ? 'end' : 'middle');
+    E(svg,'text',{x:xx.toFixed(1), y:y, 'text-anchor':anc}, tTick(t, k===0)); }); }
+  function tri(svg, cx, cy, up){ var s=5.5, d = up
+      ? 'M'+cx+','+(cy-s)+' L'+(cx+s)+','+(cy+s*0.8)+' L'+(cx-s)+','+(cy+s*0.8)+' Z'
+      : 'M'+cx+','+(cy+s)+' L'+(cx+s)+','+(cy-s*0.8)+' L'+(cx-s)+','+(cy-s*0.8)+' Z';
+    return E(svg,'path',{d:d, 'class':(up?'f-up':'f-down')+' ring'}); }
+
+  // 툴팁: 값(굵게) 먼저, 이름은 뒤에. 글자는 전부 textContent로 넣음(XSS 방지)
+  var activeHide=null, activeEl=null;
+  document.addEventListener('pointerdown', function(ev){ if(activeHide && activeEl && !activeEl.contains(ev.target)){ activeHide(); activeHide=null; } });
+  function activate(h, el){ if(activeHide && activeHide!==h) activeHide(); activeHide=h; activeEl=el; }
+  function addTip(plot){ var t=document.createElement('div'); t.className='viz-tip'; t.hidden=true; plot.appendChild(t); return t; }
+  function showTip(tp, x, y, head, rows){ clear(tp);
+    if(head){ var h=document.createElement('div'); h.className='h'; h.textContent=head; tp.appendChild(h); }
+    rows.forEach(function(r){ var d=document.createElement('div'); d.className='r';
+      if(r[3]){ var k=document.createElement('i'); k.className='k'; k.style.background=r[3]; d.appendChild(k); }
+      var b=document.createElement('b'); b.textContent=r[0]; if(r[2]) b.className=r[2]; d.appendChild(b);
+      if(r[1]){ var s=document.createElement('span'); s.textContent=r[1]; d.appendChild(s); }
+      tp.appendChild(d); });
+    tp.hidden=false;
+    var pw=tp.parentNode.clientWidth, w=tp.offsetWidth, hh=tp.offsetHeight;
+    var left=x+14; if(left+w>pw) left=x-14-w; if(left<0) left=Math.max(0, (pw-w)/2);
+    var top=y-hh-12; if(top<0) top=y+16;
+    tp.style.left=left+'px'; tp.style.top=top+'px'; }
+  // 십자선 차트용: 가장 가까운 X로 스냅, 터치(탭/드래그)·마우스·키보드(←→) 모두 지원
+  function hover(svg, plot, n, xOf, onIdx){
+    var tp=addTip(plot), cur=-1, W=+svg.getAttribute('width'), H=+svg.getAttribute('height');
+    var hit=E(svg,'rect',{x:0, y:0, width:W, height:H, fill:'transparent', 'class':'hit'});
+    function nearest(px){ var best=0, bd=Infinity; for(var i=0;i<n;i++){ var d=Math.abs(xOf(i)-px); if(d<bd){ bd=d; best=i; } } return best; }
+    function hide(){ tp.hidden=true; onIdx(-1); cur=-1; }
+    function show(i){ activate(hide, svg); cur=i; var r=onIdx(i); showTip(tp, r.x, r.y, r.head, r.rows); }
+    function px(ev){ var b=svg.getBoundingClientRect(); return (ev.clientX-b.left)*(W/(b.width||W)); }
+    hit.addEventListener('pointermove', function(ev){ show(nearest(px(ev))); });
+    hit.addEventListener('pointerdown', function(ev){ show(nearest(px(ev))); });
+    hit.addEventListener('pointerleave', function(ev){ if(ev.pointerType==='mouse') hide(); });
+    svg.setAttribute('tabindex','0');
+    svg.addEventListener('keydown', function(ev){
+      if(ev.key==='ArrowRight' || ev.key==='ArrowLeft'){ ev.preventDefault();
+        var i = cur<0 ? n-1 : cur+(ev.key==='ArrowRight'?1:-1); show(Math.max(0, Math.min(n-1, i))); }
+      else if(ev.key==='Escape') hide(); });
+    svg.addEventListener('blur', hide); }
+
+  // ① 자산 변화
+  function drawEquity(){
+    var plot=document.getElementById('eq-plot'); if(!plot) return;
+    var P=D.eqh||[];
+    if(!P.length){ msg(plot,'아직 기록이 없어요. 봇이 한 번 돌면 그래프가 생겨요.'); return; }
+    clear(plot);
+    var W=width(plot), H=W<520?220:260, L=48, R=14, T=14, B=26, yB=H-B;
+    var t0=P[0][0], t1=P[P.length-1][0];
+    if(t1-t0<HOUR){ var mid=(t0+t1)/2; t0=Math.min(t0, mid-HOUR/2); t1=Math.max(t1, mid+HOUR/2); }
+    var lo=D.initial, hi=D.initial;
+    P.forEach(function(p){ if(p[1]<lo) lo=p[1]; if(p[1]>hi) hi=p[1]; });
+    var pad=Math.max((hi-lo)*0.12, D.initial*0.002); lo-=pad; hi+=pad;
+    var step=niceStep(lo, hi, H<240?4:5); lo=Math.floor(lo/step)*step; hi=Math.ceil(hi/step)*step;
+    function x(t){ return L+(t-t0)/(t1-t0)*(W-L-R); }
+    function y(v){ return T+(hi-v)/(hi-lo)*(yB-T); }
+    var last=P[P.length-1];
+    var svg=mkSvg(plot, W, H, '총평가 변화: 시작 '+won(D.initial)+'원, 지금 '+won(last[1])+'원');
+    for(var k=0; lo+k*step<=hi+step/2; k++){ var v=lo+k*step, yy=y(v);
+      E(svg,'line',{x1:L, x2:W-R, y1:yy, y2:yy, 'class':'g-grid'});
+      E(svg,'text',{x:L-6, y:yy+4, 'text-anchor':'end'}, man(v, step)); }
+    var yb=y(D.initial), defs=E(svg,'defs');
+    var cu=E(defs,'clipPath',{id:'eqcu'}); E(cu,'rect',{x:0, y:0, width:W, height:Math.max(0, yb)});
+    var cd=E(defs,'clipPath',{id:'eqcd'}); E(cd,'rect',{x:0, y:yb, width:W, height:Math.max(0, H-yb)});
+    var pts=P.map(function(p){ return x(p[0]).toFixed(1)+','+y(p[1]).toFixed(1); });
+    if(P.length>1){
+      var area='M'+x(P[0][0]).toFixed(1)+','+yb.toFixed(1)+' L'+pts.join(' L')+' L'+x(last[0]).toFixed(1)+','+yb.toFixed(1)+' Z';
+      E(svg,'path',{d:area, 'class':'a-up', 'clip-path':'url(#eqcu)'});
+      E(svg,'path',{d:area, 'class':'a-down', 'clip-path':'url(#eqcd)'}); }
+    E(svg,'line',{x1:L, x2:W-R, y1:yb, y2:yb, 'class':'g-base'});
+    E(svg,'text',{x:W-R, y:yb-5, 'text-anchor':'end'}, '시작 '+won(D.initial));
+    if(P.length>1){ var line='M'+pts.join(' L');
+      E(svg,'path',{d:line, 'class':'l-up', 'clip-path':'url(#eqcu)'});
+      E(svg,'path',{d:line, 'class':'l-down', 'clip-path':'url(#eqcd)'}); }
+    // 매수▲(점 아래)·매도▼(점 위), 같은 점에 여러 건이면 ×N
+    var groups={}, byIdx={};
+    (D.marks||[]).forEach(function(m){ if(!P[m.i]) return; var key=m.i+m.s; (groups[key]=groups[key]||{i:m.i, s:m.s, list:[]}).list.push(m); });
+    Object.keys(groups).forEach(function(key){ var g=groups[key], up=g.s==='b', cx=x(P[g.i][0]), cy=y(P[g.i][1]);
+      var my=Math.max(T+4, Math.min(yB-4, up?cy+12:cy-12));
+      tri(svg, cx, my, up);
+      if(g.list.length>1) E(svg,'text',{x:cx+8, y:my+4, 'class':'t-cnt'}, '×'+g.list.length);
+      (byIdx[g.i]=byIdx[g.i]||[]).push(g); });
+    E(svg,'circle',{cx:x(last[0]), cy:y(last[1]), r:4, 'class':(last[1]>=D.initial?'f-up':'f-down')+' ring'});
+    xLabels(svg, timeTicks(P[0][0], last[0], Math.max(2, Math.floor((W-L-R)/80))), x, H-8, L, R, W);
+    var xh=E(svg,'line',{y1:T, y2:yB, 'class':'xhair', visibility:'hidden'});
+    var fd=E(svg,'circle',{r:4.5, 'class':'ring f-up', visibility:'hidden'});
+    hover(svg, plot, P.length, function(i){ return x(P[i][0]); }, function(i){
+      if(i<0){ xh.setAttribute('visibility','hidden'); fd.setAttribute('visibility','hidden'); return; }
+      var p=P[i], xx=x(p[0]), yy=y(p[1]), g=p[1]-D.initial;
+      xh.setAttribute('x1',xx); xh.setAttribute('x2',xx); xh.setAttribute('visibility','visible');
+      fd.setAttribute('cx',xx); fd.setAttribute('cy',yy); fd.setAttribute('class','ring '+(g>=0?'f-up':'f-down')); fd.setAttribute('visibility','visible');
+      var rows=[[won(p[1])+'원','총평가'], [signed(g)+'원 ('+pct(g/D.initial*100)+')','누적손익', cls(g)]];
+      (byIdx[i]||[]).forEach(function(gr){ gr.list.forEach(function(m){
+        rows.push([(m.s==='b'?'▲ 매수 ':'▼ 매도 ')+m.sym, '#'+m.no, m.s==='b'?'up':'down']); }); });
+      return {x:xx, y:yy, head:tFull(p[0]), rows:rows}; });
+  }
+
+  // ② 보유 코인별 1시간봉 + 평균가/손절가/목표가
+  function drawCandle(i){
+    var p=D.pos[i], plot=document.getElementById('cplot'+i); if(!plot) return;
+    var W=width(plot), all=D.candles[p.m]||[], C=all.slice(W<480?-48:-72);
+    if(!C.length){ msg(plot,'캔들 데이터를 아직 못 받았어요. 🔄 실시간을 눌러 보세요.'); return; }
+    clear(plot);
+    var H=W<520?210:250, L=6, T=10, B=24, yB=H-B;
+    var lv=[{v:p.tp, t:'목표', c:'lv-tp'}, {v:p.ep, t:'평균', c:'lv-avg'}, {v:p.sl, t:'손절', c:'lv-sl'}, {v:p.cur, t:'현재', c:'lv-cur'}];
+    var svg=mkSvg(plot, W, H, p.sym+' 1시간봉 가격 차트 (현재 '+price(p.cur)+'원)');
+    var labs=lv.map(function(l){ return E(svg,'text',{'class':'lv-t '+l.c}, l.t+' '+price(l.v)); });
+    var lw=0; labs.forEach(function(t){ lw=Math.max(lw, textW(t)); });
+    var R=Math.ceil(lw)+16;
+    var lo=Infinity, hi=-Infinity;
+    C.forEach(function(c){ lo=Math.min(lo, c[3]); hi=Math.max(hi, c[2]); });
+    lv.forEach(function(l){ if(l.v>0){ lo=Math.min(lo, l.v); hi=Math.max(hi, l.v); } });
+    var pad=(hi-lo)*0.06 || hi*0.01; lo-=pad; hi+=pad;
+    var slot=(W-L-R)/C.length, bw=Math.max(1, Math.min(9, slot*0.62));
+    function x(k){ return L+(k+0.5)*slot; }
+    function y(v){ return T+(hi-v)/(hi-lo)*(yB-T); }
+    lv.slice(0,3).forEach(function(l){ var yy=y(l.v); E(svg,'line',{x1:L, x2:W-R+2, y1:yy, y2:yy, 'class':'lv '+l.c}); });
+    C.forEach(function(c, k){ var up=c[4]>=c[1], xx=x(k);
+      E(svg,'line',{x1:xx, x2:xx, y1:y(c[2]), y2:y(c[3]), 'class':up?'wk-up':'wk-down'});
+      var y1=y(Math.max(c[1], c[4])), y2=y(Math.min(c[1], c[4]));
+      E(svg,'rect',{x:(xx-bw/2).toFixed(2), y:y1.toFixed(2), width:bw.toFixed(2), height:Math.max(1, y2-y1).toFixed(2), 'class':up?'f-up':'f-down'}); });
+    // 현재가 점(오른쪽 끝)
+    E(svg,'line',{x1:x(C.length-1), x2:W-R+2, y1:y(p.cur), y2:y(p.cur), 'class':'lv lv-cur'});
+    E(svg,'circle',{cx:W-R+2, cy:y(p.cur), r:3.5, 'class':'f-ink ring'});
+    // 오른쪽 라벨: 겹치면 아래로 밀고 짧은 연결선
+    var ls=lv.map(function(l, j){ return {j:j, y:y(l.v)}; }).sort(function(a, b){ return a.y-b.y; }), gap=13;
+    for(var k=1; k<ls.length; k++){ if(ls[k].y-ls[k-1].y<gap) ls[k].y=ls[k-1].y+gap; }
+    if(ls[ls.length-1].y>yB){ ls[ls.length-1].y=yB; for(k=ls.length-2; k>=0; k--){ if(ls[k+1].y-ls[k].y<gap) ls[k].y=ls[k+1].y-gap; } }
+    ls.forEach(function(o){ var t=labs[o.j], ly=y(lv[o.j].v);
+      t.setAttribute('x', W-R+9); t.setAttribute('y', (o.y+4).toFixed(1));
+      if(Math.abs(o.y-ly)>1.5) E(svg,'path',{d:'M'+(W-R+2)+','+ly.toFixed(1)+' L'+(W-R+7)+','+o.y.toFixed(1), 'class':'leader'}); });
+    // 매수 시점 ▲
+    var te=Date.parse(p.entry), bk=-1;
+    for(k=0; k<C.length; k++){ if(te>=C[k][0] && te<C[k][0]+HOUR){ bk=k; break; } }
+    if(bk>=0) tri(svg, x(bk), Math.min(yB-4, y(C[bk][3])+10), true);
+    var c0=C[0][0];
+    xLabels(svg, timeTicks(c0, C[C.length-1][0], Math.max(2, Math.floor((W-L-R)/80))),
+      function(t){ return L+((t-c0)/HOUR+0.5)*slot; }, H-8, L, R, W);
+    var xh=E(svg,'line',{y1:T, y2:yB, 'class':'xhair', visibility:'hidden'});
+    hover(svg, plot, C.length, x, function(k){
+      if(k<0){ xh.setAttribute('visibility','hidden'); return; }
+      var c=C[k], xx=x(k), ch=(c[4]/c[1]-1)*100;
+      xh.setAttribute('x1',xx); xh.setAttribute('x2',xx); xh.setAttribute('visibility','visible');
+      var rows=[[price(c[4])+'원','종가 '+pct(ch), pcls(ch)], [price(c[1]),'시가'], [price(c[2]),'고가'], [price(c[3]),'저가']];
+      if(k===bk) rows.push(['▲ '+price(p.ep),'이 봉에서 매수','up']);
+      return {x:xx, y:y(c[2]), head:tFull(c[0])+' 시작 1시간봉', rows:rows}; });
+  }
+  function head(i, flash){ var p=D.pos[i], val=curVal(p), g=val-p.cost, nf=!flash;
+    set('cp'+i, price(p.cur)+'원', null, nf);
+    set('cr'+i, pct(g/p.cost*100), cls(g), nf);
+    set('csl'+i, pct((p.sl/p.cur-1)*100), null, nf);
+    set('ctp'+i, pct((p.tp/p.cur-1)*100), null, nf); }
+
+  // ③ 자산 구성 도넛 (현금 + 코인별 평가금액)
+  function drawAlloc(){
+    var plot=document.getElementById('alloc-plot'); if(!plot) return;
+    var items=[{n:'현금', v:Math.max(0, D.cash), c:'var(--cash)'}], other=null;
+    D.pos.forEach(function(p, k){ var v=curVal(p);
+      if(k<4){ items.push({n:p.sym, v:v, c:'var(--c'+(k+1)+')'}); return; }
+      if(!other){ other={n:'기타', v:0, c:'var(--c-other)'}; items.push(other); } other.v+=v; });
+    var total=items.reduce(function(s, it){ return s+it.v; }, 0);
+    if(!(total>0)){ msg(plot,'평가금액이 없어요.'); return; }
+    clear(plot);
+    var wrap=document.createElement('div'); wrap.className='alloc-wrap'; plot.appendChild(wrap);
+    var S=168, r=S/2-14, sw=24, CC=2*Math.PI*r, off=0, tp=addTip(plot);
+    var svg=E(null,'svg',{viewBox:'0 0 '+S+' '+S, width:S, height:S, role:'img', 'aria-label':'자산 구성 도넛 차트'}); wrap.appendChild(svg);
+    var g=E(svg,'g',{transform:'rotate(-90 '+S/2+' '+S/2+')'});
+    var nz=items.filter(function(it){ return it.v>0; }).length;
+    items.forEach(function(it){ if(it.v<=0) return;
+      var len=it.v/total*CC, seg=Math.max(nz>1?len-2:len, 0.6);
+      var c=E(g,'circle',{cx:S/2, cy:S/2, r:r, fill:'none', 'stroke-width':sw, 'stroke-dasharray':seg.toFixed(2)+' '+(CC-seg).toFixed(2), 'stroke-dashoffset':(-off).toFixed(2), 'class':'slice'});
+      c.style.stroke=it.c; off+=len;
+      function hd(){ tp.hidden=true; c.classList.remove('on'); }
+      function sh(ev){ activate(hd, c); var b=plot.getBoundingClientRect(); c.classList.add('on');
+        showTip(tp, ev.clientX-b.left, ev.clientY-b.top, null, [[won(it.v)+'원', it.n+' · '+(it.v/total*100).toFixed(1)+'%', '', it.c]]); }
+      c.addEventListener('pointermove', sh); c.addEventListener('pointerdown', sh);
+      c.addEventListener('pointerleave', function(ev){ if(ev.pointerType==='mouse') hd(); }); });
+    E(svg,'text',{x:S/2, y:S/2-5, 'text-anchor':'middle'}, '총평가');
+    E(svg,'text',{x:S/2, y:S/2+14, 'text-anchor':'middle', 'class':'t-big'}, man(total, 1000)+'원');
+    var ul=document.createElement('ul'); ul.className='alloc-legend';
+    items.forEach(function(it){ var li=document.createElement('li');
+      var s=document.createElement('span'); s.className='swatch'; s.style.background=it.c; li.appendChild(s);
+      var n=document.createElement('span'); n.className='nm'; n.textContent=it.n; li.appendChild(n);
+      var pc=document.createElement('b'); pc.textContent=(it.v/total*100).toFixed(1)+'%'; li.appendChild(pc);
+      var a=document.createElement('span'); a.className='amt'; a.textContent=won(it.v)+'원'; li.appendChild(a);
+      ul.appendChild(li); });
+    wrap.appendChild(ul);
+  }
+
+  // ④ 코인별 손익 (실현 + 미실현) 가로 막대
+  function drawPnl(){
+    var plot=document.getElementById('pnl-plot'); if(!plot) return;
+    var held={}; D.pos.forEach(function(p){ held[p.m]=p; });
+    var rows=(D.coins||[]).map(function(c){ var p=held[c.m], u=p?curVal(p)-p.cost:0;
+      return {sym:c.sym, r:c.r, u:u, v:c.r+u, held:!!p}; });
+    if(!rows.length){ msg(plot,'아직 손익을 낼 코인이 없어요.'); return; }
+    clear(plot);
+    var W=width(plot), rowH=36, T=6, B=6, H=T+B+rows.length*rowH, Lb=54, bh=16;
+    var mn=0, mx=0; rows.forEach(function(r){ mn=Math.min(mn, r.v); mx=Math.max(mx, r.v); });
+    if(mn===0 && mx===0) mx=1;
+    var svg=mkSvg(plot, W, H, '코인별 손익 막대 차트');
+    var vt=rows.map(function(r){ return E(svg,'text',{'class':'t-val'}, signed(r.v)+'원'); });
+    var lw=0; vt.forEach(function(t){ lw=Math.max(lw, textW(t)); });
+    var a0=Lb+(mn<0?lw+10:4), a1=W-(mx>0?lw+10:4);
+    function X(v){ return a0+(v-mn)/(mx-mn)*(a1-a0); }
+    var z=X(0), tp=addTip(plot);
+    rows.forEach(function(r, k){ var top=T+k*rowH, yc=top+rowH/2, yy=yc-bh/2, xv=X(r.v);
+      var a=Math.min(z, xv), b=Math.max(z, xv), len=b-a, rad=Math.min(4, len, bh/2);
+      E(svg,'text',{x:0, y:yc+(r.held?4:-1), 'class':'t-name'}, r.sym);
+      if(!r.held) E(svg,'text',{x:0, y:yc+12, 'class':'t-cnt'}, '정리함');
+      var bar=null;
+      if(len>=0.5){ var d = r.v>=0
+          ? 'M'+a+','+yy+' H'+(b-rad)+' Q'+b+','+yy+' '+b+','+(yy+rad)+' V'+(yy+bh-rad)+' Q'+b+','+(yy+bh)+' '+(b-rad)+','+(yy+bh)+' H'+a+' Z'
+          : 'M'+b+','+yy+' H'+(a+rad)+' Q'+a+','+yy+' '+a+','+(yy+rad)+' V'+(yy+bh-rad)+' Q'+a+','+(yy+bh)+' '+(a+rad)+','+(yy+bh)+' H'+b+' Z';
+        bar=E(svg,'path',{d:d, 'class':(r.v>=0?'f-up':'f-down')+' bar'}); }
+      var t=vt[k]; t.setAttribute('y', yc+4);
+      if(r.v>=0){ t.setAttribute('x', b+6); } else { t.setAttribute('x', a-6); t.setAttribute('text-anchor','end'); }
+      var hit=E(svg,'rect',{x:0, y:top, width:W, height:rowH, fill:'transparent', 'class':'hitrow'});
+      function hd(){ tp.hidden=true; if(bar) bar.classList.remove('on'); }
+      function sh(ev){ activate(hd, hit); var bb=plot.getBoundingClientRect(); if(bar) bar.classList.add('on');
+        showTip(tp, ev.clientX-bb.left, ev.clientY-bb.top, r.sym, [[signed(r.v)+'원','합계', cls(r.v)], [signed(r.r)+'원','실현(판 것)', cls(r.r)], [signed(r.u)+'원','미실현(보유 중)', cls(r.u)]]); }
+      hit.addEventListener('pointermove', sh); hit.addEventListener('pointerdown', sh);
+      hit.addEventListener('pointerleave', function(ev){ if(ev.pointerType==='mouse') hd(); }); });
+    E(svg,'line',{x1:z, x2:z, y1:T-2, y2:H-B+2, 'class':'g-base'});
+  }
+
+  function safe(f, id){ try{ f(); }catch(e){ var pl=document.getElementById(id); if(pl) msg(pl,'그래프를 그리지 못했어요.'); if(window.console) console.error(e); } }
+  function drawAll(){ safe(drawEquity,'eq-plot');
+    D.pos.forEach(function(p, i){ safe(function(){ drawCandle(i); }, 'cplot'+i); });
+    safe(drawAlloc,'alloc-plot'); safe(drawPnl,'pnl-plot'); }
+  function loading(on){ var els=document.querySelectorAll('.viz-plot'); for(var k=0;k<els.length;k++) els[k].classList.toggle('loading', on); }
+  function parseCandles(rows){ return rows.map(function(c){ return [Date.parse(c.candle_date_time_utc+'Z'), c.opening_price, c.high_price, c.low_price, c.trade_price]; })
+    .filter(function(c){ return c[0]>0 && c[4]>0; }).sort(function(a, b){ return a[0]-b[0]; }); }
+  function getJSON(url){ return fetch(url).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
+
   function refresh(){
     hours();
     if(!D.pos.length){ st.textContent='보유 코인이 없어 갱신할 값이 없어요.'; return; }
-    btn.disabled=true; st.textContent='업비트 현재가 불러오는 중…';
-    var ms=D.pos.map(function(p){return p.m;}).join(',');
-    fetch('https://api.upbit.com/v1/ticker?markets='+encodeURIComponent(ms))
-      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function(rows){
-        var px={}; rows.forEach(function(t){ px[t.market]=t.trade_price; });
-        var total=D.cash, unreal=0, got=0;
-        D.pos.forEach(function(p,i){
-          var cur=px[p.m], val;
-          if(cur){ got++; val=p.qty*cur*(1-D.fee);
-            set('p'+i, price(cur)); set('v'+i, won(val));
-            var pnl=val-p.cost; set('g'+i, signed(pnl)+' ('+(pnl/p.cost*100>=0?'+':'')+(pnl/p.cost*100).toFixed(2)+'%)', cls(pnl));
-          } else { val=p.val; }
-          total+=val; unreal+=val-p.cost;
-        });
-        var pnlAll=total-D.initial;
-        set('eq', won(total)+'원');
-        set('pnl', signed(pnlAll)+'원', cls(pnlAll));
-        set('pnlpct', (pnlAll/D.initial*100>=0?'+':'')+(pnlAll/D.initial*100).toFixed(2)+'%', cls(pnlAll));
-        set('unreal', signed(unreal)+'원', cls(unreal));
-        st.textContent='실시간 갱신 '+new Date().toLocaleTimeString('ko-KR')+' (업비트 현재가 기준 '+got+'/'+D.pos.length+'종목, 수수료 차감)';
-      })
-      .catch(function(e){ st.textContent='실시간 갱신 실패 — 마지막 저장값을 보여드려요. ('+e.message+')'; })
-      .then(function(){ btn.disabled=false; });
+    btn.disabled=true; st.textContent='업비트 현재가·캔들 불러오는 중…'; loading(true);
+    var n=D.pos.length, ms=D.pos.map(function(p){ return p.m; }).join(',');
+    var pt=getJSON('https://api.upbit.com/v1/ticker?markets='+encodeURIComponent(ms)).then(function(rows){
+      var px={}; rows.forEach(function(t){ px[t.market]=t.trade_price; });
+      var total=D.cash, unreal=0, got=0;
+      D.pos.forEach(function(p, i){ var cur=px[p.m];
+        if(cur){ got++; p.cur=cur; p.val=curVal(p);
+          set('p'+i, price(cur)); set('v'+i, won(p.val));
+          var pnl=p.val-p.cost; set('g'+i, signed(pnl)+' ('+pct(pnl/p.cost*100)+')', cls(pnl)); }
+        total+=p.val; unreal+=p.val-p.cost; });
+      var pnlAll=total-D.initial;
+      set('eq', won(total)+'원');
+      set('pnl', signed(pnlAll)+'원', cls(pnlAll));
+      set('pnlpct', pct(pnlAll/D.initial*100), cls(pnlAll));
+      set('unreal', signed(unreal)+'원', cls(unreal));
+      return got; });
+    var pc=Promise.all(D.pos.map(function(p){
+      return getJSON('https://api.upbit.com/v1/candles/minutes/60?market='+encodeURIComponent(p.m)+'&count=72')
+        .then(function(rows){ var c=parseCandles(rows||[]); if(c.length){ D.candles[p.m]=c; return 1; } return 0; })
+        .catch(function(){ return 0; }); }));
+    Promise.all([pt.then(function(g){ return {ok:true, g:g}; }, function(e){ return {ok:false, e:e}; }), pc]).then(function(res){
+      var t=res[0], cs=res[1].reduce(function(a, b){ return a+b; }, 0);
+      st.textContent = t.ok
+        ? '실시간 갱신 '+new Date().toLocaleTimeString('ko-KR')+' (업비트 현재가 기준 '+t.g+'/'+n+'종목, 수수료 차감 · 캔들 '+cs+'/'+n+')'
+        : '실시간 갱신 실패 — 마지막 저장값을 보여드려요. ('+t.e.message+')'+(cs?' · 캔들 '+cs+'/'+n+' 갱신':'');
+      drawAll(); D.pos.forEach(function(p, i){ head(i, t.ok); });
+    }).then(function(){ loading(false); btn.disabled=false; });
   }
+
+  var lastW=0, rt=null;
+  function wrapW(){ var w=document.querySelector('.wrap'); return w ? w.clientWidth : 0; }
+  window.addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(function(){ var w=wrapW(); if(w!==lastW){ lastW=w; drawAll(); } }, 150); });
+  lastW=wrapW(); drawAll(); D.pos.forEach(function(p, i){ head(i, false); });
   btn.addEventListener('click', refresh);
   refresh();
 })();
