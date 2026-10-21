@@ -208,7 +208,11 @@ def candles_to_df(data, now=None):
         return df
     df["start_utc"] = pd.to_datetime(df["candle_date_time_utc"]).dt.tz_localize("UTC")
     df = df.sort_values("start_utc").reset_index(drop=True)
-    df = df.rename(columns={"trade_price": "close", "candle_acc_trade_volume": "volume"})
+    df = df.rename(columns={"trade_price": "close", "candle_acc_trade_volume": "volume",
+                            "opening_price": "open", "high_price": "high", "low_price": "low"})
+    for col in ("open", "high", "low"):  # 시가·고가·저가가 없으면 종가로 채움
+        if col not in df.columns:
+            df[col] = df["close"]
     now_utc = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
     # 진행 중인 봉(시작+1시간이 아직 안 지난 봉)은 버리고 완성봉만 사용
     cutoff = pd.Timestamp(now_utc - timedelta(hours=1))
@@ -225,12 +229,25 @@ def rsi(close, period):
     return out.where(loss != 0, 100.0)
 
 
+RULE_NAMES = {"cross": "상승전환", "pullback": "눌림목", "breakout": "돌파"}
+RULE_SHORT = {"cross": "전환", "pullback": "눌림", "breakout": "돌파"}
+
+
+def entry_score(rule, vol_x, rsi_v):
+    """후보 점수 = 규칙 기본점 + min(거래량배수, 상한)×가중치 − |RSI−목표|/나눔수"""
+    base = {"breakout": C.SCORE_BREAKOUT, "cross": C.SCORE_CROSS, "pullback": C.SCORE_PULLBACK}[rule]
+    return base + min(vol_x, C.SCORE_VOL_CAP) * C.SCORE_VOL_WEIGHT - abs(rsi_v - C.RSI_TARGET) / C.SCORE_RSI_DIV
+
+
 def analyze(df):
     """완성봉 DataFrame → 신호 dict (마지막 행 = 직전 완성봉)"""
-    need = C.EMA_SLOW + C.CROSS_LOOKBACK + 2
+    need = max(C.EMA_SLOW + C.CROSS_LOOKBACK + 2, C.EMA_SLOW + 5, C.BREAKOUT_LOOKBACK + 2)
     if df is None or len(df) < need:
         return {"ok": False, "why": f"봉 부족({0 if df is None else len(df)}개)"}
     close, vol = df["close"].astype(float), df["volume"].astype(float)
+    opn = df["open"].astype(float) if "open" in df else close
+    high = df["high"].astype(float) if "high" in df else close
+    low = df["low"].astype(float) if "low" in df else close
     ef = close.ewm(span=C.EMA_FAST, adjust=False).mean()
     es = close.ewm(span=C.EMA_SLOW, adjust=False).mean()
     r = rsi(close, C.RSI_PERIOD)
@@ -240,7 +257,15 @@ def analyze(df):
     # i번째 봉에서 크로스: i봉 EMA20>EMA50 이고 i-1봉 EMA20<=EMA50
     cross = above & ~above.shift(1, fill_value=True)
     golden_now = bool(cross.iloc[-1])
-    recent_cross = bool(cross.iloc[-C.CROSS_LOOKBACK:].any())
+    recent = cross.iloc[-C.CROSS_LOOKBACK:]
+    recent_cross = bool(recent.any())
+    cross_ago = (len(recent) - 1 - max(i for i, v in enumerate(recent) if v)) if recent_cross else None
+    # 끝에서부터 EMA20>EMA50 연속 봉 수
+    trend_bars = 0
+    for v in reversed(above.tolist()):
+        if not v:
+            break
+        trend_bars += 1
 
     s = {
         "ok": True,
@@ -254,18 +279,87 @@ def analyze(df):
         "uptrend": bool(above.iloc[-1]),
         "golden_now": golden_now,
         "recent_cross": recent_cross,
+        "cross_ago": cross_ago,
+        "trend_bars": trend_bars,
+        "open": float(opn.iloc[-1]),
     }
-    trend_ok = golden_now or (recent_cross and s["uptrend"] and s["close"] > s["ema_fast"])
-    rsi_ok = C.RSI_MIN <= s["rsi"] <= C.RSI_MAX
-    vol_ok = s["vol"] >= s["vol_avg"] * C.VOLUME_RATIO
-    s["buy"] = bool(trend_ok and rsi_ok and vol_ok)
     s["trend_broken"] = s["ema_fast"] < s["ema_slow"]
+    rv = s["rsi"]
+    vol_x = s["vol"] / s["vol_avg"] if s["vol_avg"] > 0 else 0.0
+    s["vol_x"] = vol_x
+    rules = {}
+
+    # 1) 상승전환(cross): 기존 규칙 그대로
+    trend_ok = golden_now or (recent_cross and s["uptrend"] and s["close"] > s["ema_fast"])
+    rsi_ok = C.RSI_MIN <= rv <= C.RSI_MAX
+    vol_ok = s["vol"] >= s["vol_avg"] * C.VOLUME_RATIO
+    miss = []
+    if not trend_ok:
+        miss.append("크로스 없음" if not recent_cross else "크로스 후 약세")
+    if not rsi_ok:
+        miss.append(f"RSI {rv:.0f}")
+    if not vol_ok:
+        miss.append(f"거래량 {vol_x:.1f}배")
+    ago_txt = "직전봉" if cross_ago == 0 else f"{cross_ago}봉 전"
+    rules["cross"] = {"on": C.ENTRY_CROSS, "hit": bool(trend_ok and rsi_ok and vol_ok), "miss": miss,
+                      "reason": f"상승전환: {ago_txt} 골든크로스, RSI {rv:.0f}, 거래량 {vol_x:.1f}배"}
+
+    # 2) 눌림목(pullback): 상승추세 유지 중 EMA20 근처까지 내려왔다가 양봉 반등
+    miss = []
+    if trend_bars < C.PULLBACK_TREND_BARS:
+        miss.append(f"추세 {trend_bars}봉")
+    k = C.PULLBACK_TOUCH_BARS
+    touched = bool((low.iloc[-k:] <= ef.iloc[-k:] * (1 + C.PULLBACK_TOUCH_PCT / 100)).any())
+    if not touched:
+        gap = float(((low.iloc[-k:] / ef.iloc[-k:]) - 1).min() * 100)
+        miss.append(f"20일선 +{gap:.1f}%")
+    if not s["close"] > s["ema_fast"]:
+        miss.append("종가<20일선")
+    if not s["close"] > s["open"]:
+        miss.append("음봉")
+    if not C.PULLBACK_RSI_MIN <= rv <= C.PULLBACK_RSI_MAX:
+        miss.append(f"RSI {rv:.0f}")
+    if not s["vol"] >= s["vol_avg"] * C.PULLBACK_VOLUME_RATIO:
+        miss.append(f"거래량 {vol_x:.1f}배")
+    rules["pullback"] = {"on": C.ENTRY_PULLBACK, "hit": not miss, "miss": miss,
+                         "reason": f"눌림목: 상승추세 중 20일선 근처 반등, RSI {rv:.0f}, 거래량 {vol_x:.1f}배"}
+
+    # 3) 돌파(breakout): 직전 완성봉 종가 > 그 이전 N봉 고가의 최고값
+    n = C.BREAKOUT_LOOKBACK
+    prev_high = float(high.iloc[-n - 1:-1].max())
+    s["prev_high"] = prev_high
+    miss = []
+    if not s["close"] > prev_high:
+        miss.append("고점 미돌파")
+    if not s["vol"] >= s["vol_avg"] * C.BREAKOUT_VOLUME_RATIO:
+        miss.append(f"거래량 {vol_x:.1f}배")
+    if not rv <= C.BREAKOUT_RSI_MAX:
+        miss.append(f"RSI {rv:.0f} 과열")
+    if not s["uptrend"]:
+        miss.append("하락추세")
+    rules["breakout"] = {"on": C.ENTRY_BREAKOUT, "hit": not miss, "miss": miss,
+                         "reason": f"돌파: 최근 {n}시간 고점 {fmt_price(prev_high)}원 돌파, 거래량 {vol_x:.1f}배, RSI {rv:.0f}"}
+
+    for key, ru in rules.items():
+        ru["score"] = round(entry_score(key, vol_x, rv), 2)
+    s["rules"] = rules
+    hits = [k2 for k2, ru in rules.items() if ru["on"] and ru["hit"]]
+    s["buy"] = bool(hits)
+    if hits:
+        best = max(hits, key=lambda k2: rules[k2]["score"])
+        s["entry"], s["score"], s["reason"] = best, rules[best]["score"], rules[best]["reason"]
+    else:
+        s["entry"], s["score"], s["reason"] = None, None, ""
 
     parts = []
     parts.append("골든크로스" if golden_now else ("최근크로스" if recent_cross else ("상승추세" if s["uptrend"] else "하락추세")))
-    parts.append(f"RSI {s['rsi']:.0f}{'' if rsi_ok else '✗'}")
-    parts.append(f"거래량 {s['vol'] / s['vol_avg']:.1f}배{'' if vol_ok else '✗'}" if s["vol_avg"] > 0 else "거래량 -")
+    parts.append(f"RSI {rv:.0f}")
+    parts.append(f"거래량 {vol_x:.1f}배" if s["vol_avg"] > 0 else "거래량 -")
     s["desc"] = ", ".join(parts)
+    # 규칙별 해당(○)/미해당(✗ 이유)/꺼짐(-)
+    s["rules_desc"] = " ".join(
+        f"{RULE_SHORT[k2]}{'-' if not ru['on'] else ('○' if ru['hit'] else '✗(' + ','.join(ru['miss']) + ')')}"
+        for k2, ru in rules.items())
     return s
 
 
@@ -668,7 +762,7 @@ def run_cycle(state, api, now, notify):
     # 3) 매수 판단
     buys = [m for m in universe
             if m not in state["positions"] and sigs.get(m, {}).get("ok") and sigs[m]["buy"]]
-    buys.sort(key=lambda m: abs(sigs[m]["rsi"] - C.RSI_TARGET))
+    buys.sort(key=lambda m: -sigs[m]["score"])  # 점수 높은 순 (같으면 거래대금 순 유지)
     for m in buys:
         if len(state["positions"]) >= C.MAX_POSITIONS:
             report["actions"].append(f"매수후보 {m} - 자리 없음")
@@ -684,14 +778,14 @@ def run_cycle(state, api, now, notify):
         if not units:
             report["actions"].append(f"매수후보 {m} - 호가창 없음")
             continue
-        s = sigs[m]
-        s["reason"] = f"1시간봉 {'상승전환' if s['golden_now'] else '상승전환 직후'}, RSI {s['rsi']:.0f}"
+        s = sigs[m]  # s["reason"]은 analyze()가 고른 규칙의 설명(예: "돌파: 최근 24시간 고점 …")
         f = do_buy(state, m, names.get(m, symbol(m)), units, budget, s, now, notify)
         if f:
             bids[m] = best_bid(units)
             report["traded"] = True
             report["actions"].append(f"매수 {m} 평균 {fmt_price(f['avg_price'])} × {fmt_qty(f['qty'])} "
-                                     f"(체결 {fmt_won(f['funds'])}원, {f['levels']}단계)")
+                                     f"(체결 {fmt_won(f['funds'])}원+수수료 {fmt_won(f['fee'])}원, {f['levels']}단계) "
+                                     f"[{s['reason']} / 점수 {s['score']:.2f}]")
 
     # 4) 하루 1번 요약
     today = now.strftime("%Y-%m-%d")
@@ -1005,8 +1099,18 @@ def build_dashboard(state, trades, bids, now):
             "ticks": [[lo, t] for lo, t in KRW_TICKS]}
     data_json = json.dumps(data, ensure_ascii=True).replace("<", "\\u003c").replace(">", "\\u003e")
     halted = ('<div class="mock">⛔ 손실한도 도달로 정지된 상태예요.</div>' if state.get("halted") else "")
-    rule = (f"매수: 1시간봉 EMA{C.EMA_FAST}/{C.EMA_SLOW} 골든크로스(최근 {C.CROSS_LOOKBACK}봉 이내) + RSI {C.RSI_MIN}~{C.RSI_MAX}"
-            f" + 거래량 평균의 {C.VOLUME_RATIO:g}배 이상, 총평가의 {C.POSITION_PCT * 100:.1f}%씩 최대 {C.MAX_POSITIONS}종목. "
+    entry_txt = []
+    if C.ENTRY_CROSS:
+        entry_txt.append(f"상승전환(EMA{C.EMA_FAST}/{C.EMA_SLOW} 골든크로스 최근 {C.CROSS_LOOKBACK}봉 이내, RSI {C.RSI_MIN}~{C.RSI_MAX}, "
+                         f"거래량 {C.VOLUME_RATIO:g}배↑)")
+    if C.ENTRY_PULLBACK:
+        entry_txt.append(f"눌림목(상승추세 {C.PULLBACK_TREND_BARS}봉↑ 중 EMA{C.EMA_FAST} +{C.PULLBACK_TOUCH_PCT:g}% 이내 터치 후 양봉, "
+                         f"RSI {C.PULLBACK_RSI_MIN}~{C.PULLBACK_RSI_MAX}, 거래량 {C.PULLBACK_VOLUME_RATIO:g}배↑)")
+    if C.ENTRY_BREAKOUT:
+        entry_txt.append(f"돌파(직전 {C.BREAKOUT_LOOKBACK}봉 고점 돌파, 거래량 {C.BREAKOUT_VOLUME_RATIO:g}배↑, "
+                         f"RSI {C.BREAKOUT_RSI_MAX} 이하, 상승추세)")
+    rule = (f"매수(1시간봉, 하나라도 맞으면 점수 높은 순): {' · '.join(entry_txt) or '꺼짐'}. "
+            f"총평가의 {C.POSITION_PCT * 100:.1f}%씩 최대 {C.MAX_POSITIONS}종목. "
             f"매도: 손절 {C.STOP_LOSS_PCT:g}% · 익절 +{C.TAKE_PROFIT_PCT:g}% · 추세이탈 · {C.MAX_HOLD_HOURS}시간 경과. "
             f"체결은 업비트 호가창을 소진하는 방식으로 계산하고 수수료 {C.FEE_RATE * 100:.2f}%를 매수·매도마다 뗍니다.")
 
@@ -1129,9 +1233,10 @@ def print_report(report, prices):
         if not s.get("ok"):
             print(f"  {m:<12} - {s.get('why')}")
             continue
-        flag = "★매수신호" if s["buy"] else ""
+        flag = f"★매수({RULE_NAMES[s['entry']]} {s['score']:.2f}점)" if s.get("buy") else ""
         print(f"  {m:<12} 현재 {fmt_price(prices.get(m, 0)):>14} | 봉 {s['bar_kst']} | "
-              f"EMA20 {'>' if s['uptrend'] else '<'} EMA50 | {s['desc']} {flag}")
+              f"EMA20 {'>' if s['uptrend'] else '<'} EMA50({s.get('trend_bars', 0)}봉) | {s['desc']} | "
+              f"{s.get('rules_desc', '')} {flag}")
     if report["flagged"]:
         print(f"  (유의/주의로 제외 {len(report['flagged'])}종목)")
     print("[이번 사이클 동작]")
