@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>코인 모의투자 현황</title>
+<style>
+:root { --bg:#f5f6f8; --card-bg:#ffffff; --text:#1a1d23; --sub-text:#6b7280; --border:#e5e7eb;
+  --up:#d64545; --down:#2f6fed; --flat:#6b7280; --accent:#2563eb; --accent-bg:#eef2ff;
+  --warn-bg:#fff7ed; --warn-border:#fed7aa; --warn-text:#9a3412; --up-bg:#fdecec; --down-bg:#e8f0fe; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#111318; --card-bg:#1b1e26; --text:#e8eaed; --sub-text:#9aa0a6; --border:#2b2f3a;
+    --up:#ff6b6b; --down:#5b9dff; --flat:#9aa0a6; --accent:#7c9dff; --accent-bg:#1e2436;
+    --warn-bg:#2a2115; --warn-border:#4d3418; --warn-text:#f4b473; --up-bg:#3a1f22; --down-bg:#1c2a44; }
+}
+:root[data-theme="dark"] { --bg:#111318; --card-bg:#1b1e26; --text:#e8eaed; --sub-text:#9aa0a6; --border:#2b2f3a;
+  --up:#ff6b6b; --down:#5b9dff; --flat:#9aa0a6; --accent:#7c9dff; --accent-bg:#1e2436;
+  --warn-bg:#2a2115; --warn-border:#4d3418; --warn-text:#f4b473; --up-bg:#3a1f22; --down-bg:#1c2a44; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:-apple-system,"Pretendard","Malgun Gothic",sans-serif; background:var(--bg); color:var(--text); }
+.wrap { max-width:980px; margin:0 auto; padding:16px 16px 60px; }
+.mock { background:var(--warn-bg); border:1px solid var(--warn-border); color:var(--warn-text);
+  padding:8px 12px; border-radius:10px; font-size:13px; font-weight:700; margin-bottom:14px; text-align:center; }
+.header-row { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; }
+h1 { font-size:21px; margin:0 0 4px; }
+.date { color:var(--sub-text); font-size:13px; }
+.refresh-btn { background:var(--accent-bg); color:var(--accent); border:1px solid var(--accent); border-radius:10px;
+  padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+.refresh-btn[disabled] { opacity:.5; cursor:default; }
+.refresh-status { font-size:12px; color:var(--sub-text); margin-top:6px; min-height:16px; }
+h2.section { font-size:16px; margin:26px 0 12px; padding-bottom:6px; border-bottom:2px solid var(--border); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+.card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
+.card .label { font-size:12px; color:var(--sub-text); }
+.card .value { font-size:18px; font-weight:700; margin-top:4px; font-variant-numeric:tabular-nums; }
+.card .value small { font-size:13px; font-weight:600; }
+.card.hero { grid-column:1/-1; }
+.card.hero .value { font-size:26px; }
+.up { color:var(--up); } .down { color:var(--down); } .flat { color:var(--flat); }
+.table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; background:var(--card-bg);
+  border:1px solid var(--border); border-radius:12px; }
+table { border-collapse:collapse; width:100%; font-size:13px; white-space:nowrap; font-variant-numeric:tabular-nums; }
+th, td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:right; }
+th { font-size:12px; color:var(--sub-text); font-weight:600; background:var(--bg); position:sticky; top:0; }
+td.l, th.l { text-align:left; }
+tr:last-child td { border-bottom:none; }
+.badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700; }
+.badge.buy { background:var(--up-bg); color:var(--up); }
+.badge.sell { background:var(--down-bg); color:var(--down); }
+.empty { color:var(--sub-text); font-size:13px; padding:16px; text-align:center; }
+.sub { color:var(--sub-text); font-size:11px; }
+.chart { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:10px; }
+.chart svg { width:100%; height:auto; display:block; }
+.note { color:var(--sub-text); font-size:12px; line-height:1.6; margin-top:10px; }
+.flash { animation:flash-bg .8s ease; }
+@keyframes flash-bg { 0% { background:var(--accent-bg); } 100% { background:transparent; } }
+footer { margin-top:30px; font-size:12px; color:var(--sub-text); text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="mock">※ 모의투자 — 실제 주문 아님</div>
+
+<header>
+<div class="header-row">
+  <div><h1>📊 업비트 코인 모의투자</h1><div class="date">마지막 봇 실행 2026-10-21 22:49 KST</div></div>
+  <button id="refresh-btn" class="refresh-btn" type="button">🔄 실시간</button>
+</div>
+<div id="refresh-status" class="refresh-status"></div>
+</header>
+
+<h2 class="section">📊 요약</h2>
+<div class="grid"><div class="card hero"><div class="label">현재 총평가 (지금 전부 팔면 받는 금액)</div><div class="value" id="eq">1,000,000원</div><div class="label" style="margin-top:4px">누적손익 <b id="pnl" class="flat">+0원</b> <b id="pnlpct" class="flat">+0.00%</b></div></div><div class="card"><div class="label">시작금액</div><div class="value ">1,000,000원</div></div><div class="card"><div class="label">현금</div><div class="value ">1,000,000원</div></div><div class="card"><div class="label">실현손익</div><div class="value flat">+0원</div></div><div class="card"><div class="label">미실현손익</div><div class="value flat" id="unreal">+0원</div></div><div class="card"><div class="label">누적 수수료</div><div class="value ">0원</div></div><div class="card"><div class="label">거래횟수</div><div class="value ">0회 <small>(매수 0 · 매도 0)</small></div></div><div class="card"><div class="label">승률 (수익 매도)</div><div class="value ">-</div></div><div class="card"><div class="label">마지막 업데이트</div><div class="value "><small>10/21 22:49</small></div></div></div>
+
+<h2 class="section">📈 자산 변화</h2>
+<div class="chart"><div class="empty">기록이 2개 이상 쌓이면 그래프가 그려져요.</div></div>
+
+<h2 class="section">💼 보유 코인</h2>
+<div class="table-wrap"><div class="empty">보유 중인 코인이 없어요. 매수 신호를 기다리는 중.</div></div>
+
+<h2 class="section">🧾 전체 거래 내역 <span class="sub">최신순</span></h2>
+<div class="table-wrap"><div class="empty">아직 거래가 없어요.</div></div>
+
+<div class="note">매수: 1시간봉 EMA20/50 골든크로스(최근 6봉 이내) + RSI 40~75 + 거래량 평균의 0.8배 이상, 총평가의 33.3%씩 최대 3종목. 매도: 손절 -5% · 익절 +10% · 추세이탈 · 48시간 경과. 체결은 업비트 호가창을 소진하는 방식으로 계산하고 수수료 0.05%를 매수·매도마다 뗍니다.<br>평가금액 = 수량 × 최우선 매수호가 × (1−수수료). 🔄 실시간은 업비트 현재가(체결가)로 다시 계산해요.</div>
+<footer>※ 모의투자 — 실제 주문 아님 · 투자 권유가 아닙니다</footer>
+</div>
+<script type="application/json" id="paper-data">{"pos": [], "cash": 1000000.0, "initial": 1000000.0, "fee": 0.0005, "ticks": [[2000000, 1000], [1000000, 1000], [500000, 500], [100000, 100], [50000, 50], [10000, 10], [5000, 5], [1000, 1], [100, 1], [10, 0.1], [1, 0.01], [0.1, 0.001], [0.01, 0.0001], [0.001, 1e-05], [0.0001, 1e-06], [1e-05, 1e-07], [0, 1e-08]]}</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('paper-data').textContent);
+  var btn = document.getElementById('refresh-btn'), st = document.getElementById('refresh-status');
+  function won(x){ return Math.round(x).toLocaleString('ko-KR'); }
+  function signed(x){ var v=Math.round(x); return (v>=0?'+':'-')+Math.abs(v).toLocaleString('ko-KR'); }
+  function cls(x){ return x>0.5?'up':(x<-0.5?'down':'flat'); }
+  function tick(p){ var T=D.ticks; for(var i=0;i<T.length;i++){ if(p>=T[i][0]) return T[i][1]; } return 1e-8; }
+  function price(p){ var t=tick(p), d=0, s=t.toFixed(8).replace(/0+$/,''); if(s.indexOf('.')>=0) d=s.split('.')[1].length;
+    return (Math.round(p/t)*t).toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function set(id, txt, c){ var el=document.getElementById(id); if(!el) return; el.textContent=txt;
+    if(c!==undefined){ el.classList.remove('up','down','flat'); el.classList.add(c); }
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+  function hours(){ var now=Date.now(); D.pos.forEach(function(p,i){
+    var h=(now-new Date(p.entry).getTime())/3600000; var el=document.getElementById('h'+i);
+    if(el && h>=0) el.textContent=h.toFixed(1)+'시간'; }); }
+  function refresh(){
+    hours();
+    if(!D.pos.length){ st.textContent='보유 코인이 없어 갱신할 값이 없어요.'; return; }
+    btn.disabled=true; st.textContent='업비트 현재가 불러오는 중…';
+    var ms=D.pos.map(function(p){return p.m;}).join(',');
+    fetch('https://api.upbit.com/v1/ticker?markets='+encodeURIComponent(ms))
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(rows){
+        var px={}; rows.forEach(function(t){ px[t.market]=t.trade_price; });
+        var total=D.cash, unreal=0, got=0;
+        D.pos.forEach(function(p,i){
+          var cur=px[p.m], val;
+          if(cur){ got++; val=p.qty*cur*(1-D.fee);
+            set('p'+i, price(cur)); set('v'+i, won(val));
+            var pnl=val-p.cost; set('g'+i, signed(pnl)+' ('+(pnl/p.cost*100>=0?'+':'')+(pnl/p.cost*100).toFixed(2)+'%)', cls(pnl));
+          } else { val=p.val; }
+          total+=val; unreal+=val-p.cost;
+        });
+        var pnlAll=total-D.initial;
+        set('eq', won(total)+'원');
+        set('pnl', signed(pnlAll)+'원', cls(pnlAll));
+        set('pnlpct', (pnlAll/D.initial*100>=0?'+':'')+(pnlAll/D.initial*100).toFixed(2)+'%', cls(pnlAll));
+        set('unreal', signed(unreal)+'원', cls(unreal));
+        st.textContent='실시간 갱신 '+new Date().toLocaleTimeString('ko-KR')+' (업비트 현재가 기준 '+got+'/'+D.pos.length+'종목, 수수료 차감)';
+      })
+      .catch(function(e){ st.textContent='실시간 갱신 실패 — 마지막 저장값을 보여드려요. ('+e.message+')'; })
+      .then(function(){ btn.disabled=false; });
+  }
+  btn.addEventListener('click', refresh);
+  refresh();
+})();
+</script>
+</body>
+</html>
