@@ -16,6 +16,7 @@
   python paper_trader.py --status   # 현재 상태만 출력
 """
 import argparse
+import bisect
 import csv
 import html
 import json
@@ -713,13 +714,15 @@ def run_cycle(state, api, now, notify):
     report["bids"] = bids
 
     # 캔들/신호 (유니버스 + 보유 종목)
-    sigs = {}
+    sigs, dfs = {}, {}
     for m in dict.fromkeys(universe + held):
         try:
-            sigs[m] = analyze(api.get_candles(m, now))
+            dfs[m] = api.get_candles(m, now)
+            sigs[m] = analyze(dfs[m])
         except Exception as e:
             sigs[m] = {"ok": False, "why": f"캔들 오류: {e}"}
     report["signals"] = sigs
+    report["candles"] = {}  # 대시보드 코인 차트용(사이클 끝에 보유 중인 종목만, 추가 API 호출 없음)
 
     # 1) 손실한도 (LOSS_LIMIT=None 이면 꺼짐)
     if check_loss_limit(state, books, bids, now, notify):
@@ -808,6 +811,7 @@ def run_cycle(state, api, now, notify):
 
     record_equity(state, bids, now)
     save_state(state)
+    report["candles"] = {m: candle_rows(dfs.get(m)) for m in state["positions"] if m in dfs}
     return report
 
 
@@ -873,52 +877,394 @@ tr.tlink { cursor:pointer; }
 .flash { animation:flash-bg .8s ease; }
 @keyframes flash-bg { 0% { background:var(--accent-bg); } 100% { background:transparent; } }
 footer { margin-top:30px; font-size:12px; color:var(--sub-text); text-align:center; }
+/* ── 그래프 ── 코인 고유색(--c1~4)은 상승·하락 빨강/파랑과 겹치지 않게 보라·청록·노랑·분홍 (색약 검사 통과) */
+:root { --c1:#6250d6; --c2:#1baf7a; --c3:#eda100; --c4:#e87ba4; --c-other:#8a8f98; --cash:#b9bec7; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --c1:#9085e9; --c2:#199e70; --c3:#c98500; --c4:#d55181; --c-other:#7d838f; --cash:#5c6270; }
+}
+:root[data-theme="dark"] { --c1:#9085e9; --c2:#199e70; --c3:#c98500; --c4:#d55181; --c-other:#7d838f; --cash:#5c6270; }
+.viz { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:12px; min-width:0; }
+.viz-title { font-size:14px; font-weight:700; margin:0 0 8px; }
+.viz-plot { position:relative; min-height:60px; transition:opacity .2s; }
+.viz-plot.loading { opacity:.55; }
+.viz-plot svg { display:block; max-width:100%; overflow:visible; touch-action:pan-y; -webkit-tap-highlight-color:transparent; }
+.viz-plot svg:focus { outline:none; }
+.viz-plot svg:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+.viz-plot svg text { font-size:11px; fill:var(--sub-text); font-family:inherit; font-variant-numeric:tabular-nums; pointer-events:none; }
+.g-grid { stroke:var(--border); stroke-width:1; }
+.g-base { stroke:var(--sub-text); stroke-width:1; opacity:.7; }
+.a-up { fill:var(--up); opacity:.12; } .a-down { fill:var(--down); opacity:.12; }
+.l-up, .l-down { fill:none; stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
+.l-up { stroke:var(--up); } .l-down { stroke:var(--down); }
+.f-up { fill:var(--up); } .f-down { fill:var(--down); } .f-ink { fill:var(--text); }
+.ring { stroke:var(--card-bg); stroke-width:2; paint-order:stroke; }
+.wk-up { stroke:var(--up); stroke-width:1; } .wk-down { stroke:var(--down); stroke-width:1; }
+.xhair { stroke:var(--sub-text); stroke-width:1; opacity:.6; pointer-events:none; }
+.lv { stroke-width:1.25; fill:none; pointer-events:none; }
+.lv.lv-avg { stroke:var(--flat); } .lv.lv-sl { stroke:var(--down); stroke-dasharray:5 4; }
+.lv.lv-tp { stroke:var(--up); stroke-dasharray:5 4; } .lv.lv-cur { stroke:var(--text); opacity:.35; }
+.leader { stroke:var(--sub-text); stroke-width:1; fill:none; opacity:.6; }
+.viz-plot svg text.lv-cur { fill:var(--text); font-weight:700; }
+.viz-plot svg text.t-name { fill:var(--text); font-size:12px; font-weight:700; }
+.viz-plot svg text.t-val { fill:var(--text); font-size:12px; font-weight:600; }
+.viz-plot svg text.t-big { fill:var(--text); font-size:16px; font-weight:700; }
+.viz-plot svg text.t-cnt { font-size:10px; }
+.hit { cursor:crosshair; } .hitrow { cursor:pointer; }
+.slice { cursor:pointer; transition:opacity .15s; } .slice.on, .bar.on { opacity:.78; }
+.viz-tip { position:absolute; z-index:5; pointer-events:none; background:var(--card-bg); color:var(--text);
+  border:1px solid var(--border); border-radius:8px; padding:6px 9px; font-size:12px; line-height:1.5;
+  box-shadow:0 4px 14px rgba(0,0,0,.14); white-space:nowrap; }
+.viz-tip[hidden] { display:none; }
+.viz-tip .h { color:var(--sub-text); font-size:11px; }
+.viz-tip .r { display:flex; align-items:center; gap:6px; }
+.viz-tip b { font-variant-numeric:tabular-nums; }
+.viz-tip .r span { color:var(--sub-text); }
+.viz-tip .k { width:10px; height:3px; border-radius:2px; display:inline-block; }
+.ccards { display:grid; gap:12px; }
+.chead { display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+.chead .sym { font-weight:700; font-size:15px; }
+.chead .cprice { margin-left:auto; font-weight:700; font-size:16px; }
+.chead .cret { font-weight:700; font-size:13px; }
+.cstats { display:flex; gap:6px 14px; flex-wrap:wrap; font-size:12px; color:var(--sub-text); margin:4px 0 8px; }
+.cstats b { color:var(--text); font-variant-numeric:tabular-nums; }
+.swatch { width:10px; height:10px; border-radius:3px; display:inline-block; flex:none; align-self:center; }
+.vlegend { display:flex; flex-wrap:wrap; gap:4px 14px; font-size:12px; color:var(--sub-text); margin:-4px 0 10px; }
+.vlegend span { display:inline-flex; align-items:center; gap:5px; }
+.lk { display:inline-block; width:18px; height:0; border-top:2px solid var(--flat); }
+.lk.lk-sl { border-top:2px dashed var(--down); } .lk.lk-tp { border-top:2px dashed var(--up); }
+.duo { display:grid; gap:12px; }
+@media (min-width:720px) { .duo { grid-template-columns:1fr 1fr; } }
+.alloc-wrap { display:flex; align-items:center; gap:14px 18px; flex-wrap:wrap; justify-content:center; }
+.alloc-legend { flex:1 1 170px; list-style:none; margin:0; padding:0; font-size:13px; min-width:0; }
+.alloc-legend li { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); }
+.alloc-legend li:last-child { border-bottom:none; }
+.alloc-legend .nm { font-weight:600; }
+.alloc-legend b { margin-left:auto; font-variant-numeric:tabular-nums; }
+.alloc-legend .amt { color:var(--sub-text); font-size:12px; min-width:84px; text-align:right; font-variant-numeric:tabular-nums; }
 """
 
 JS = r"""
 (function(){
   var D = JSON.parse(document.getElementById('paper-data').textContent);
+  D.candles = D.candles || {};
   var btn = document.getElementById('refresh-btn'), st = document.getElementById('refresh-status');
+  var NS = 'http://www.w3.org/2000/svg', HOUR = 3600000, KST = 9 * HOUR;
   function won(x){ return Math.round(x).toLocaleString('ko-KR'); }
   function signed(x){ var v=Math.round(x); return (v>=0?'+':'-')+Math.abs(v).toLocaleString('ko-KR'); }
   function cls(x){ return x>0.5?'up':(x<-0.5?'down':'flat'); }
+  function pcls(x){ return x>0.005?'up':(x<-0.005?'down':'flat'); }
+  function pct(x){ return (x>=0?'+':'')+x.toFixed(2)+'%'; }
   function tick(p){ var T=D.ticks; for(var i=0;i<T.length;i++){ if(p>=T[i][0]) return T[i][1]; } return 1e-8; }
   function price(p){ var t=tick(p), d=0, s=t.toFixed(8).replace(/0+$/,''); if(s.indexOf('.')>=0) d=s.split('.')[1].length;
     return (Math.round(p/t)*t).toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d}); }
-  function set(id, txt, c){ var el=document.getElementById(id); if(!el) return; el.textContent=txt;
-    if(c!==undefined){ el.classList.remove('up','down','flat'); el.classList.add(c); }
-    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+  function set(id, txt, c, noflash){ var el=document.getElementById(id); if(!el) return; el.textContent=txt;
+    if(c!==undefined && c!==null){ el.classList.remove('up','down','flat'); el.classList.add(c); }
+    if(noflash) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
   function hours(){ var now=Date.now(); D.pos.forEach(function(p,i){
     var h=(now-new Date(p.entry).getTime())/3600000; var el=document.getElementById('h'+i);
     if(el && h>=0) el.textContent=h.toFixed(1)+'시간'; }); }
+  function curVal(p){ return p.qty*p.cur*(1-D.fee); }
+
+  // ── 차트 공통 (라이브러리 없이 SVG 직접 그림) ──
+  function E(parent, tag, attrs, text){ var e=document.createElementNS(NS, tag);
+    if(attrs) for(var k in attrs) e.setAttribute(k, attrs[k]);
+    if(text!==undefined && text!==null) e.textContent=text;
+    if(parent) parent.appendChild(e); return e; }
+  function clear(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+  function msg(plot, text){ clear(plot); var d=document.createElement('div'); d.className='empty'; d.textContent=text; plot.appendChild(d); }
+  function mkSvg(plot, w, h, label){ var s=E(null,'svg',{viewBox:'0 0 '+w+' '+h, width:w, height:h, role:'img', 'aria-label':label}); plot.appendChild(s); return s; }
+  function width(plot){ return Math.max(260, Math.floor(plot.clientWidth || 320)); }
+  function textW(t){ var w=0; try{ w=t.getComputedTextLength(); }catch(e){} return w || t.textContent.length*7; }
+  function man(v, step){ var d=step>=10000?0:(step>=1000?1:2);
+    return (v/10000).toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d})+'만'; }
+  function niceStep(lo, hi, n){ var span=hi-lo; if(!(span>0)) span=Math.abs(hi)||1;
+    var raw=span/Math.max(n,1), p=Math.pow(10, Math.floor(Math.log(raw)/Math.LN10)), f=raw/p;
+    return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p; }
+  function kd(t){ return new Date(t+KST); }
+  function two(n){ return (n<10?'0':'')+n; }
+  function tFull(t){ var d=kd(t); return (d.getUTCMonth()+1)+'/'+d.getUTCDate()+' '+two(d.getUTCHours())+':'+two(d.getUTCMinutes()); }
+  function tTick(t, first){ var d=kd(t), h=d.getUTCHours(), mi=d.getUTCMinutes(), md=(d.getUTCMonth()+1)+'/'+d.getUTCDate();
+    if(mi) return (first?md+' ':'')+two(h)+':'+two(mi);
+    if(h===0) return md;
+    return (first?md+' ':'')+h+'시'; }
+  function timeTicks(t0, t1, maxN){ var steps=[1,2,3,6,12,24,48,96,168], s=steps[steps.length-1]*HOUR;
+    for(var i=0;i<steps.length;i++){ if((t1-t0)/(steps[i]*HOUR) <= maxN){ s=steps[i]*HOUR; break; } }
+    var out=[]; for(var t=Math.ceil((t0+KST)/s)*s-KST; t<=t1; t+=s) out.push(t);
+    if(out.length<2) out = t1>t0 ? [t0, t1] : [t0];
+    return out; }
+  function xLabels(svg, ticks, xOf, y, L, R, W){ ticks.forEach(function(t, k){ var xx=xOf(t);
+    var anc = xx<L+34 ? 'start' : (xx>W-R-34 ? 'end' : 'middle');
+    E(svg,'text',{x:xx.toFixed(1), y:y, 'text-anchor':anc}, tTick(t, k===0)); }); }
+  function tri(svg, cx, cy, up){ var s=5.5, d = up
+      ? 'M'+cx+','+(cy-s)+' L'+(cx+s)+','+(cy+s*0.8)+' L'+(cx-s)+','+(cy+s*0.8)+' Z'
+      : 'M'+cx+','+(cy+s)+' L'+(cx+s)+','+(cy-s*0.8)+' L'+(cx-s)+','+(cy-s*0.8)+' Z';
+    return E(svg,'path',{d:d, 'class':(up?'f-up':'f-down')+' ring'}); }
+
+  // 툴팁: 값(굵게) 먼저, 이름은 뒤에. 글자는 전부 textContent로 넣음(XSS 방지)
+  var activeHide=null, activeEl=null;
+  document.addEventListener('pointerdown', function(ev){ if(activeHide && activeEl && !activeEl.contains(ev.target)){ activeHide(); activeHide=null; } });
+  function activate(h, el){ if(activeHide && activeHide!==h) activeHide(); activeHide=h; activeEl=el; }
+  function addTip(plot){ var t=document.createElement('div'); t.className='viz-tip'; t.hidden=true; plot.appendChild(t); return t; }
+  function showTip(tp, x, y, head, rows){ clear(tp);
+    if(head){ var h=document.createElement('div'); h.className='h'; h.textContent=head; tp.appendChild(h); }
+    rows.forEach(function(r){ var d=document.createElement('div'); d.className='r';
+      if(r[3]){ var k=document.createElement('i'); k.className='k'; k.style.background=r[3]; d.appendChild(k); }
+      var b=document.createElement('b'); b.textContent=r[0]; if(r[2]) b.className=r[2]; d.appendChild(b);
+      if(r[1]){ var s=document.createElement('span'); s.textContent=r[1]; d.appendChild(s); }
+      tp.appendChild(d); });
+    tp.hidden=false;
+    var pw=tp.parentNode.clientWidth, w=tp.offsetWidth, hh=tp.offsetHeight;
+    var left=x+14; if(left+w>pw) left=x-14-w; if(left<0) left=Math.max(0, (pw-w)/2);
+    var top=y-hh-12; if(top<0) top=y+16;
+    tp.style.left=left+'px'; tp.style.top=top+'px'; }
+  // 십자선 차트용: 가장 가까운 X로 스냅, 터치(탭/드래그)·마우스·키보드(←→) 모두 지원
+  function hover(svg, plot, n, xOf, onIdx){
+    var tp=addTip(plot), cur=-1, W=+svg.getAttribute('width'), H=+svg.getAttribute('height');
+    var hit=E(svg,'rect',{x:0, y:0, width:W, height:H, fill:'transparent', 'class':'hit'});
+    function nearest(px){ var best=0, bd=Infinity; for(var i=0;i<n;i++){ var d=Math.abs(xOf(i)-px); if(d<bd){ bd=d; best=i; } } return best; }
+    function hide(){ tp.hidden=true; onIdx(-1); cur=-1; }
+    function show(i){ activate(hide, svg); cur=i; var r=onIdx(i); showTip(tp, r.x, r.y, r.head, r.rows); }
+    function px(ev){ var b=svg.getBoundingClientRect(); return (ev.clientX-b.left)*(W/(b.width||W)); }
+    hit.addEventListener('pointermove', function(ev){ show(nearest(px(ev))); });
+    hit.addEventListener('pointerdown', function(ev){ show(nearest(px(ev))); });
+    hit.addEventListener('pointerleave', function(ev){ if(ev.pointerType==='mouse') hide(); });
+    svg.setAttribute('tabindex','0');
+    svg.addEventListener('keydown', function(ev){
+      if(ev.key==='ArrowRight' || ev.key==='ArrowLeft'){ ev.preventDefault();
+        var i = cur<0 ? n-1 : cur+(ev.key==='ArrowRight'?1:-1); show(Math.max(0, Math.min(n-1, i))); }
+      else if(ev.key==='Escape') hide(); });
+    svg.addEventListener('blur', hide); }
+
+  // ① 자산 변화
+  function drawEquity(){
+    var plot=document.getElementById('eq-plot'); if(!plot) return;
+    var P=D.eqh||[];
+    if(!P.length){ msg(plot,'아직 기록이 없어요. 봇이 한 번 돌면 그래프가 생겨요.'); return; }
+    clear(plot);
+    var W=width(plot), H=W<520?220:260, L=48, R=14, T=14, B=26, yB=H-B;
+    var t0=P[0][0], t1=P[P.length-1][0];
+    if(t1-t0<HOUR){ var mid=(t0+t1)/2; t0=Math.min(t0, mid-HOUR/2); t1=Math.max(t1, mid+HOUR/2); }
+    var lo=D.initial, hi=D.initial;
+    P.forEach(function(p){ if(p[1]<lo) lo=p[1]; if(p[1]>hi) hi=p[1]; });
+    var pad=Math.max((hi-lo)*0.12, D.initial*0.002); lo-=pad; hi+=pad;
+    var step=niceStep(lo, hi, H<240?4:5); lo=Math.floor(lo/step)*step; hi=Math.ceil(hi/step)*step;
+    function x(t){ return L+(t-t0)/(t1-t0)*(W-L-R); }
+    function y(v){ return T+(hi-v)/(hi-lo)*(yB-T); }
+    var last=P[P.length-1];
+    var svg=mkSvg(plot, W, H, '총평가 변화: 시작 '+won(D.initial)+'원, 지금 '+won(last[1])+'원');
+    for(var k=0; lo+k*step<=hi+step/2; k++){ var v=lo+k*step, yy=y(v);
+      E(svg,'line',{x1:L, x2:W-R, y1:yy, y2:yy, 'class':'g-grid'});
+      E(svg,'text',{x:L-6, y:yy+4, 'text-anchor':'end'}, man(v, step)); }
+    var yb=y(D.initial), defs=E(svg,'defs');
+    var cu=E(defs,'clipPath',{id:'eqcu'}); E(cu,'rect',{x:0, y:0, width:W, height:Math.max(0, yb)});
+    var cd=E(defs,'clipPath',{id:'eqcd'}); E(cd,'rect',{x:0, y:yb, width:W, height:Math.max(0, H-yb)});
+    var pts=P.map(function(p){ return x(p[0]).toFixed(1)+','+y(p[1]).toFixed(1); });
+    if(P.length>1){
+      var area='M'+x(P[0][0]).toFixed(1)+','+yb.toFixed(1)+' L'+pts.join(' L')+' L'+x(last[0]).toFixed(1)+','+yb.toFixed(1)+' Z';
+      E(svg,'path',{d:area, 'class':'a-up', 'clip-path':'url(#eqcu)'});
+      E(svg,'path',{d:area, 'class':'a-down', 'clip-path':'url(#eqcd)'}); }
+    E(svg,'line',{x1:L, x2:W-R, y1:yb, y2:yb, 'class':'g-base'});
+    E(svg,'text',{x:W-R, y:yb-5, 'text-anchor':'end'}, '시작 '+won(D.initial));
+    if(P.length>1){ var line='M'+pts.join(' L');
+      E(svg,'path',{d:line, 'class':'l-up', 'clip-path':'url(#eqcu)'});
+      E(svg,'path',{d:line, 'class':'l-down', 'clip-path':'url(#eqcd)'}); }
+    // 매수▲(점 아래)·매도▼(점 위), 같은 점에 여러 건이면 ×N
+    var groups={}, byIdx={};
+    (D.marks||[]).forEach(function(m){ if(!P[m.i]) return; var key=m.i+m.s; (groups[key]=groups[key]||{i:m.i, s:m.s, list:[]}).list.push(m); });
+    Object.keys(groups).forEach(function(key){ var g=groups[key], up=g.s==='b', cx=x(P[g.i][0]), cy=y(P[g.i][1]);
+      var my=Math.max(T+4, Math.min(yB-4, up?cy+12:cy-12));
+      tri(svg, cx, my, up);
+      if(g.list.length>1) E(svg,'text',{x:cx+8, y:my+4, 'class':'t-cnt'}, '×'+g.list.length);
+      (byIdx[g.i]=byIdx[g.i]||[]).push(g); });
+    E(svg,'circle',{cx:x(last[0]), cy:y(last[1]), r:4, 'class':(last[1]>=D.initial?'f-up':'f-down')+' ring'});
+    xLabels(svg, timeTicks(P[0][0], last[0], Math.max(2, Math.floor((W-L-R)/80))), x, H-8, L, R, W);
+    var xh=E(svg,'line',{y1:T, y2:yB, 'class':'xhair', visibility:'hidden'});
+    var fd=E(svg,'circle',{r:4.5, 'class':'ring f-up', visibility:'hidden'});
+    hover(svg, plot, P.length, function(i){ return x(P[i][0]); }, function(i){
+      if(i<0){ xh.setAttribute('visibility','hidden'); fd.setAttribute('visibility','hidden'); return; }
+      var p=P[i], xx=x(p[0]), yy=y(p[1]), g=p[1]-D.initial;
+      xh.setAttribute('x1',xx); xh.setAttribute('x2',xx); xh.setAttribute('visibility','visible');
+      fd.setAttribute('cx',xx); fd.setAttribute('cy',yy); fd.setAttribute('class','ring '+(g>=0?'f-up':'f-down')); fd.setAttribute('visibility','visible');
+      var rows=[[won(p[1])+'원','총평가'], [signed(g)+'원 ('+pct(g/D.initial*100)+')','누적손익', cls(g)]];
+      (byIdx[i]||[]).forEach(function(gr){ gr.list.forEach(function(m){
+        rows.push([(m.s==='b'?'▲ 매수 ':'▼ 매도 ')+m.sym, '#'+m.no, m.s==='b'?'up':'down']); }); });
+      return {x:xx, y:yy, head:tFull(p[0]), rows:rows}; });
+  }
+
+  // ② 보유 코인별 1시간봉 + 평균가/손절가/목표가
+  function drawCandle(i){
+    var p=D.pos[i], plot=document.getElementById('cplot'+i); if(!plot) return;
+    var W=width(plot), all=D.candles[p.m]||[], C=all.slice(W<480?-48:-72);
+    if(!C.length){ msg(plot,'캔들 데이터를 아직 못 받았어요. 🔄 실시간을 눌러 보세요.'); return; }
+    clear(plot);
+    var H=W<520?210:250, L=6, T=10, B=24, yB=H-B;
+    var lv=[{v:p.tp, t:'목표', c:'lv-tp'}, {v:p.ep, t:'평균', c:'lv-avg'}, {v:p.sl, t:'손절', c:'lv-sl'}, {v:p.cur, t:'현재', c:'lv-cur'}];
+    var svg=mkSvg(plot, W, H, p.sym+' 1시간봉 가격 차트 (현재 '+price(p.cur)+'원)');
+    var labs=lv.map(function(l){ return E(svg,'text',{'class':'lv-t '+l.c}, l.t+' '+price(l.v)); });
+    var lw=0; labs.forEach(function(t){ lw=Math.max(lw, textW(t)); });
+    var R=Math.ceil(lw)+16;
+    var lo=Infinity, hi=-Infinity;
+    C.forEach(function(c){ lo=Math.min(lo, c[3]); hi=Math.max(hi, c[2]); });
+    lv.forEach(function(l){ if(l.v>0){ lo=Math.min(lo, l.v); hi=Math.max(hi, l.v); } });
+    var pad=(hi-lo)*0.06 || hi*0.01; lo-=pad; hi+=pad;
+    var slot=(W-L-R)/C.length, bw=Math.max(1, Math.min(9, slot*0.62));
+    function x(k){ return L+(k+0.5)*slot; }
+    function y(v){ return T+(hi-v)/(hi-lo)*(yB-T); }
+    lv.slice(0,3).forEach(function(l){ var yy=y(l.v); E(svg,'line',{x1:L, x2:W-R+2, y1:yy, y2:yy, 'class':'lv '+l.c}); });
+    C.forEach(function(c, k){ var up=c[4]>=c[1], xx=x(k);
+      E(svg,'line',{x1:xx, x2:xx, y1:y(c[2]), y2:y(c[3]), 'class':up?'wk-up':'wk-down'});
+      var y1=y(Math.max(c[1], c[4])), y2=y(Math.min(c[1], c[4]));
+      E(svg,'rect',{x:(xx-bw/2).toFixed(2), y:y1.toFixed(2), width:bw.toFixed(2), height:Math.max(1, y2-y1).toFixed(2), 'class':up?'f-up':'f-down'}); });
+    // 현재가 점(오른쪽 끝)
+    E(svg,'line',{x1:x(C.length-1), x2:W-R+2, y1:y(p.cur), y2:y(p.cur), 'class':'lv lv-cur'});
+    E(svg,'circle',{cx:W-R+2, cy:y(p.cur), r:3.5, 'class':'f-ink ring'});
+    // 오른쪽 라벨: 겹치면 아래로 밀고 짧은 연결선
+    var ls=lv.map(function(l, j){ return {j:j, y:y(l.v)}; }).sort(function(a, b){ return a.y-b.y; }), gap=13;
+    for(var k=1; k<ls.length; k++){ if(ls[k].y-ls[k-1].y<gap) ls[k].y=ls[k-1].y+gap; }
+    if(ls[ls.length-1].y>yB){ ls[ls.length-1].y=yB; for(k=ls.length-2; k>=0; k--){ if(ls[k+1].y-ls[k].y<gap) ls[k].y=ls[k+1].y-gap; } }
+    ls.forEach(function(o){ var t=labs[o.j], ly=y(lv[o.j].v);
+      t.setAttribute('x', W-R+9); t.setAttribute('y', (o.y+4).toFixed(1));
+      if(Math.abs(o.y-ly)>1.5) E(svg,'path',{d:'M'+(W-R+2)+','+ly.toFixed(1)+' L'+(W-R+7)+','+o.y.toFixed(1), 'class':'leader'}); });
+    // 매수 시점 ▲
+    var te=Date.parse(p.entry), bk=-1;
+    for(k=0; k<C.length; k++){ if(te>=C[k][0] && te<C[k][0]+HOUR){ bk=k; break; } }
+    if(bk>=0) tri(svg, x(bk), Math.min(yB-4, y(C[bk][3])+10), true);
+    var c0=C[0][0];
+    xLabels(svg, timeTicks(c0, C[C.length-1][0], Math.max(2, Math.floor((W-L-R)/80))),
+      function(t){ return L+((t-c0)/HOUR+0.5)*slot; }, H-8, L, R, W);
+    var xh=E(svg,'line',{y1:T, y2:yB, 'class':'xhair', visibility:'hidden'});
+    hover(svg, plot, C.length, x, function(k){
+      if(k<0){ xh.setAttribute('visibility','hidden'); return; }
+      var c=C[k], xx=x(k), ch=(c[4]/c[1]-1)*100;
+      xh.setAttribute('x1',xx); xh.setAttribute('x2',xx); xh.setAttribute('visibility','visible');
+      var rows=[[price(c[4])+'원','종가 '+pct(ch), pcls(ch)], [price(c[1]),'시가'], [price(c[2]),'고가'], [price(c[3]),'저가']];
+      if(k===bk) rows.push(['▲ '+price(p.ep),'이 봉에서 매수','up']);
+      return {x:xx, y:y(c[2]), head:tFull(c[0])+' 시작 1시간봉', rows:rows}; });
+  }
+  function head(i, flash){ var p=D.pos[i], val=curVal(p), g=val-p.cost, nf=!flash;
+    set('cp'+i, price(p.cur)+'원', null, nf);
+    set('cr'+i, pct(g/p.cost*100), cls(g), nf);
+    set('csl'+i, pct((p.sl/p.cur-1)*100), null, nf);
+    set('ctp'+i, pct((p.tp/p.cur-1)*100), null, nf); }
+
+  // ③ 자산 구성 도넛 (현금 + 코인별 평가금액)
+  function drawAlloc(){
+    var plot=document.getElementById('alloc-plot'); if(!plot) return;
+    var items=[{n:'현금', v:Math.max(0, D.cash), c:'var(--cash)'}], other=null;
+    D.pos.forEach(function(p, k){ var v=curVal(p);
+      if(k<4){ items.push({n:p.sym, v:v, c:'var(--c'+(k+1)+')'}); return; }
+      if(!other){ other={n:'기타', v:0, c:'var(--c-other)'}; items.push(other); } other.v+=v; });
+    var total=items.reduce(function(s, it){ return s+it.v; }, 0);
+    if(!(total>0)){ msg(plot,'평가금액이 없어요.'); return; }
+    clear(plot);
+    var wrap=document.createElement('div'); wrap.className='alloc-wrap'; plot.appendChild(wrap);
+    var S=168, r=S/2-14, sw=24, CC=2*Math.PI*r, off=0, tp=addTip(plot);
+    var svg=E(null,'svg',{viewBox:'0 0 '+S+' '+S, width:S, height:S, role:'img', 'aria-label':'자산 구성 도넛 차트'}); wrap.appendChild(svg);
+    var g=E(svg,'g',{transform:'rotate(-90 '+S/2+' '+S/2+')'});
+    var nz=items.filter(function(it){ return it.v>0; }).length;
+    items.forEach(function(it){ if(it.v<=0) return;
+      var len=it.v/total*CC, seg=Math.max(nz>1?len-2:len, 0.6);
+      var c=E(g,'circle',{cx:S/2, cy:S/2, r:r, fill:'none', 'stroke-width':sw, 'stroke-dasharray':seg.toFixed(2)+' '+(CC-seg).toFixed(2), 'stroke-dashoffset':(-off).toFixed(2), 'class':'slice'});
+      c.style.stroke=it.c; off+=len;
+      function hd(){ tp.hidden=true; c.classList.remove('on'); }
+      function sh(ev){ activate(hd, c); var b=plot.getBoundingClientRect(); c.classList.add('on');
+        showTip(tp, ev.clientX-b.left, ev.clientY-b.top, null, [[won(it.v)+'원', it.n+' · '+(it.v/total*100).toFixed(1)+'%', '', it.c]]); }
+      c.addEventListener('pointermove', sh); c.addEventListener('pointerdown', sh);
+      c.addEventListener('pointerleave', function(ev){ if(ev.pointerType==='mouse') hd(); }); });
+    E(svg,'text',{x:S/2, y:S/2-5, 'text-anchor':'middle'}, '총평가');
+    E(svg,'text',{x:S/2, y:S/2+14, 'text-anchor':'middle', 'class':'t-big'}, man(total, 1000)+'원');
+    var ul=document.createElement('ul'); ul.className='alloc-legend';
+    items.forEach(function(it){ var li=document.createElement('li');
+      var s=document.createElement('span'); s.className='swatch'; s.style.background=it.c; li.appendChild(s);
+      var n=document.createElement('span'); n.className='nm'; n.textContent=it.n; li.appendChild(n);
+      var pc=document.createElement('b'); pc.textContent=(it.v/total*100).toFixed(1)+'%'; li.appendChild(pc);
+      var a=document.createElement('span'); a.className='amt'; a.textContent=won(it.v)+'원'; li.appendChild(a);
+      ul.appendChild(li); });
+    wrap.appendChild(ul);
+  }
+
+  // ④ 코인별 손익 (실현 + 미실현) 가로 막대
+  function drawPnl(){
+    var plot=document.getElementById('pnl-plot'); if(!plot) return;
+    var held={}; D.pos.forEach(function(p){ held[p.m]=p; });
+    var rows=(D.coins||[]).map(function(c){ var p=held[c.m], u=p?curVal(p)-p.cost:0;
+      return {sym:c.sym, r:c.r, u:u, v:c.r+u, held:!!p}; });
+    if(!rows.length){ msg(plot,'아직 손익을 낼 코인이 없어요.'); return; }
+    clear(plot);
+    var W=width(plot), rowH=36, T=6, B=6, H=T+B+rows.length*rowH, Lb=54, bh=16;
+    var mn=0, mx=0; rows.forEach(function(r){ mn=Math.min(mn, r.v); mx=Math.max(mx, r.v); });
+    if(mn===0 && mx===0) mx=1;
+    var svg=mkSvg(plot, W, H, '코인별 손익 막대 차트');
+    var vt=rows.map(function(r){ return E(svg,'text',{'class':'t-val'}, signed(r.v)+'원'); });
+    var lw=0; vt.forEach(function(t){ lw=Math.max(lw, textW(t)); });
+    var a0=Lb+(mn<0?lw+10:4), a1=W-(mx>0?lw+10:4);
+    function X(v){ return a0+(v-mn)/(mx-mn)*(a1-a0); }
+    var z=X(0), tp=addTip(plot);
+    rows.forEach(function(r, k){ var top=T+k*rowH, yc=top+rowH/2, yy=yc-bh/2, xv=X(r.v);
+      var a=Math.min(z, xv), b=Math.max(z, xv), len=b-a, rad=Math.min(4, len, bh/2);
+      E(svg,'text',{x:0, y:yc+(r.held?4:-1), 'class':'t-name'}, r.sym);
+      if(!r.held) E(svg,'text',{x:0, y:yc+12, 'class':'t-cnt'}, '정리함');
+      var bar=null;
+      if(len>=0.5){ var d = r.v>=0
+          ? 'M'+a+','+yy+' H'+(b-rad)+' Q'+b+','+yy+' '+b+','+(yy+rad)+' V'+(yy+bh-rad)+' Q'+b+','+(yy+bh)+' '+(b-rad)+','+(yy+bh)+' H'+a+' Z'
+          : 'M'+b+','+yy+' H'+(a+rad)+' Q'+a+','+yy+' '+a+','+(yy+rad)+' V'+(yy+bh-rad)+' Q'+a+','+(yy+bh)+' '+(a+rad)+','+(yy+bh)+' H'+b+' Z';
+        bar=E(svg,'path',{d:d, 'class':(r.v>=0?'f-up':'f-down')+' bar'}); }
+      var t=vt[k]; t.setAttribute('y', yc+4);
+      if(r.v>=0){ t.setAttribute('x', b+6); } else { t.setAttribute('x', a-6); t.setAttribute('text-anchor','end'); }
+      var hit=E(svg,'rect',{x:0, y:top, width:W, height:rowH, fill:'transparent', 'class':'hitrow'});
+      function hd(){ tp.hidden=true; if(bar) bar.classList.remove('on'); }
+      function sh(ev){ activate(hd, hit); var bb=plot.getBoundingClientRect(); if(bar) bar.classList.add('on');
+        showTip(tp, ev.clientX-bb.left, ev.clientY-bb.top, r.sym, [[signed(r.v)+'원','합계', cls(r.v)], [signed(r.r)+'원','실현(판 것)', cls(r.r)], [signed(r.u)+'원','미실현(보유 중)', cls(r.u)]]); }
+      hit.addEventListener('pointermove', sh); hit.addEventListener('pointerdown', sh);
+      hit.addEventListener('pointerleave', function(ev){ if(ev.pointerType==='mouse') hd(); }); });
+    E(svg,'line',{x1:z, x2:z, y1:T-2, y2:H-B+2, 'class':'g-base'});
+  }
+
+  function safe(f, id){ try{ f(); }catch(e){ var pl=document.getElementById(id); if(pl) msg(pl,'그래프를 그리지 못했어요.'); if(window.console) console.error(e); } }
+  function drawAll(){ safe(drawEquity,'eq-plot');
+    D.pos.forEach(function(p, i){ safe(function(){ drawCandle(i); }, 'cplot'+i); });
+    safe(drawAlloc,'alloc-plot'); safe(drawPnl,'pnl-plot'); }
+  function loading(on){ var els=document.querySelectorAll('.viz-plot'); for(var k=0;k<els.length;k++) els[k].classList.toggle('loading', on); }
+  function parseCandles(rows){ return rows.map(function(c){ return [Date.parse(c.candle_date_time_utc+'Z'), c.opening_price, c.high_price, c.low_price, c.trade_price]; })
+    .filter(function(c){ return c[0]>0 && c[4]>0; }).sort(function(a, b){ return a[0]-b[0]; }); }
+  function getJSON(url){ return fetch(url).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
+
   function refresh(){
     hours();
     if(!D.pos.length){ st.textContent='보유 코인이 없어 갱신할 값이 없어요.'; return; }
-    btn.disabled=true; st.textContent='업비트 현재가 불러오는 중…';
-    var ms=D.pos.map(function(p){return p.m;}).join(',');
-    fetch('https://api.upbit.com/v1/ticker?markets='+encodeURIComponent(ms))
-      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function(rows){
-        var px={}; rows.forEach(function(t){ px[t.market]=t.trade_price; });
-        var total=D.cash, unreal=0, got=0;
-        D.pos.forEach(function(p,i){
-          var cur=px[p.m], val;
-          if(cur){ got++; val=p.qty*cur*(1-D.fee);
-            set('p'+i, price(cur)); set('v'+i, won(val));
-            var pnl=val-p.cost; set('g'+i, signed(pnl)+' ('+(pnl/p.cost*100>=0?'+':'')+(pnl/p.cost*100).toFixed(2)+'%)', cls(pnl));
-          } else { val=p.val; }
-          total+=val; unreal+=val-p.cost;
-        });
-        var pnlAll=total-D.initial;
-        set('eq', won(total)+'원');
-        set('pnl', signed(pnlAll)+'원', cls(pnlAll));
-        set('pnlpct', (pnlAll/D.initial*100>=0?'+':'')+(pnlAll/D.initial*100).toFixed(2)+'%', cls(pnlAll));
-        set('unreal', signed(unreal)+'원', cls(unreal));
-        st.textContent='실시간 갱신 '+new Date().toLocaleTimeString('ko-KR')+' (업비트 현재가 기준 '+got+'/'+D.pos.length+'종목, 수수료 차감)';
-      })
-      .catch(function(e){ st.textContent='실시간 갱신 실패 — 마지막 저장값을 보여드려요. ('+e.message+')'; })
-      .then(function(){ btn.disabled=false; });
+    btn.disabled=true; st.textContent='업비트 현재가·캔들 불러오는 중…'; loading(true);
+    var n=D.pos.length, ms=D.pos.map(function(p){ return p.m; }).join(',');
+    var pt=getJSON('https://api.upbit.com/v1/ticker?markets='+encodeURIComponent(ms)).then(function(rows){
+      var px={}; rows.forEach(function(t){ px[t.market]=t.trade_price; });
+      var total=D.cash, unreal=0, got=0;
+      D.pos.forEach(function(p, i){ var cur=px[p.m];
+        if(cur){ got++; p.cur=cur; p.val=curVal(p);
+          set('p'+i, price(cur)); set('v'+i, won(p.val));
+          var pnl=p.val-p.cost; set('g'+i, signed(pnl)+' ('+pct(pnl/p.cost*100)+')', cls(pnl)); }
+        total+=p.val; unreal+=p.val-p.cost; });
+      var pnlAll=total-D.initial;
+      set('eq', won(total)+'원');
+      set('pnl', signed(pnlAll)+'원', cls(pnlAll));
+      set('pnlpct', pct(pnlAll/D.initial*100), cls(pnlAll));
+      set('unreal', signed(unreal)+'원', cls(unreal));
+      return got; });
+    var pc=Promise.all(D.pos.map(function(p){
+      return getJSON('https://api.upbit.com/v1/candles/minutes/60?market='+encodeURIComponent(p.m)+'&count=72')
+        .then(function(rows){ var c=parseCandles(rows||[]); if(c.length){ D.candles[p.m]=c; return 1; } return 0; })
+        .catch(function(){ return 0; }); }));
+    Promise.all([pt.then(function(g){ return {ok:true, g:g}; }, function(e){ return {ok:false, e:e}; }), pc]).then(function(res){
+      var t=res[0], cs=res[1].reduce(function(a, b){ return a+b; }, 0);
+      st.textContent = t.ok
+        ? '실시간 갱신 '+new Date().toLocaleTimeString('ko-KR')+' (업비트 현재가 기준 '+t.g+'/'+n+'종목, 수수료 차감 · 캔들 '+cs+'/'+n+')'
+        : '실시간 갱신 실패 — 마지막 저장값을 보여드려요. ('+t.e.message+')'+(cs?' · 캔들 '+cs+'/'+n+' 갱신':'');
+      drawAll(); D.pos.forEach(function(p, i){ head(i, t.ok); });
+    }).then(function(){ loading(false); btn.disabled=false; });
   }
+
+  var lastW=0, rt=null;
+  function wrapW(){ var w=document.querySelector('.wrap'); return w ? w.clientWidth : 0; }
+  window.addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(function(){ var w=wrapW(); if(w!==lastW){ lastW=w; drawAll(); } }, 150); });
+  lastW=wrapW(); drawAll(); D.pos.forEach(function(p, i){ head(i, false); });
   btn.addEventListener('click', refresh);
   refresh();
 })();
@@ -936,46 +1282,87 @@ def _num(v, default=0.0):
         return default
 
 
-def equity_svg(history, initial):
-    pts = [(datetime.fromisoformat(h["t"]), float(h["eq"])) for h in history if h.get("t")]
-    if len(pts) < 2:
-        return '<div class="empty">기록이 2개 이상 쌓이면 그래프가 그려져요.</div>'
-    W, H, L, R, T, B = 420, 200, 66, 8, 16, 30
-    t0, t1 = pts[0][0].timestamp(), pts[-1][0].timestamp()
-    vals = [v for _, v in pts] + [initial]
-    lo, hi = min(vals), max(vals)
-    pad = max((hi - lo) * 0.08, initial * 0.002)
-    lo, hi = lo - pad, hi + pad
-    span_t = max(t1 - t0, 1)
-
-    def x(t):
-        return L + (t.timestamp() - t0) / span_t * (W - L - R)
-
-    def y(v):
-        return T + (hi - v) / (hi - lo) * (H - T - B)
-
-    line = " ".join(f"{x(t):.1f},{y(v):.1f}" for t, v in pts)
-    area = f"{x(pts[0][0]):.1f},{H - B} " + line + f" {x(pts[-1][0]):.1f},{H - B}"
-    color = "var(--up)" if pts[-1][1] >= initial else "var(--down)"
-    yb = y(initial)
-    fmt_t = lambda t: t.astimezone(KST).strftime("%m/%d %H:%M")
-    return (
-        f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="총평가 변화 그래프">'
-        f'<polygon points="{area}" fill="{color}" opacity="0.10"/>'
-        f'<line x1="{L}" y1="{yb:.1f}" x2="{W - R}" y2="{yb:.1f}" stroke="var(--sub-text)" stroke-dasharray="4 4" stroke-width="1"/>'
-        f'<text x="{W - R}" y="{yb - 4:.1f}" text-anchor="end" font-size="12" fill="var(--sub-text)">시작 {fmt_won(initial)}</text>'
-        f'<polyline points="{line}" fill="none" stroke="{color}" stroke-width="2" stroke-linejoin="round"/>'
-        f'<circle cx="{x(pts[-1][0]):.1f}" cy="{y(pts[-1][1]):.1f}" r="3.5" fill="{color}"/>'
-        f'<text x="{L - 6}" y="{T + 10}" text-anchor="end" font-size="12" fill="var(--sub-text)">{fmt_won(hi)}</text>'
-        f'<text x="{L - 6}" y="{H - B}" text-anchor="end" font-size="12" fill="var(--sub-text)">{fmt_won(lo)}</text>'
-        f'<text x="{L}" y="{H - 8}" font-size="12" fill="var(--sub-text)">{fmt_t(pts[0][0])}</text>'
-        f'<text x="{W - R}" y="{H - 8}" text-anchor="end" font-size="12" fill="var(--sub-text)">{fmt_t(pts[-1][0])}</text>'
-        f'</svg>'
-    )
+CHART_CANDLES = 72   # 코인 차트에 쓰는 1시간봉 개수(좁은 화면은 최근 48개만 그림)
+COIN_COLOR_SLOTS = 4  # 코인 고유색 개수(--c1~--c4). 그 뒤 종목은 '기타' 색
 
 
-def build_dashboard(state, trades, bids, now):
+def coin_color(k):
+    return f"var(--c{k + 1})" if k < COIN_COLOR_SLOTS else "var(--c-other)"
+
+
+def candle_rows(df, n=CHART_CANDLES):
+    """캔들 DataFrame → [[시작시각(ms), 시가, 고가, 저가, 종가], ...] 최근 n개 (대시보드 임베드용)"""
+    if df is None or getattr(df, "empty", True):
+        return []
+    out = []
+    for r in df.tail(n).itertuples(index=False):
+        try:
+            out.append([int(r.start_utc.timestamp() * 1000), float(r.open), float(r.high), float(r.low), float(r.close)])
+        except (AttributeError, TypeError, ValueError):
+            continue
+    return out
+
+
+def equity_points(history):
+    """equity_history → [[시각(ms), 총평가], ...] 시간순"""
+    pts = []
+    for h in history or []:
+        try:
+            t = datetime.fromisoformat(h["t"])
+            if t.tzinfo is None:
+                t = t.replace(tzinfo=KST)
+            pts.append([int(t.timestamp() * 1000), round(float(h["eq"]), 2)])
+        except (KeyError, TypeError, ValueError):
+            continue
+    pts.sort(key=lambda p: p[0])
+    return pts
+
+
+def trade_marks(points, trades):
+    """거래마다 자산 그래프에서 시각이 가장 가까운 점 번호 → [{i, s('b'/'s'), no, sym}]"""
+    ts = [p[0] for p in points]
+    out = []
+    if not ts:
+        return out
+    for t in trades:
+        try:
+            ms = int(datetime.strptime(t.get("시각", ""), "%Y-%m-%d %H:%M:%S").replace(tzinfo=KST).timestamp() * 1000)
+        except (TypeError, ValueError):
+            continue
+        k = bisect.bisect_left(ts, ms)
+        j = min((c for c in (k - 1, k) if 0 <= c < len(ts)), key=lambda c: abs(ts[c] - ms))
+        out.append({"i": j, "s": "b" if t.get("구분") == "매수" else "s",
+                    "no": str(t.get("번호", "")), "sym": t.get("종목", "").replace("KRW-", "")})
+    return out
+
+
+def coin_pnl(state, trades, bids):
+    """코인별 손익 막대용: 실현손익(판 것 합계) + 보유 여부. 정렬은 (실현+미실현) 큰 순"""
+    realized = {}
+    for t in trades:
+        if t.get("구분") == "매도" and t.get("손익") not in (None, ""):
+            m = t.get("종목", "")
+            realized[m] = realized.get(m, 0.0) + _num(t.get("손익"))
+    rows = []
+    for m in dict.fromkeys(list(state["positions"]) + list(realized)):
+        p = state["positions"].get(m)
+        u = liquidation_value(p, bids.get(m) or p["entry_price"]) - p["cost"] if p else 0.0
+        rows.append({"m": m, "sym": symbol(m), "r": round(realized.get(m, 0.0), 2), "_t": realized.get(m, 0.0) + u})
+    rows.sort(key=lambda r: -r["_t"])
+    for r in rows:
+        del r["_t"]
+    return rows
+
+
+CHART_LEGEND = (
+    '<div class="vlegend"><span><i class="lk lk-avg"></i>평균 매수가</span>'
+    '<span><i class="lk lk-sl"></i>손절가</span><span><i class="lk lk-tp"></i>목표가</span>'
+    '<span><b class="up">▲</b>매수 시점</span><span><b class="up">▮</b>양봉 <b class="down">▮</b>음봉</span></div>')
+
+
+def build_dashboard(state, trades, bids, now, candles=None):
     esc = html.escape
+    candles = candles or {}
     initial = float(state.get("initial_cash", C.INITIAL_CASH))
     eq = equity(state, bids)
     pnl = eq - initial
@@ -1004,14 +1391,25 @@ def build_dashboard(state, trades, bids, now):
     ])
 
     # 보유 코인
-    pos_js, rows = [], []
+    pos_js, rows, ccards = [], [], []
     for i, (m, p) in enumerate(state["positions"].items()):
         bid = bids.get(m) or p["entry_price"]
         val = liquidation_value(p, bid)
         g = val - p["cost"]
         sl, tp = stop_target(p["entry_price"])
         h = (now - datetime.fromisoformat(p["entry_time"])).total_seconds() / 3600
-        pos_js.append({"m": m, "qty": p["qty"], "cost": p["cost"], "val": val, "entry": p["entry_time"]})
+        pos_js.append({"m": m, "sym": symbol(m), "qty": p["qty"], "cost": p["cost"], "val": val,
+                       "entry": p["entry_time"], "ep": p["entry_price"], "sl": sl, "tp": tp, "cur": bid})
+        ccards.append(
+            f'<div class="viz ccard" id="cc{i}"><div class="chead">'
+            f'<span class="swatch" style="background:{coin_color(i)}"></span>'
+            f'<span class="sym">{esc(symbol(m))}</span> <span class="sub">{esc(p["name"])}</span>'
+            f'<span class="cprice" id="cp{i}">{fmt_price(bid)}원</span>'
+            f'<span class="cret {_cls(g)}" id="cr{i}">{g / p["cost"] * 100:+.2f}%</span></div>'
+            f'<div class="cstats"><span>손절까지 <b id="csl{i}">{(sl / bid - 1) * 100:+.2f}%</b></span>'
+            f'<span>목표까지 <b id="ctp{i}">{(tp / bid - 1) * 100:+.2f}%</b></span>'
+            f'<span>평균 매수가 <b>{fmt_price(p["entry_price"])}원</b></span></div>'
+            f'<div class="viz-plot" id="cplot{i}"><div class="empty">그래프 준비 중…</div></div></div>')
         rows.append(
             f'<tr><td class="l"><b>{esc(symbol(m))}</b> <span class="sub">{esc(p["name"])}</span></td>'
             f'<td>{fmt_qty(p["qty"])}</td><td>{fmt_price(p["entry_price"])}</td><td>{fmt_won(p["cost"])}</td>'
@@ -1095,8 +1493,15 @@ def build_dashboard(state, trades, bids, now):
             + '</div>')
     detail_html = "".join(cards_d) or '<div class="table-wrap"><div class="empty">아직 거래가 없어요.</div></div>'
 
+    eqh = equity_points(state.get("equity_history", []))
     data = {"pos": pos_js, "cash": state["cash"], "initial": initial, "fee": C.FEE_RATE,
-            "ticks": [[lo, t] for lo, t in KRW_TICKS]}
+            "ticks": [[lo, t] for lo, t in KRW_TICKS],
+            "eqh": eqh, "marks": trade_marks(eqh, trades),
+            "candles": {m: list(candles.get(m) or [])[-CHART_CANDLES:] for m in state["positions"]},
+            "coins": coin_pnl(state, trades, bids)}
+    ccards_html = (CHART_LEGEND + f'<div class="ccards">{"".join(ccards)}</div>' if ccards
+                   else '<div class="table-wrap"><div class="empty">보유 중인 코인이 없어서 차트가 없어요.</div></div>')
+    plot_wait = '<div class="empty">그래프 준비 중…</div>'
     data_json = json.dumps(data, ensure_ascii=True).replace("<", "\\u003c").replace(">", "\\u003e")
     halted = ('<div class="mock">⛔ 손실한도 도달로 정지된 상태예요.</div>' if state.get("halted") else "")
     entry_txt = []
@@ -1137,8 +1542,17 @@ def build_dashboard(state, trades, bids, now):
 <h2 class="section">📊 요약</h2>
 <div class="grid">{cards}</div>
 
-<h2 class="section">📈 자산 변화</h2>
-<div class="chart">{equity_svg(state.get("equity_history", []), initial)}</div>
+<h2 class="section">📈 자산 변화 <span class="sub">가로선 = 시작금액 {fmt_won(initial)}원 · 위 빨강 수익, 아래 파랑 손실 · ▲매수 ▼매도</span></h2>
+<div class="viz"><div class="viz-plot" id="eq-plot">{plot_wait}</div></div>
+
+<h2 class="section">💰 보유 코인 차트 <span class="sub">1시간봉 · 눌러서 값 보기</span></h2>
+{ccards_html}
+
+<h2 class="section">🍩 자산 구성 · 코인별 손익</h2>
+<div class="duo">
+<div class="viz"><div class="viz-title">자산 구성 <span class="sub">현금 + 코인 평가금액(수수료 차감)</span></div><div class="viz-plot" id="alloc-plot">{plot_wait}</div></div>
+<div class="viz"><div class="viz-title">코인별 손익 <span class="sub">판 것(실현) + 보유 중(미실현)</span></div><div class="viz-plot" id="pnl-plot">{plot_wait}</div></div>
+</div>
 
 <h2 class="section">💼 보유 코인</h2>
 {pos_html}
@@ -1159,12 +1573,12 @@ def build_dashboard(state, trades, bids, now):
 """
 
 
-def write_dashboard(state, bids, now, path=None):
+def write_dashboard(state, bids, now, path=None, candles=None):
     path = path or DASHBOARD_PATH
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:
-        f.write(build_dashboard(state, read_trades(), bids, now))
+        f.write(build_dashboard(state, read_trades(), bids, now, candles))
     os.replace(tmp, path)
     return path
 
@@ -1312,7 +1726,7 @@ def _run_and_publish(args, state, api, now, notify):
 
     # 대시보드: 매 실행 로컬 파일 갱신, 내용이 바뀐 실행만 게시(dry-run은 게시 단계 전체 생략)
     try:
-        path = write_dashboard(state, report.get("bids", {}), now)
+        path = write_dashboard(state, report.get("bids", {}), now, candles=report.get("candles"))
         print(f"[대시보드] {path} 갱신")
     except Exception as e:
         print(f"[대시보드] 생성 실패: {type(e).__name__}: {e}")
