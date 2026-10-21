@@ -42,8 +42,8 @@ KST = timezone(timedelta(hours=9))
 FOOTER = "※모의투자"
 KAKAO_LIMIT = 200
 
-TRADE_FIELDS = ["시각", "종목", "이름", "구분", "사유", "평균체결가", "수량", "체결금액", "수수료",
-                "현금변화", "손익", "손익률(%)", "거래후현금", "비고"]
+TRADE_FIELDS = ["번호", "시각", "종목", "이름", "구분", "사유", "평균체결가", "수량", "체결금액", "수수료",
+                "현금변화", "손익", "손익률(%)", "거래후현금", "손절가", "목표가", "매수가", "보유시간", "비고"]
 
 # 업비트 원화마켓 호가단위 (가격 하한, 호가단위) - 위에서부터 먼저 맞는 구간 사용
 KRW_TICKS = [
@@ -398,24 +398,43 @@ def read_trades():
 
 
 # ───────────────────────── 알림 ─────────────────────────
+def trade_link(no):
+    """카톡 '자세히 보기' → 대시보드의 해당 거래 상세 카드로 바로 이동"""
+    return f"{C.DASHBOARD_URL}#t{no}"
+
+
 class Notifier:
+    """사이클 동안 메시지를 모아뒀다가, 대시보드가 게시된 뒤 flush()에서 보낸다.
+    (먼저 보내면 링크를 눌렀을 때 페이지에 아직 그 거래가 없을 수 있음)"""
+
     def __init__(self, dry_run):
         self.dry_run = dry_run
         self.sent = []
+        self.queue = []
 
-    def __call__(self, msg):
+    def __call__(self, msg, link=None):
         msg = msg[:KAKAO_LIMIT]
         self.sent.append(msg)
+        self.queue.append((msg, link or C.DASHBOARD_URL))
         print("─" * 30)
-        print(("[카톡 미전송/dry-run]\n" if self.dry_run else "[카톡]\n") + msg)
+        print(("[카톡 미전송/dry-run]\n" if self.dry_run else "[카톡 대기]\n") + msg + f"\n(링크 {link or C.DASHBOARD_URL})")
         print("─" * 30)
-        if self.dry_run:
+
+    def flush(self):
+        queue, self.queue = self.queue, []
+        if self.dry_run or not queue:
             return
         try:
             import kakao_sender
-            kakao_sender.send_text(msg, link=C.DASHBOARD_URL)
-        except Exception as e:  # 카톡 실패해도 매매 기록은 유지
-            print(f"  카톡 전송 실패: {e}")
+        except Exception as e:
+            print(f"  카톡 모듈 로드 실패: {e}")
+            return
+        for msg, link in queue:
+            try:
+                kakao_sender.send_text(msg, link=link)
+            except Exception as e:  # 카톡 실패해도 매매 기록은 유지
+                print(f"  카톡 전송 실패: {e}")
+        print(f"[카톡] {len(queue)}건 전송")
 
 
 # ───────────────────────── 평가·매매 ─────────────────────────
@@ -476,35 +495,22 @@ def do_buy(state, market, name, units, budget, sig, now, notify):
     note = "호가창 부족: 나머지는 마지막 호가로 체결" if f["warn"] else ""
     if note:
         print(f"  ⚠ {market} {note}")
+    sl, tp = stop_target(f["avg_price"])
+    no = state["total_trades"]
     log_trade({
-        "시각": now.strftime("%Y-%m-%d %H:%M:%S"), "종목": market, "이름": name, "구분": "매수",
+        "번호": no, "시각": now.strftime("%Y-%m-%d %H:%M:%S"), "종목": market, "이름": name, "구분": "매수",
         "사유": sig.get("reason", ""), "평균체결가": round(f["avg_price"], 8), "수량": f["qty"],
         "체결금액": round(f["funds"], 2), "수수료": round(f["fee"], 2), "현금변화": round(-cost, 2),
-        "손익": "", "손익률(%)": "", "거래후현금": round(state["cash"], 2), "비고": note,
+        "손익": "", "손익률(%)": "", "거래후현금": round(state["cash"], 2),
+        "손절가": round(sl, 8), "목표가": round(tp, 8), "매수가": "", "보유시간": "", "비고": note,
     })
     save_state(state)
-    sl, tp = stop_target(f["avg_price"])
-    deadline = now + timedelta(hours=C.MAX_HOLD_HOURS)
-    sym = symbol(market)
     notify(fit_message([
-        f"[모의매수 1/2] {sym} 체결내역",
-        f"시각 {now.strftime('%m/%d %H:%M')}",
-        f"평균체결가 {fmt_price(f['avg_price'])}원",
-        f"수량 {fmt_qty(f['qty'], short=True)}개",
-        f"체결금액 {fmt_won(f['funds'])}원",
-        f"수수료 {fmt_won(f['fee'])}원(0.05%)",
-        f"총 지출 {fmt_won(cost)}원" + (" ⚠호가부족" if f["warn"] else ""),
+        f"[모의매수] {symbol(market)}",
+        f"{fmt_won(cost)}원어치 (평균 {fmt_price(f['avg_price'])}원)",
+        "▶ '자세히 보기'에서 체결·수수료·손절/목표 확인",
         FOOTER,
-    ]))
-    notify(fit_message([
-        f"[모의매수 2/2] {sym} 이유·계획",
-        f"이유: {sig.get('reason', '')}",
-        f"손절 {fmt_price(sl)}원({C.STOP_LOSS_PCT:+.0f}%)",
-        f"목표 {fmt_price(tp)}원({C.TAKE_PROFIT_PCT:+.0f}%)",
-        f"최대보유 {deadline.strftime('%m/%d %H:%M')}까지",
-        f"남은현금 {fmt_won(state['cash'])}원 / 보유 {len(state['positions'])}종목",
-        FOOTER,
-    ], droppable=("최대보유",)))
+    ]), link=trade_link(no))
     return f
 
 
@@ -526,39 +532,26 @@ def do_sell(state, market, units, reason, now, notify, counts=True):
     note = "호가창 부족: 나머지는 마지막 호가로 체결" if f["warn"] else ""
     if note:
         print(f"  ⚠ {market} {note}")
-    log_trade({
-        "시각": now.strftime("%Y-%m-%d %H:%M:%S"), "종목": market, "이름": pos["name"], "구분": "매도",
-        "사유": reason, "평균체결가": round(f["avg_price"], 8), "수량": pos["qty"],
-        "체결금액": round(f["funds"], 2), "수수료": round(f["fee"], 2), "현금변화": round(f["proceeds"], 2),
-        "손익": round(pnl, 2), "손익률(%)": round(pnl_pct, 2), "거래후현금": round(state["cash"], 2), "비고": note,
-    })
-    save_state(state)
-    sym = symbol(market)
     try:
         held_h = (now - datetime.fromisoformat(pos["entry_time"])).total_seconds() / 3600
-        held_txt = f"{held_h:.0f}시간"
+        held_txt = f"{held_h:.1f}시간"
     except Exception:
-        held_txt = "-"
-    sells = state["sell_count"]
+        held_txt = ""
+    no = state["total_trades"]
+    log_trade({
+        "번호": no, "시각": now.strftime("%Y-%m-%d %H:%M:%S"), "종목": market, "이름": pos["name"], "구분": "매도",
+        "사유": reason, "평균체결가": round(f["avg_price"], 8), "수량": pos["qty"],
+        "체결금액": round(f["funds"], 2), "수수료": round(f["fee"], 2), "현금변화": round(f["proceeds"], 2),
+        "손익": round(pnl, 2), "손익률(%)": round(pnl_pct, 2), "거래후현금": round(state["cash"], 2),
+        "손절가": "", "목표가": "", "매수가": round(pos["entry_price"], 8), "보유시간": held_txt, "비고": note,
+    })
+    save_state(state)
     notify(fit_message([
-        f"[모의매도·{reason} 1/2] {sym} 체결내역",
-        f"시각 {now.strftime('%m/%d %H:%M')}",
-        f"평균체결가 {fmt_price(f['avg_price'])}원",
-        f"수량 {fmt_qty(pos['qty'], short=True)}개",
-        f"체결금액 {fmt_won(f['funds'])}원",
-        f"수수료 {fmt_won(f['fee'])}원(0.05%)",
-        f"입금액 {fmt_won(f['proceeds'])}원" + (" ⚠호가부족" if f["warn"] else ""),
+        f"[모의매도·{reason}] {symbol(market)}",
+        f"손익 {fmt_signed(pnl)}원({pnl_pct:+.2f}%)",
+        "▶ '자세히 보기'에서 체결·수수료·입금액 확인",
         FOOTER,
-    ]))
-    notify(fit_message([
-        f"[모의매도·{reason} 2/2] {sym} 결과",
-        f"매수 {fmt_price(pos['entry_price'])}원→매도 {fmt_price(f['avg_price'])}원",
-        f"지출 {fmt_won(pos['cost'])}원→입금 {fmt_won(f['proceeds'])}원",
-        f"이번 손익 {fmt_signed(pnl)}원({pnl_pct:+.2f}%), {held_txt} 보유",
-        f"누적실현 {fmt_signed(state['realized_pnl'])}원 / 수수료계 {fmt_won(state['total_fees'])}원",
-        f"현금 {fmt_won(state['cash'])}원 / 승률 {state['win_count']}/{sells}",
-        FOOTER,
-    ], droppable=("누적실현",)))
+    ]), link=trade_link(no))
     return pnl
 
 
@@ -769,6 +762,16 @@ tr:last-child td { border-bottom:none; }
 .badge.buy { background:var(--up-bg); color:var(--up); }
 .badge.sell { background:var(--down-bg); color:var(--down); }
 .empty { color:var(--sub-text); font-size:13px; padding:16px; text-align:center; }
+.tcard { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:14px 16px;
+  margin-bottom:10px; scroll-margin-top:12px; }
+.tcard:target { border:2px solid var(--accent); box-shadow:0 0 0 4px var(--accent-bg); }
+.tcard .thead { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+.tcard .ttitle { font-weight:700; font-size:15px; }
+.tcard dl { display:grid; grid-template-columns:auto 1fr; gap:6px 14px; margin:0; font-size:13px; }
+.tcard dt { color:var(--sub-text); }
+.tcard dd { margin:0; text-align:right; font-variant-numeric:tabular-nums; }
+.tcard .reason { margin-top:10px; font-size:12px; color:var(--sub-text); line-height:1.5; }
+tr.tlink { cursor:pointer; }
 .sub { color:var(--sub-text); font-size:11px; }
 .chart { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:10px; }
 .chart svg { width:100%; height:auto; display:block; }
@@ -940,8 +943,9 @@ def build_dashboard(state, trades, bids, now):
             pv = _num(pnl_t)
             pnl_cell = f'<span class="{_cls(pv)}">{fmt_signed(pv)} ({_num(t.get("손익률(%)")):+.2f}%)</span>'
         note = t.get("비고") or ""
+        no = esc(str(t.get("번호", "")))
         trows.append(
-            f'<tr><td class="l">{esc(t.get("시각", "")[5:16])}</td>'
+            f'<tr class="tlink" onclick="location.hash=\'t{no}\'"><td class="l">{esc(t.get("시각", "")[5:16])}</td>'
             f'<td class="l"><b>{esc(t.get("종목", "").replace("KRW-", ""))}</b></td>'
             f'<td class="l"><span class="badge {"buy" if is_buy else "sell"}">{"매수" if is_buy else "매도"}</span></td>'
             f'<td class="l">{esc(t.get("사유", ""))}{" ⚠" if note else ""}</td>'
@@ -954,6 +958,48 @@ def build_dashboard(state, trades, bids, now):
         '<th class="l">사유</th><th>평균체결가</th><th>수량</th><th>체결금액</th><th>수수료</th><th>현금 변화</th>'
         f'<th>이 거래 손익</th><th>거래 후 현금</th></tr></thead><tbody>{"".join(trows)}</tbody></table></div>'
         if trows else '<div class="table-wrap"><div class="empty">아직 거래가 없어요.</div></div>')
+
+    # 거래 상세 카드 (카톡 링크 #t번호 로 바로 이동)
+    cards_d = []
+    for t in reversed(trades):
+        is_buy = t.get("구분") == "매수"
+        no = esc(str(t.get("번호", "")))
+        sym = esc(t.get("종목", "").replace("KRW-", ""))
+        funds, fee = _num(t.get("체결금액")), _num(t.get("수수료"))
+        rows = [
+            ("시각", esc(t.get("시각", ""))),
+            ("평균체결가", f'{fmt_price(_num(t.get("평균체결가")))}원'),
+            ("수량", f'{fmt_qty(_num(t.get("수량")))}개'),
+            ("체결금액", f"{fmt_won(funds)}원"),
+            ("수수료 (0.05%)", f"{fmt_won(fee)}원"),
+        ]
+        if is_buy:
+            rows += [
+                ("총 지출 (체결+수수료)", f"{fmt_won(funds + fee)}원"),
+                (f"손절가 ({C.STOP_LOSS_PCT:+.0f}%)", f'{fmt_price(_num(t.get("손절가")))}원' if t.get("손절가") else "-"),
+                (f"목표가 ({C.TAKE_PROFIT_PCT:+.0f}%)", f'{fmt_price(_num(t.get("목표가")))}원' if t.get("목표가") else "-"),
+            ]
+        else:
+            pv = _num(t.get("손익"))
+            rows += [
+                ("입금액 (체결−수수료)", f"{fmt_won(funds - fee)}원"),
+                ("매수 평균가", f'{fmt_price(_num(t.get("매수가")))}원' if t.get("매수가") else "-"),
+                ("보유 시간", esc(t.get("보유시간") or "-")),
+                ("이 거래 손익", f'<span class="{_cls(pv)}">{fmt_signed(pv)}원 ({_num(t.get("손익률(%)")):+.2f}%)</span>'),
+            ]
+        rows.append(("거래 후 현금", f'{fmt_won(_num(t.get("거래후현금")))}원'))
+        dl = "".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in rows)
+        reason = esc(t.get("사유", ""))
+        note = esc(t.get("비고") or "")
+        cards_d.append(
+            f'<div class="tcard" id="t{no}"><div class="thead">'
+            f'<span class="ttitle">#{no} {sym} <span class="sub">{esc(t.get("이름", ""))}</span></span>'
+            f'<span class="badge {"buy" if is_buy else "sell"}">{"매수" if is_buy else "매도 · " + reason}</span></div>'
+            f'<dl>{dl}</dl>'
+            + (f'<div class="reason">매수 이유: {reason}</div>' if is_buy else "")
+            + (f'<div class="reason">⚠ {note}</div>' if note else "")
+            + '</div>')
+    detail_html = "".join(cards_d) or '<div class="table-wrap"><div class="empty">아직 거래가 없어요.</div></div>'
 
     data = {"pos": pos_js, "cash": state["cash"], "initial": initial, "fee": C.FEE_RATE,
             "ticks": [[lo, t] for lo, t in KRW_TICKS]}
@@ -993,8 +1039,11 @@ def build_dashboard(state, trades, bids, now):
 <h2 class="section">💼 보유 코인</h2>
 {pos_html}
 
-<h2 class="section">🧾 전체 거래 내역 <span class="sub">최신순</span></h2>
+<h2 class="section">🧾 전체 거래 내역 <span class="sub">최신순 · 행을 누르면 상세로 이동</span></h2>
 {trades_html}
+
+<h2 class="section">🔎 거래 상세 <span class="sub">카톡 '자세히 보기'로 들어오면 해당 거래가 강조돼요</span></h2>
+{detail_html}
 
 <div class="note">{esc(rule)}<br>평가금액 = 수량 × 최우선 매수호가 × (1−수수료). 🔄 실시간은 업비트 현재가(체결가)로 다시 계산해요.</div>
 <footer>※ 모의투자 — 실제 주문 아님 · 투자 권유가 아닙니다</footer>
@@ -1120,6 +1169,33 @@ def main():
 
     notify = Notifier(args.dry_run)
     try:
+        return _run_and_publish(args, state, api, now, notify)
+    finally:
+        notify.flush()  # 오류가 나도 이미 생긴 매매 알림은 보낸다
+
+
+def wait_for_pages(no, timeout=240):
+    """GitHub Pages에 거래 #no 카드가 뜰 때까지 기다린다(카톡 링크가 바로 맞게)."""
+    if not no:
+        return
+    marker = f'id="t{no}"'
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            r = requests.get(C.DASHBOARD_URL, params={"_": int(time.time())}, timeout=10,
+                             headers={"Cache-Control": "no-cache"})
+            if marker in r.text:
+                print(f"[게시] 페이지 반영 확인(거래 #{no})")
+                return
+        except requests.RequestException:
+            pass
+        time.sleep(10)
+    print(f"[게시] {timeout}초 안에 반영 확인 못 함 → 카톡은 그대로 전송")
+
+
+def _run_and_publish(args, state, api, now, notify):
+    trades_before = state.get("total_trades", 0)
+    try:
         report = run_cycle(state, api, now, notify)
     except Exception as e:
         print(f"오류로 사이클 중단: {type(e).__name__}: {e}")
@@ -1143,6 +1219,8 @@ def main():
             state["last_publish_at"] = now.isoformat(timespec="seconds")
             save_state(state)
             print(f"[게시] 완료 → {C.DASHBOARD_URL}")
+            if state.get("total_trades", 0) > trades_before:
+                wait_for_pages(state["total_trades"])
         else:
             print("[게시] 실패 (다음 실행 때 다시 시도)")
     else:
