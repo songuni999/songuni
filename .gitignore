@@ -4,3 +4,5 @@ kakao_secrets.json
 upbit_secrets.json
 reports/*.html
 !docs/
+paper_state.json*
+paper_trades.csv
