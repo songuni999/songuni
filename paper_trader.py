@@ -600,12 +600,13 @@ def do_buy(state, market, name, units, budget, sig, now, notify):
         "손절가": round(sl, 8), "목표가": round(tp, 8), "매수가": "", "보유시간": "", "비고": note,
     })
     save_state(state)
-    notify(fit_message([
-        f"[모의매수] {symbol(market)}",
-        f"{fmt_won(cost)}원어치 (평균 {fmt_price(f['avg_price'])}원)",
-        "▶ '자세히 보기'에서 체결·수수료·손절/목표 확인",
-        FOOTER,
-    ]), link=trade_link(no))
+    if C.TRADE_ALERTS:
+        notify(fit_message([
+            f"[모의매수] {symbol(market)}",
+            f"{fmt_won(cost)}원어치 (평균 {fmt_price(f['avg_price'])}원)",
+            "▶ '자세히 보기'에서 체결·수수료·손절/목표 확인",
+            FOOTER,
+        ]), link=trade_link(no))
     return f
 
 
@@ -641,12 +642,13 @@ def do_sell(state, market, units, reason, now, notify, counts=True):
         "손절가": "", "목표가": "", "매수가": round(pos["entry_price"], 8), "보유시간": held_txt, "비고": note,
     })
     save_state(state)
-    notify(fit_message([
-        f"[모의매도·{reason}] {symbol(market)}",
-        f"손익 {fmt_signed(pnl)}원({pnl_pct:+.2f}%)",
-        "▶ '자세히 보기'에서 체결·수수료·입금액 확인",
-        FOOTER,
-    ]), link=trade_link(no))
+    if C.TRADE_ALERTS:
+        notify(fit_message([
+            f"[모의매도·{reason}] {symbol(market)}",
+            f"손익 {fmt_signed(pnl)}원({pnl_pct:+.2f}%)",
+            "▶ '자세히 보기'에서 체결·수수료·입금액 확인",
+            FOOTER,
+        ]), link=trade_link(no))
     return pnl
 
 
@@ -798,13 +800,19 @@ def run_cycle(state, api, now, notify):
         held_txt = ", ".join(
             f"{symbol(m)} {((bids.get(m) or p['entry_price']) / p['entry_price'] - 1) * 100:+.1f}%"
             for m, p in state["positions"].items()) or "없음"
+        # 지난 24시간 거래(자정 초기화와 무관하게)
+        since = (now - timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")
+        recent = [t for t in read_trades() if t.get("시각", "") >= since]
+        n_buy = sum(1 for t in recent if t.get("구분") == "매수")
+        n_sell = len(recent) - n_buy
+        pnl24 = sum(_num(t.get("손익")) for t in recent if t.get("구분") == "매도")
         notify(fit_message([
             f"[모의투자 하루요약] {now.strftime('%m/%d')}",
             f"총평가 {fmt_won(eq)}원",
             f"누적손익 {fmt_signed(eq - C.INITIAL_CASH)}원({(eq / C.INITIAL_CASH - 1) * 100:+.2f}%)",
-            f"누적수수료 {fmt_won(state['total_fees'])}원",
-            f"오늘 거래 {state['trades_today']}회",
+            f"24시간 매수 {n_buy}·매도 {n_sell}회" + (f", 실현 {fmt_signed(pnl24)}원" if n_sell else ""),
             f"보유 {held_txt}",
+            f"누적수수료 {fmt_won(state['total_fees'])}원",
             FOOTER,
         ], droppable=("누적수수료",)))
         report["summary_sent"] = True
@@ -1738,7 +1746,7 @@ def _run_and_publish(args, state, api, now, notify):
             state["last_publish_at"] = now.isoformat(timespec="seconds")
             save_state(state)
             print(f"[게시] 완료 → {C.DASHBOARD_URL}")
-            if state.get("total_trades", 0) > trades_before:
+            if state.get("total_trades", 0) > trades_before and notify.queue:
                 wait_for_pages(state["total_trades"])
         else:
             print("[게시] 실패 (다음 실행 때 다시 시도)")

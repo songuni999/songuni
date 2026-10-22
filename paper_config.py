@@ -73,6 +73,7 @@ EXCLUDE = ["KRW-USDT", "KRW-USDC", "KRW-USDS"]   # 제외할 종목 (스테이�
 CANDLE_COUNT = 200           # 불러올 1시간봉 개수
 REQUEST_DELAY = 0.15         # API 요청 사이 대기 시간(초)
 DAILY_SUMMARY_HOUR = 9       # 이 시각(시) 이후 그날 첫 실행 때 하루 요약 카톡 전송
+TRADE_ALERTS = False         # True면 매수·매도할 때마다 카톡. False면 하루요약 1통만 (거래는 대시보드에서 확인)
 
 # ── 대시보드 게시 ─────────────────────────────────────
 DASHBOARD_URL = "https://songuni999.github.io/songuni/paper.html"  # 카톡 '자세히 보기' 링크
