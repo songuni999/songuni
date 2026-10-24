@@ -22,6 +22,8 @@ header{padding:16px 16px 2px} h1{margin:0;font-size:20px} .sub{color:var(--sub);
 .chips{margin-top:8px}
 .chips button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:13px;font-family:inherit}
 .chips button.on{border-color:var(--accent);color:var(--accent);font-weight:700}
+.ctrl{display:flex;gap:6px;margin-top:8px}
+.ctrl select{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:7px 6px;font-size:13px;font-family:inherit}
 .list{padding:4px 12px 40px;display:flex;flex-direction:column;gap:10px}
 .card{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;color:inherit;text-decoration:none}
 .card img{width:88px;height:88px;border-radius:10px;object-fit:cover;flex:none;background:var(--line)}
@@ -36,7 +38,7 @@ header{padding:16px 16px 2px} h1{margin:0;font-size:20px} .sub{color:var(--sub);
 </style></head><body>
 <header><div class="head"><h1>🥕 당근 득템</h1>
 <button class="reload" onclick="reloadNow()">↻ 새로고침</button></div>
-<div class="sub">서울권 · 마지막 확인 10월 24일 22:58 · 20분마다 자동 갱신 · 시세 2026-10-24<br>누르면 당근 앱으로 열려요 · NEW = 3시간 안에 새로 잡힌 매물</div></header>
+<div class="sub">전국 · 마지막 확인 10월 24일 23:12 · 20분마다 자동 갱신 · 시세 2026-10-24<br>누르면 당근 앱으로 열려요 · NEW = 3시간 안에 새로 잡힌 매물</div></header>
 <div class="bar">
 <nav class="tabs">
   <button data-b="전체">전체 106</button>
@@ -47,967 +49,1197 @@ header{padding:16px 16px 2px} h1{margin:0;font-size:20px} .sub{color:var(--sub);
 <nav class="chips" hidden>
   <button data-c="전체">전체</button><button data-c="휴대폰">휴대폰</button><button data-c="태블릿">태블릿</button>
 </nav>
+<div class="ctrl">
+  <select id="sido" aria-label="시·도"></select>
+  <select id="sgg" aria-label="시·군·구" hidden></select>
+  <select id="sort" aria-label="정렬">
+    <option value="disc">할인율 높은순</option><option value="new">최신순</option>
+    <option value="low">가격 낮은순</option><option value="high">가격 높은순</option>
+  </select>
+</div>
 </div>
 <div class="list">
-<a class="card" data-brand="글러브" data-cat="글러브" href="https://www.daangn.com/kr/buy-sell/hdzhfjrhu63t/" data-url="https://www.daangn.com/kr/buy-sell/hdzhfjrhu63t/">
+<a class="card" data-brand="글러브" data-cat="글러브" data-sido="서울"
+   data-sgg="관악구" data-created="1792503847" data-price="90000" data-disc="70"
+   href="https://www.daangn.com/kr/buy-sell/hdzhfjrhu63t/" data-url="https://www.daangn.com/kr/buy-sell/hdzhfjrhu63t/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792503693864ddd38b4dc7cb9cfbeae77180683f8d26ab36c63e511266e81779eb8498e0613d0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>글러브 인코자바 12인치</b></div>
     <div class="price">9만 원 <span class="off">시세 30만 · -70%</span></div>
-    <div class="meta">관악구 은천동 · 4일 전</div>
+    <div class="meta">서울 관악구 은천동 · 4일 전</div>
     <div class="title">야구 글러브 인코자바</div>
   </div>
 </a>
-<a class="card" data-brand="글러브" data-cat="글러브" href="https://www.daangn.com/kr/buy-sell/1qx6bjrfv5om/" data-url="https://www.daangn.com/kr/buy-sell/1qx6bjrfv5om/">
+<a class="card" data-brand="글러브" data-cat="글러브" data-sido="서울"
+   data-sgg="강서구" data-created="1792155633" data-price="80000" data-disc="69"
+   href="https://www.daangn.com/kr/buy-sell/1qx6bjrfv5om/" data-url="https://www.daangn.com/kr/buy-sell/1qx6bjrfv5om/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/f9738b7b-dfa6-4c2a-9c75-8dbd1e78efeb.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>글러브 윌슨 12인치</b></div>
     <div class="price">8만 원 <span class="off">시세 26만 · -69%</span></div>
-    <div class="meta">강서구 화곡동 · 8일 전</div>
+    <div class="meta">서울 강서구 화곡동 · 8일 전</div>
     <div class="title">윌슨 A1K 야구글러브(12 .5인치)</div>
   </div>
 </a>
-<a class="card" data-brand="글러브" data-cat="글러브" href="https://www.daangn.com/kr/buy-sell/741kpbbos8b5/" data-url="https://www.daangn.com/kr/buy-sell/741kpbbos8b5/">
+<a class="card" data-brand="글러브" data-cat="글러브" data-sido="서울"
+   data-sgg="강서구" data-created="1792809494" data-price="68000" data-disc="69"
+   href="https://www.daangn.com/kr/buy-sell/741kpbbos8b5/" data-url="https://www.daangn.com/kr/buy-sell/741kpbbos8b5/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/a465e78a-3706-4d1f-8ad3-483a7d1478e2.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>글러브 롤링스 12인치</b></div>
     <div class="price">6만 원 <span class="off">시세 22만 · -69%</span></div>
-    <div class="meta">강서구 화곡동 · 11시간 전</div>
+    <div class="meta">서울 강서구 화곡동 · 11시간 전</div>
     <div class="title">롤링스 야구 글러브( 12인치)</div>
   </div>
 </a>
-<a class="card" data-brand="글러브" data-cat="글러브" href="https://www.daangn.com/kr/buy-sell/r9rqy7a4q3iu/" data-url="https://www.daangn.com/kr/buy-sell/r9rqy7a4q3iu/">
+<a class="card" data-brand="글러브" data-cat="글러브" data-sido="서울"
+   data-sgg="송파구" data-created="1785846394" data-price="72000" data-disc="60"
+   href="https://www.daangn.com/kr/buy-sell/r9rqy7a4q3iu/" data-url="https://www.daangn.com/kr/buy-sell/r9rqy7a4q3iu/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202608/1785846373713ac52e41e8b8189b912b152bc66e48d0e5812816bb722406e0498528bb72f203a0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>글러브 알티스 11.75인치</b></div>
     <div class="price">7만 원 <span class="off">시세 18만 · -60%</span></div>
-    <div class="meta">송파구 잠실7동 · 81일 전</div>
+    <div class="meta">서울 송파구 잠실7동 · 81일 전</div>
     <div class="title">알티스 정주현 실착 내야글러브</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/6ej63673xt3q/" data-url="https://www.daangn.com/kr/buy-sell/6ej63673xt3q/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="구로구" data-created="1782717431" data-price="500000" data-disc="47"
+   href="https://www.daangn.com/kr/buy-sell/6ej63673xt3q/" data-url="https://www.daangn.com/kr/buy-sell/6ej63673xt3q/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202606/9e5f852eee1f9f3484921e9cf1a11de2d2aec333f9ac1febe541b8bf9a3ebfe8_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 512</b></div>
     <div class="price">50만 원 <span class="off">시세 95만 · -47%</span></div>
-    <div class="meta">구로구 개봉동 · 117일 전</div>
+    <div class="meta">서울 구로구 개봉동 · 117일 전</div>
     <div class="title">아이폰 16 프로 실버 512GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/9hwdtb38yy63/" data-url="https://www.daangn.com/kr/buy-sell/9hwdtb38yy63/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="동작구" data-created="1792039447" data-price="470000" data-disc="47"
+   href="https://www.daangn.com/kr/buy-sell/9hwdtb38yy63/" data-url="https://www.daangn.com/kr/buy-sell/9hwdtb38yy63/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/179201853116646553b8b7d32d74064f6bc3c00c676ebb6f65415c12d310c7adedb02a2ed324a0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">47만 원 <span class="off">시세 89만 · -47%</span></div>
-    <div class="meta">동작구 사당제4동 · 9일 전</div>
+    <div class="meta">서울 동작구 사당제4동 · 9일 전</div>
     <div class="title">아이폰16프로 256기가 데저트 팝니다</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/ikxney4566fc/" data-url="https://www.daangn.com/kr/buy-sell/ikxney4566fc/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1792800662" data-price="800000" data-disc="47"
+   href="https://www.daangn.com/kr/buy-sell/ikxney4566fc/" data-url="https://www.daangn.com/kr/buy-sell/ikxney4566fc/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792800629912fc98e07dbc771e05a0c9cc462291d99bc457dbc8ab1c7a0922eef1ed43a861110.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 17 프로 512</b></div>
     <div class="price">80만 원 <span class="off">시세 150만 · -47%</span></div>
-    <div class="meta">강남구 역삼2동 · 13시간 전</div>
+    <div class="meta">서울 강남구 역삼2동 · 14시간 전</div>
     <div class="title">아이폰 17프로 512기가</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/r9p9ww7e5pwj/" data-url="https://www.daangn.com/kr/buy-sell/r9p9ww7e5pwj/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="마포구" data-created="1792060435" data-price="490000" data-disc="45"
+   href="https://www.daangn.com/kr/buy-sell/r9p9ww7e5pwj/" data-url="https://www.daangn.com/kr/buy-sell/r9p9ww7e5pwj/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792060334051e7349b117cd8d990b31e7ff8575ec2550306d148185f63dab632c18ea9d42cd60.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 256</b></div>
     <div class="price">49만 원 <span class="off">시세 89만 · -45%</span></div>
-    <div class="meta">마포구 공덕동 · 9일 전</div>
+    <div class="meta">서울 마포구 공덕동 · 9일 전</div>
     <div class="title">아이폰16프로 내추럴티타늄 256G</div>
   </div>
 </a>
-<a class="card" data-brand="글러브" data-cat="글러브" href="https://www.daangn.com/kr/buy-sell/aqauagi7p4om/" data-url="https://www.daangn.com/kr/buy-sell/aqauagi7p4om/">
+<a class="card" data-brand="글러브" data-cat="글러브" data-sido="서울"
+   data-sgg="노원구" data-created="1789136454" data-price="80000" data-disc="43"
+   href="https://www.daangn.com/kr/buy-sell/aqauagi7p4om/" data-url="https://www.daangn.com/kr/buy-sell/aqauagi7p4om/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/17891362554555d01203674fe7ef9604999b6e521b58a533e41c76ab2da30a34001f2fb4da5550.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>글러브 저스트 11.75인치</b></div>
     <div class="price">8만 원 <span class="off">시세 14만 · -43%</span></div>
-    <div class="meta">노원구 하계동 · 42일 전</div>
+    <div class="meta">서울 노원구 하계동 · 42일 전</div>
     <div class="title">저스트 김현준 11.75 글러브 팝니다.</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/w5k15yyavkse/" data-url="https://www.daangn.com/kr/buy-sell/w5k15yyavkse/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강동구" data-created="1792049170" data-price="1230000" data-disc="43"
+   href="https://www.daangn.com/kr/buy-sell/w5k15yyavkse/" data-url="https://www.daangn.com/kr/buy-sell/w5k15yyavkse/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/17920501242517ad3536f6bf6bb96b73c91f94d10424fadfd014f551e7925bbae3a146e1060630.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 18 프로맥스 용량?</b></div>
     <div class="price">123만 원 <span class="off">시세 215만 · -43%</span></div>
-    <div class="meta">강동구 둔촌제2동 · 9일 전</div>
+    <div class="meta">서울 강동구 둔촌제2동 · 9일 전</div>
     <div class="title">아이폰 18 프로 맥스 S급</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/4ju9hwr2j46k/" data-url="https://www.daangn.com/kr/buy-sell/4ju9hwr2j46k/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강동구" data-created="1792157386" data-price="650000" data-disc="40"
+   href="https://www.daangn.com/kr/buy-sell/4ju9hwr2j46k/" data-url="https://www.daangn.com/kr/buy-sell/4ju9hwr2j46k/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/b620b869-56f8-4de7-9aa8-b318e0950db1.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로맥스 256</b></div>
     <div class="price">65만 원 <span class="off">시세 109만 · -40%</span></div>
-    <div class="meta">강동구 암사동 · 8일 전</div>
+    <div class="meta">서울 강동구 암사동 · 8일 전</div>
     <div class="title">아이폰 16프로맥스 256 골드</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/7aui2tucbebi/" data-url="https://www.daangn.com/kr/buy-sell/7aui2tucbebi/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1783575555" data-price="450000" data-disc="40"
+   href="https://www.daangn.com/kr/buy-sell/7aui2tucbebi/" data-url="https://www.daangn.com/kr/buy-sell/7aui2tucbebi/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202607/223de50d70e9a18b03841ea6940c4d7fb30efdab68ae0868b489c5d9570281cc_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드6 512</b></div>
     <div class="price">45만 원 <span class="off">시세 75만 · -40%</span></div>
-    <div class="meta">강남구 삼성2동 · 107일 전</div>
+    <div class="meta">서울 강남구 삼성2동 · 107일 전</div>
     <div class="title">삼성 갤럭시 Z폴드6 512GB 블루</div>
   </div>
 </a>
-<a class="card" data-brand="글러브" data-cat="글러브" href="https://www.daangn.com/kr/buy-sell/zcan3naheju6/" data-url="https://www.daangn.com/kr/buy-sell/zcan3naheju6/">
+<a class="card" data-brand="글러브" data-cat="글러브" data-sido="서울"
+   data-sgg="성북구" data-created="1792645828" data-price="150000" data-disc="40"
+   href="https://www.daangn.com/kr/buy-sell/zcan3naheju6/" data-url="https://www.daangn.com/kr/buy-sell/zcan3naheju6/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/6080bb85-677a-4814-9f6c-27a68133bf3d.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>글러브 아톰즈 12인치</b></div>
     <div class="price">15만 원 <span class="off">시세 25만 · -40%</span></div>
-    <div class="meta">성북구 종암동 · 2일 전</div>
+    <div class="meta">서울 성북구 종암동 · 2일 전</div>
     <div class="title">아톰즈 네버컴  야구 글러브</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/pt2pxeg9dfkc/" data-url="https://www.daangn.com/kr/buy-sell/pt2pxeg9dfkc/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="동작구" data-created="1790496292" data-price="1000000" data-disc="39"
+   href="https://www.daangn.com/kr/buy-sell/pt2pxeg9dfkc/" data-url="https://www.daangn.com/kr/buy-sell/pt2pxeg9dfkc/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/e900efc7d3c4255ec404ca5d59c2c989d09b907a6a5b41090f78167ac2602cf4_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이패드 프로 M5 13 256</b></div>
     <div class="price">100만 원 <span class="off">시세 165만 · -39%</span></div>
-    <div class="meta">동작구 상도제1동 · 27일 전</div>
+    <div class="meta">서울 동작구 상도제1동 · 27일 전</div>
     <div class="title">[배성능100/사이클6] 아이패드 프로 13 m5 256기가 와이파이 스그 풀박</div>
   </div>
 </a>
-<a class="card" data-brand="글러브" data-cat="글러브" href="https://www.daangn.com/kr/buy-sell/9bgt1u6r3bp7/" data-url="https://www.daangn.com/kr/buy-sell/9bgt1u6r3bp7/">
+<a class="card" data-brand="글러브" data-cat="글러브" data-sido="서울"
+   data-sgg="강남구" data-created="1792060584" data-price="100000" data-disc="39"
+   href="https://www.daangn.com/kr/buy-sell/9bgt1u6r3bp7/" data-url="https://www.daangn.com/kr/buy-sell/9bgt1u6r3bp7/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/60da6bc7-79af-41dc-b039-ab93cc6b2bb2.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>글러브 골드 11.75인치</b></div>
     <div class="price">10만 원 <span class="off">시세 16만 · -39%</span></div>
-    <div class="meta">강남구 역삼1동 · 9일 전</div>
+    <div class="meta">서울 강남구 역삼1동 · 9일 전</div>
     <div class="title">야신야덕 빡코 한정판 11.75 골드 내야글러브</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/i1bieb7mmcz6/" data-url="https://www.daangn.com/kr/buy-sell/i1bieb7mmcz6/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="서초구" data-created="1792721661" data-price="550000" data-disc="38"
+   href="https://www.daangn.com/kr/buy-sell/i1bieb7mmcz6/" data-url="https://www.daangn.com/kr/buy-sell/i1bieb7mmcz6/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792721516901016977b072ce018df64d9b57cc6832968c5c67dc789563bfd778274d416dd0100.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">55만 원 <span class="off">시세 89만 · -38%</span></div>
-    <div class="meta">서초구 서초동 · 1일 전</div>
+    <div class="meta">서울 서초구 서초동 · 1일 전</div>
     <div class="title">아이폰 16 프로 256</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/k7ka3ofnedif/" data-url="https://www.daangn.com/kr/buy-sell/k7ka3ofnedif/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="용산구" data-created="1791016346" data-price="550000" data-disc="38"
+   href="https://www.daangn.com/kr/buy-sell/k7ka3ofnedif/" data-url="https://www.daangn.com/kr/buy-sell/k7ka3ofnedif/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/17910160103150175d421c6b7ac5646fa56df9347b81fcbf3cafe3e33c166b4cbe4c2ab26dd770.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 256</b></div>
     <div class="price">55만 원 <span class="off">시세 89만 · -38%</span></div>
-    <div class="meta">용산구 이촌동 · 21일 전</div>
+    <div class="meta">서울 용산구 이촌동 · 21일 전</div>
     <div class="title">아이폰 16 프로 256GB 실버</div>
   </div>
 </a>
-<a class="card" data-brand="글러브" data-cat="글러브" href="https://www.daangn.com/kr/buy-sell/myr9k712voj6/" data-url="https://www.daangn.com/kr/buy-sell/myr9k712voj6/">
+<a class="card" data-brand="글러브" data-cat="글러브" data-sido="서울"
+   data-sgg="강동구" data-created="1788786127" data-price="120000" data-disc="37"
+   href="https://www.daangn.com/kr/buy-sell/myr9k712voj6/" data-url="https://www.daangn.com/kr/buy-sell/myr9k712voj6/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/16b49f4c22bd7222edfb6577692f69d6e9207a3b871100672dde9700af8d5a87_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>글러브 제트 11.75인치</b></div>
     <div class="price">12만 원 <span class="off">시세 19만 · -37%</span></div>
-    <div class="meta">강동구 상일동 · 47일 전</div>
+    <div class="meta">서울 강동구 상일동 · 47일 전</div>
     <div class="title">ZETT 야구 글러브 프로모델</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/31bmdvdfx5js/" data-url="https://www.daangn.com/kr/buy-sell/31bmdvdfx5js/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="관악구" data-created="1792834644" data-price="800000" data-disc="36"
+   href="https://www.daangn.com/kr/buy-sell/31bmdvdfx5js/" data-url="https://www.daangn.com/kr/buy-sell/31bmdvdfx5js/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/3d28d25b78671dd5cf4c202de466070d6164be1b121487d27e3f826f033c81d0_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 17 프로 256</b></div>
     <div class="price">80만 원 <span class="off">시세 125만 · -36%</span></div>
-    <div class="meta">관악구 신림동 · 4시간 전</div>
+    <div class="meta">서울 관악구 신림동 · 4시간 전</div>
     <div class="title">아이폰17프로 256기가 실버 자급제</div>
   </div>
 </a>
-<a class="card" data-brand="글러브" data-cat="글러브" href="https://www.daangn.com/kr/buy-sell/4xyisnwb8a2c/" data-url="https://www.daangn.com/kr/buy-sell/4xyisnwb8a2c/">
+<a class="card" data-brand="글러브" data-cat="글러브" data-sido="서울"
+   data-sgg="양천구" data-created="1790942478" data-price="128000" data-disc="36"
+   href="https://www.daangn.com/kr/buy-sell/4xyisnwb8a2c/" data-url="https://www.daangn.com/kr/buy-sell/4xyisnwb8a2c/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/0b3a1d73-7fd4-4100-8615-d324a1ff6a8e.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>글러브 윌슨 11.75인치</b></div>
     <div class="price">12만 원 <span class="off">시세 20만 · -36%</span></div>
-    <div class="meta">양천구 신정1동 · 22일 전</div>
+    <div class="meta">서울 양천구 신정1동 · 22일 전</div>
     <div class="title">윌슨 A1800 올라은드 야구 글러브</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/j22y2v4j7z24/" data-url="https://www.daangn.com/kr/buy-sell/j22y2v4j7z24/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="마포구" data-created="1791384087" data-price="450000" data-disc="36"
+   href="https://www.daangn.com/kr/buy-sell/j22y2v4j7z24/" data-url="https://www.daangn.com/kr/buy-sell/j22y2v4j7z24/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/a2f50c1e-6685-432e-8d62-d8a15b91bb73.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드6 256</b></div>
     <div class="price">45만 원 <span class="off">시세 70만 · -36%</span></div>
-    <div class="meta">마포구 공덕동 · 16일 전</div>
+    <div class="meta">서울 마포구 공덕동 · 16일 전</div>
     <div class="title">갤럭시 Z 폴드6 네이비 색상 256GB 모델이에요</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/x3yaq3tvp6r2/" data-url="https://www.daangn.com/kr/buy-sell/x3yaq3tvp6r2/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="종로구" data-created="1791161686" data-price="450000" data-disc="36"
+   href="https://www.daangn.com/kr/buy-sell/x3yaq3tvp6r2/" data-url="https://www.daangn.com/kr/buy-sell/x3yaq3tvp6r2/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/6ea1322d-32be-46fc-bfa0-d58f057b41ed.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드6 256</b></div>
     <div class="price">45만 원 <span class="off">시세 70만 · -36%</span></div>
-    <div class="meta">종로구 이화동 · 19일 전</div>
+    <div class="meta">서울 종로구 이화동 · 19일 전</div>
     <div class="title">갤럭시 Z 폴드6 네이비 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/qcdv3bjoae3r/" data-url="https://www.daangn.com/kr/buy-sell/qcdv3bjoae3r/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="금천구" data-created="1792778906" data-price="450000" data-disc="36"
+   href="https://www.daangn.com/kr/buy-sell/qcdv3bjoae3r/" data-url="https://www.daangn.com/kr/buy-sell/qcdv3bjoae3r/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/17927788426679c944fe346a399618f1b7b6f982d6eb55e082237c824b34c32593b11b7750d7e0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드6 256</b></div>
     <div class="price">45만 원 <span class="off">시세 70만 · -36%</span></div>
-    <div class="meta">금천구 가산동 · 19시간 전</div>
+    <div class="meta">서울 금천구 가산동 · 20시간 전</div>
     <div class="title">삼성 갤럭시 Z 폴드6 블루 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/toou74offt8k/" data-url="https://www.daangn.com/kr/buy-sell/toou74offt8k/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="경기"
+   data-sgg="하남시" data-created="1792406681" data-price="580000" data-disc="35"
+   href="https://www.daangn.com/kr/buy-sell/toou74offt8k/" data-url="https://www.daangn.com/kr/buy-sell/toou74offt8k/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792406410405ccccda253c4bf0ae9007379731e9f2bcb785e8616b539e973d828a03f26306d80.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">58만 원 <span class="off">시세 89만 · -35%</span></div>
-    <div class="meta">하남시 감북동 · 5일 전</div>
+    <div class="meta">경기 하남시 감북동 · 5일 전</div>
     <div class="title">아이폰16프로 256기가 (배터리90)</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/j1gs6cetejum/" data-url="https://www.daangn.com/kr/buy-sell/j1gs6cetejum/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="종로구" data-created="1792040297" data-price="590000" data-disc="34"
+   href="https://www.daangn.com/kr/buy-sell/j1gs6cetejum/" data-url="https://www.daangn.com/kr/buy-sell/j1gs6cetejum/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/179204000821880b52497dff0ba6bf09ee4340a04b8282da61868443e6c742dc197c41db57e7c0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 256</b></div>
     <div class="price">59만 원 <span class="off">시세 89만 · -34%</span></div>
-    <div class="meta">종로구 원서동 · 9일 전</div>
+    <div class="meta">서울 종로구 원서동 · 9일 전</div>
     <div class="title">아이폰 16 프로 골드 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/ut6kx6wbhu8y/" data-url="https://www.daangn.com/kr/buy-sell/ut6kx6wbhu8y/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강동구" data-created="1792584127" data-price="1400000" data-disc="34"
+   href="https://www.daangn.com/kr/buy-sell/ut6kx6wbhu8y/" data-url="https://www.daangn.com/kr/buy-sell/ut6kx6wbhu8y/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/f9b624d9-a2c6-4660-97c1-828450823fc0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드8 512 + 미개봉</b></div>
     <div class="price">140만 원 <span class="off">시세 210만 · -34%</span></div>
-    <div class="meta">강동구 성내동 · 3일 전</div>
+    <div class="meta">서울 강동구 성내동 · 3일 전</div>
     <div class="title">삼성 갤럭시 Z 폴드8 512GB 미개봉</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/y4rcg9tihv17/" data-url="https://www.daangn.com/kr/buy-sell/y4rcg9tihv17/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="동작구" data-created="1790496236" data-price="1000000" data-disc="33"
+   href="https://www.daangn.com/kr/buy-sell/y4rcg9tihv17/" data-url="https://www.daangn.com/kr/buy-sell/y4rcg9tihv17/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/f10633c08ba2894dc573c4298cb40645258fb23be798dfd2c1431282e72490a1_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 17 프로맥스 256</b></div>
     <div class="price">100만 원 <span class="off">시세 150만 · -33%</span></div>
-    <div class="meta">동작구 상도제1동 · 27일 전</div>
+    <div class="meta">서울 동작구 상도제1동 · 27일 전</div>
     <div class="title">아이폰 17 프로맥스 코스믹 오렌지 256GB 무결점</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/qk95od5jem1i/" data-url="https://www.daangn.com/kr/buy-sell/qk95od5jem1i/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="양천구" data-created="1789540726" data-price="1000000" data-disc="33"
+   href="https://www.daangn.com/kr/buy-sell/qk95od5jem1i/" data-url="https://www.daangn.com/kr/buy-sell/qk95od5jem1i/">
   <img src="" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 17 프로맥스 용량?</b></div>
     <div class="price">100만 원 <span class="off">시세 150만 · -33%</span></div>
-    <div class="meta">양천구 신월동 · 38일 전</div>
+    <div class="meta">서울 양천구 신월동 · 38일 전</div>
     <div class="title">아이폰 17 pro max</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/fo4pkyqgrddg/" data-url="https://www.daangn.com/kr/buy-sell/fo4pkyqgrddg/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="구로구" data-created="1792067614" data-price="600000" data-disc="33"
+   href="https://www.daangn.com/kr/buy-sell/fo4pkyqgrddg/" data-url="https://www.daangn.com/kr/buy-sell/fo4pkyqgrddg/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/1790604640118cf9b65db30791da693610918b0b4668c5bd71814d9ccc1e5a3b9813476efc7840.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">60만 원 <span class="off">시세 89만 · -33%</span></div>
-    <div class="meta">구로구 구로제1동 · 9일 전</div>
+    <div class="meta">서울 구로구 구로제1동 · 9일 전</div>
     <div class="title">아이폰 16프로(256기가)</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/pk26tx28dh7m/" data-url="https://www.daangn.com/kr/buy-sell/pk26tx28dh7m/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="관악구" data-created="1792634760" data-price="600000" data-disc="33"
+   href="https://www.daangn.com/kr/buy-sell/pk26tx28dh7m/" data-url="https://www.daangn.com/kr/buy-sell/pk26tx28dh7m/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/4b15bd8f-ef99-455a-8e7b-38fc02104682.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">60만 원 <span class="off">시세 89만 · -33%</span></div>
-    <div class="meta">관악구 행운동 · 2일 전</div>
+    <div class="meta">서울 관악구 행운동 · 2일 전</div>
     <div class="title">애플 아이폰 16 프로 화이트</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/qwognop45itd/" data-url="https://www.daangn.com/kr/buy-sell/qwognop45itd/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="중구" data-created="1792301758" data-price="600000" data-disc="33"
+   href="https://www.daangn.com/kr/buy-sell/qwognop45itd/" data-url="https://www.daangn.com/kr/buy-sell/qwognop45itd/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792301712225fddcddf59b3b45b114b973a292b402bf46e9d48524a34b7e28829bb27fc871ee0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 256</b></div>
     <div class="price">60만 원 <span class="off">시세 89만 · -33%</span></div>
-    <div class="meta">중구 명동 · 6일 전</div>
+    <div class="meta">서울 중구 명동 · 6일 전</div>
     <div class="title">아이폰 16 프로 블랙 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/wxpobddybb1r/" data-url="https://www.daangn.com/kr/buy-sell/wxpobddybb1r/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1792821533" data-price="2900000" data-disc="32"
+   href="https://www.daangn.com/kr/buy-sell/wxpobddybb1r/" data-url="https://www.daangn.com/kr/buy-sell/wxpobddybb1r/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/179282143667478442966b75f162376a43e40d358a5553fd8e89ca44e28bb7143d828d474651b0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 듀오 512 + 미개봉</b></div>
     <div class="price">290만 원 <span class="off">시세 428만 · -32%</span></div>
-    <div class="meta">강남구 대치동 · 7시간 전</div>
+    <div class="meta">서울 강남구 대치동 · 8시간 전</div>
     <div class="title">아이폰듀오 나이트스카이 512 미개봉 새상품</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/61nghfnkbo9x/" data-url="https://www.daangn.com/kr/buy-sell/61nghfnkbo9x/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="서초구" data-created="1792720841" data-price="850000" data-disc="32"
+   href="https://www.daangn.com/kr/buy-sell/61nghfnkbo9x/" data-url="https://www.daangn.com/kr/buy-sell/61nghfnkbo9x/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792720694304f4bf0475353a94b54e54597a73ae53bfceef62441f3b3207e353d9ea3521badd0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 17 프로 256</b></div>
     <div class="price">85만 원 <span class="off">시세 125만 · -32%</span></div>
-    <div class="meta">서초구 잠원동 · 1일 전</div>
+    <div class="meta">서울 서초구 잠원동 · 1일 전</div>
     <div class="title">아이폰 17 프로 오렌지 256기가</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/wgxqhwwfg8nj/" data-url="https://www.daangn.com/kr/buy-sell/wgxqhwwfg8nj/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="서초구" data-created="1792674694" data-price="850000" data-disc="32"
+   href="https://www.daangn.com/kr/buy-sell/wgxqhwwfg8nj/" data-url="https://www.daangn.com/kr/buy-sell/wgxqhwwfg8nj/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/473554e8-7496-462b-bf7c-94f63fd91272.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 17 프로 256</b></div>
     <div class="price">85만 원 <span class="off">시세 125만 · -32%</span></div>
-    <div class="meta">서초구 반포본동 · 2일 전</div>
+    <div class="meta">서울 서초구 반포본동 · 2일 전</div>
     <div class="title">아이폰 17 프로 오렌지 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/dpsi3t4bmeh5/" data-url="https://www.daangn.com/kr/buy-sell/dpsi3t4bmeh5/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="송파구" data-created="1791967242" data-price="650000" data-disc="32"
+   href="https://www.daangn.com/kr/buy-sell/dpsi3t4bmeh5/" data-url="https://www.daangn.com/kr/buy-sell/dpsi3t4bmeh5/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/4c68e48d-5dd2-4ff9-9eb2-b51e960f4f4c.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 512</b></div>
     <div class="price">65만 원 <span class="off">시세 95만 · -32%</span></div>
-    <div class="meta">송파구 잠실4동 · 10일 전</div>
+    <div class="meta">서울 송파구 잠실4동 · 10일 전</div>
     <div class="title">아이폰 16 프로 512 내용 꼭 필독</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/vpc2eupzxjea/" data-url="https://www.daangn.com/kr/buy-sell/vpc2eupzxjea/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강동구" data-created="1790580099" data-price="550000" data-disc="31"
+   href="https://www.daangn.com/kr/buy-sell/vpc2eupzxjea/" data-url="https://www.daangn.com/kr/buy-sell/vpc2eupzxjea/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/1790579961362094dbe677c943f1e3bcc172e297ff675a864cd1de09a1ce32bd30ea95091f6430.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 용량?</b></div>
     <div class="price">55만 원 <span class="off">시세 80만 · -31%</span></div>
-    <div class="meta">강동구 천호동 · 26일 전</div>
+    <div class="meta">서울 강동구 천호동 · 26일 전</div>
     <div class="title">아이폰 16 프로</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/kqbgngbzfvxg/" data-url="https://www.daangn.com/kr/buy-sell/kqbgngbzfvxg/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강동구" data-created="1792835857" data-price="520000" data-disc="31"
+   href="https://www.daangn.com/kr/buy-sell/kqbgngbzfvxg/" data-url="https://www.daangn.com/kr/buy-sell/kqbgngbzfvxg/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/649d35df-10a6-473b-9048-612cc93b3c2a.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드6 512</b></div>
     <div class="price">52만 원 <span class="off">시세 75만 · -31%</span></div>
-    <div class="meta">강동구 성내동 · 4시간 전</div>
+    <div class="meta">서울 강동구 성내동 · 4시간 전</div>
     <div class="title">갤럭시 Z 폴드6 실버 512GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/a7hf3gfogvsx/" data-url="https://www.daangn.com/kr/buy-sell/a7hf3gfogvsx/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="구로구" data-created="1792146187" data-price="870000" data-disc="30"
+   href="https://www.daangn.com/kr/buy-sell/a7hf3gfogvsx/" data-url="https://www.daangn.com/kr/buy-sell/a7hf3gfogvsx/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/5a461ad1-2fe4-4c0f-9415-21d1becf9367.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 17 프로 256</b></div>
     <div class="price">87만 원 <span class="off">시세 125만 · -30%</span></div>
-    <div class="meta">구로구 고척동 · 8일 전</div>
+    <div class="meta">서울 구로구 고척동 · 8일 전</div>
     <div class="title">아이폰 17프로 256기가 배터리100</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/75atsy2wbjjj/" data-url="https://www.daangn.com/kr/buy-sell/75atsy2wbjjj/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1792126783" data-price="1850000" data-disc="30"
+   href="https://www.daangn.com/kr/buy-sell/75atsy2wbjjj/" data-url="https://www.daangn.com/kr/buy-sell/75atsy2wbjjj/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/57eff2b900b4f587a6d1b0d428521c5f8e466d15711c858308b329a17a159cd6_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드8 1TB + 미개봉</b></div>
     <div class="price">185만 원 <span class="off">시세 265만 · -30%</span></div>
-    <div class="meta">강남구 역삼동 · 8일 전</div>
+    <div class="meta">서울 강남구 역삼동 · 8일 전</div>
     <div class="title">갤럭시 폴드8 1TB 미개봉 자급제</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/bes6djdgpfr3/" data-url="https://www.daangn.com/kr/buy-sell/bes6djdgpfr3/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="용산구" data-created="1792593405" data-price="620000" data-disc="30"
+   href="https://www.daangn.com/kr/buy-sell/bes6djdgpfr3/" data-url="https://www.daangn.com/kr/buy-sell/bes6djdgpfr3/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792593333976135eb3a11742f3712d03dbecf79c7168214595a3c6280b92c084ca436b0f8c110.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 256</b></div>
     <div class="price">62만 원 <span class="off">시세 89만 · -30%</span></div>
-    <div class="meta">용산구 보광동 · 2일 전</div>
+    <div class="meta">서울 용산구 보광동 · 2일 전</div>
     <div class="title">애플 아이폰 16프로 256기가</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/y3u2rga4x7ip/" data-url="https://www.daangn.com/kr/buy-sell/y3u2rga4x7ip/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1791791350" data-price="880000" data-disc="30"
+   href="https://www.daangn.com/kr/buy-sell/y3u2rga4x7ip/" data-url="https://www.daangn.com/kr/buy-sell/y3u2rga4x7ip/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/179179127816940cb233838db30a0ec1a51418c100c019d1115dac44aaa4a889e9b4cd2de3f190.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 17 프로 256</b></div>
     <div class="price">88만 원 <span class="off">시세 125만 · -30%</span></div>
-    <div class="meta">강남구 도곡동 · 12일 전</div>
+    <div class="meta">서울 강남구 도곡동 · 12일 전</div>
     <div class="title">아이폰 17pro 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/ky22yrz5z2sb/" data-url="https://www.daangn.com/kr/buy-sell/ky22yrz5z2sb/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강동구" data-created="1792792024" data-price="530000" data-disc="29"
+   href="https://www.daangn.com/kr/buy-sell/ky22yrz5z2sb/" data-url="https://www.daangn.com/kr/buy-sell/ky22yrz5z2sb/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/e032a8dd-3b3c-4bfe-a1b1-43a4cb7a6a29.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드6 512</b></div>
     <div class="price">53만 원 <span class="off">시세 75만 · -29%</span></div>
-    <div class="meta">강동구 고덕제2동 · 16시간 전</div>
+    <div class="meta">서울 강동구 고덕제2동 · 16시간 전</div>
     <div class="title">갤럭시폴드6 대용량512기가</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/jvzpka4ec8st/" data-url="https://www.daangn.com/kr/buy-sell/jvzpka4ec8st/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="중구" data-created="1790894368" data-price="630000" data-disc="29"
+   href="https://www.daangn.com/kr/buy-sell/jvzpka4ec8st/" data-url="https://www.daangn.com/kr/buy-sell/jvzpka4ec8st/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1790894108742f444972621a2243d9631285b383d33b166b65f4d47a9c88a752ca55949a432d20.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 256</b></div>
     <div class="price">63만 원 <span class="off">시세 89만 · -29%</span></div>
-    <div class="meta">중구 소공동 · 22일 전</div>
+    <div class="meta">서울 중구 소공동 · 22일 전</div>
     <div class="title">아이폰 16프로 화이트 256GB(박스xx)</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/nr7jyjivfgtv/" data-url="https://www.daangn.com/kr/buy-sell/nr7jyjivfgtv/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="서대문구" data-created="1792543180" data-price="630000" data-disc="29"
+   href="https://www.daangn.com/kr/buy-sell/nr7jyjivfgtv/" data-url="https://www.daangn.com/kr/buy-sell/nr7jyjivfgtv/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/179153012013221ef553c05367b362bd4d354a9e6060774bd8572b88196c128e4655260c703ed0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 256</b></div>
     <div class="price">63만 원 <span class="off">시세 89만 · -29%</span></div>
-    <div class="meta">서대문구 연희동 · 3일 전</div>
+    <div class="meta">서울 서대문구 연희동 · 3일 전</div>
     <div class="title">외관 깨끗한 아이폰 16 프로 pro 256</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/7w2snznvvjcd/" data-url="https://www.daangn.com/kr/buy-sell/7w2snznvvjcd/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="관악구" data-created="1791634935" data-price="900000" data-disc="29"
+   href="https://www.daangn.com/kr/buy-sell/7w2snznvvjcd/" data-url="https://www.daangn.com/kr/buy-sell/7w2snznvvjcd/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1791634779222141bde3f59bbd243ae880c6aa6ae394c53001efd337a77d9dfe1653be0827ed60.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로맥스 1TB</b></div>
     <div class="price">90만 원 <span class="off">시세 127만 · -29%</span></div>
-    <div class="meta">관악구 조원동 · 14일 전</div>
+    <div class="meta">서울 관악구 조원동 · 14일 전</div>
     <div class="title">아이폰16프로맥스 1TB</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/3tjefwrixme9/" data-url="https://www.daangn.com/kr/buy-sell/3tjefwrixme9/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강서구" data-created="1792007528" data-price="1100000" data-disc="29"
+   href="https://www.daangn.com/kr/buy-sell/3tjefwrixme9/" data-url="https://www.daangn.com/kr/buy-sell/3tjefwrixme9/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/89e0701b-f1c4-4106-9fcc-f384fe081b5a.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드7 1TB</b></div>
     <div class="price">110만 원 <span class="off">시세 155만 · -29%</span></div>
-    <div class="meta">강서구 내발산동 · 9일 전</div>
+    <div class="meta">서울 강서구 내발산동 · 9일 전</div>
     <div class="title">갤럭시 Z폴드7 블루 1TB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/c7ygy3mb1xjs/" data-url="https://www.daangn.com/kr/buy-sell/c7ygy3mb1xjs/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1792419469" data-price="2550000" data-disc="29"
+   href="https://www.daangn.com/kr/buy-sell/c7ygy3mb1xjs/" data-url="https://www.daangn.com/kr/buy-sell/c7ygy3mb1xjs/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792419379618560cae4e859f47066ca8a21e5caeeb260fd5c6ffa579be4eef6bf5e7abf528f00.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 듀오 256</b></div>
     <div class="price">255만 원 <span class="off">시세 359만 · -29%</span></div>
-    <div class="meta">강남구 논현동 · 4일 전</div>
+    <div class="meta">서울 강남구 논현동 · 4일 전</div>
     <div class="title">마지막1대 아이폰듀오256기가</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/gje1ze9pohfo/" data-url="https://www.daangn.com/kr/buy-sell/gje1ze9pohfo/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="중구" data-created="1792631680" data-price="890000" data-disc="29"
+   href="https://www.daangn.com/kr/buy-sell/gje1ze9pohfo/" data-url="https://www.daangn.com/kr/buy-sell/gje1ze9pohfo/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1e523f8a-cea7-407b-a600-8558d683b4a3.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드7 512</b></div>
     <div class="price">89만 원 <span class="off">시세 125만 · -29%</span></div>
-    <div class="meta">중구 을지로4가 · 2일 전</div>
+    <div class="meta">서울 중구 을지로4가 · 2일 전</div>
     <div class="title">삼성 갤럭시 Z 폴드7 512G 블랙 자급제 판매</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/8riibzco63wv/" data-url="https://www.daangn.com/kr/buy-sell/8riibzco63wv/">
+<a class="card" data-brand="갤럭시" data-cat="태블릿" data-sido="서울"
+   data-sgg="서초구" data-created="1791174976" data-price="1000000" data-disc="29"
+   href="https://www.daangn.com/kr/buy-sell/8riibzco63wv/" data-url="https://www.daangn.com/kr/buy-sell/8riibzco63wv/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/983d733f6dafbee6eec9191d247b1edf99c5b0934072deef7beda44f7b169e7d_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시탭 S11 울트라 512 + 키보드</b></div>
     <div class="price">100만 원 <span class="off">시세 140만 · -29%</span></div>
-    <div class="meta">서초구 반포동 · 19일 전</div>
+    <div class="meta">서울 서초구 반포동 · 19일 전</div>
     <div class="title">삼성 갤럭시탭 S11 울트라 512GB + 정품키보드케이스</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/fipx8xdnvv4o/" data-url="https://www.daangn.com/kr/buy-sell/fipx8xdnvv4o/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="영등포구" data-created="1785680326" data-price="650000" data-disc="28"
+   href="https://www.daangn.com/kr/buy-sell/fipx8xdnvv4o/" data-url="https://www.daangn.com/kr/buy-sell/fipx8xdnvv4o/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202608/4763c4225654e050e3f9159e03adb63b19f00f6fcf8da225afe0047a5b6c4ec7_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드6 1TB</b></div>
     <div class="price">65만 원 <span class="off">시세 89만 · -28%</span></div>
-    <div class="meta">영등포구 신길제1동 · 82일 전</div>
+    <div class="meta">서울 영등포구 신길제1동 · 82일 전</div>
     <div class="title">[풀박스/자급제] 갤럭시 Z폴드6 1TB (외부 디스플레이 사용 가능)</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/4ase4uyrzgs9/" data-url="https://www.daangn.com/kr/buy-sell/4ase4uyrzgs9/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="용산구" data-created="1792379746" data-price="510000" data-disc="27"
+   href="https://www.daangn.com/kr/buy-sell/4ase4uyrzgs9/" data-url="https://www.daangn.com/kr/buy-sell/4ase4uyrzgs9/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792379726471b4f4755936667099c5323f2139e37c7e2b4b5e197c4265da020caa08d99465e80.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드6 256</b></div>
     <div class="price">51만 원 <span class="off">시세 70만 · -27%</span></div>
-    <div class="meta">용산구 이태원동 · 5일 전</div>
+    <div class="meta">서울 용산구 이태원동 · 5일 전</div>
     <div class="title">갤럭시 Z 폴드6 네이비 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/8kku77kkngfy/" data-url="https://www.daangn.com/kr/buy-sell/8kku77kkngfy/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="금천구" data-created="1792743638" data-price="650000" data-disc="27"
+   href="https://www.daangn.com/kr/buy-sell/8kku77kkngfy/" data-url="https://www.daangn.com/kr/buy-sell/8kku77kkngfy/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/19c03dd2-dff0-419b-b501-e0184716e1ce.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">65만 원 <span class="off">시세 89만 · -27%</span></div>
-    <div class="meta">금천구 가산동 · 1일 전</div>
+    <div class="meta">서울 금천구 가산동 · 1일 전</div>
     <div class="title">아이폰 16프로 화이트 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/ztpe9cdv68mp/" data-url="https://www.daangn.com/kr/buy-sell/ztpe9cdv68mp/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="종로구" data-created="1789786692" data-price="650000" data-disc="27"
+   href="https://www.daangn.com/kr/buy-sell/ztpe9cdv68mp/" data-url="https://www.daangn.com/kr/buy-sell/ztpe9cdv68mp/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/178978665638430dd0114708e80b90134bb37b2e4014a46fd9a0b39e76962557a848f77cce9080.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 256</b></div>
     <div class="price">65만 원 <span class="off">시세 89만 · -27%</span></div>
-    <div class="meta">종로구 인의동 · 35일 전</div>
+    <div class="meta">서울 종로구 인의동 · 35일 전</div>
     <div class="title">아이폰16프로 데저트티나늄 256</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/s7mcqt92uv2u/" data-url="https://www.daangn.com/kr/buy-sell/s7mcqt92uv2u/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="종로구" data-created="1790438078" data-price="650000" data-disc="27"
+   href="https://www.daangn.com/kr/buy-sell/s7mcqt92uv2u/" data-url="https://www.daangn.com/kr/buy-sell/s7mcqt92uv2u/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/17897863844162a156980bca2d9f57adbf5af620c76a22ac4b8cd442d77babc8017576a36e4ad0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 256</b></div>
     <div class="price">65만 원 <span class="off">시세 89만 · -27%</span></div>
-    <div class="meta">종로구 인의동 · 27일 전</div>
+    <div class="meta">서울 종로구 인의동 · 27일 전</div>
     <div class="title">아이폰 16 프로 데저트 티타늄 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/2p6p8cktwif2/" data-url="https://www.daangn.com/kr/buy-sell/2p6p8cktwif2/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1791678089" data-price="550000" data-disc="27"
+   href="https://www.daangn.com/kr/buy-sell/2p6p8cktwif2/" data-url="https://www.daangn.com/kr/buy-sell/2p6p8cktwif2/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/48203a18-85d9-4e03-ad33-1e64669879e3.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드6 512</b></div>
     <div class="price">55만 원 <span class="off">시세 75만 · -27%</span></div>
-    <div class="meta">강남구 역삼동 · 13일 전</div>
+    <div class="meta">서울 강남구 역삼동 · 13일 전</div>
     <div class="title">갤럭시 Z 폴드6 네이비 512GB 네이비</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/zqfryoaf1h73/" data-url="https://www.daangn.com/kr/buy-sell/zqfryoaf1h73/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="금천구" data-created="1791861039" data-price="800000" data-disc="27"
+   href="https://www.daangn.com/kr/buy-sell/zqfryoaf1h73/" data-url="https://www.daangn.com/kr/buy-sell/zqfryoaf1h73/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1791860922926088015ca405d3ac50ffd37628a0753cb8e6d5f16ccefe5229160968e5663247d0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로맥스 256</b></div>
     <div class="price">80만 원 <span class="off">시세 109만 · -27%</span></div>
-    <div class="meta">금천구 가산동 · 11일 전</div>
+    <div class="meta">서울 금천구 가산동 · 11일 전</div>
     <div class="title">아이폰 16프로맥스 256 화이트 티타늄</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/f8qieas52onb/" data-url="https://www.daangn.com/kr/buy-sell/f8qieas52onb/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="중구" data-created="1790850380" data-price="800000" data-disc="27"
+   href="https://www.daangn.com/kr/buy-sell/f8qieas52onb/" data-url="https://www.daangn.com/kr/buy-sell/f8qieas52onb/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/179085027014034206abc0e058289825af2a9402e1a2497757ae9c9cdceff2666498e7b9063530.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로맥스 256</b></div>
     <div class="price">80만 원 <span class="off">시세 109만 · -27%</span></div>
-    <div class="meta">중구 황학동 · 23일 전</div>
+    <div class="meta">서울 중구 황학동 · 23일 전</div>
     <div class="title">아이폰16프로맥스 256기가</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/7wr4bin2opj8/" data-url="https://www.daangn.com/kr/buy-sell/7wr4bin2opj8/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="동작구" data-created="1792677681" data-price="920000" data-disc="26"
+   href="https://www.daangn.com/kr/buy-sell/7wr4bin2opj8/" data-url="https://www.daangn.com/kr/buy-sell/7wr4bin2opj8/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792677435018e5a73d97abea513b16e833c91b9a5388c9ef70bf0f2b28aba3e28e3080c576c60.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드7 512</b></div>
     <div class="price">92만 원 <span class="off">시세 125만 · -26%</span></div>
-    <div class="meta">동작구 신대방제2동 · 1일 전</div>
+    <div class="meta">서울 동작구 신대방제2동 · 2일 전</div>
     <div class="title">(재업!!)삼성 갤럭시 Z 폴드 7 실버 512GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/txjdmzn41wpo/" data-url="https://www.daangn.com/kr/buy-sell/txjdmzn41wpo/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1790093357" data-price="700000" data-disc="26"
+   href="https://www.daangn.com/kr/buy-sell/txjdmzn41wpo/" data-url="https://www.daangn.com/kr/buy-sell/txjdmzn41wpo/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/17900930565744ffbe593778231802cd13530273dc81964a6be8ea0b43b02dacd8d9cbfce21f10.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 512</b></div>
     <div class="price">70만 원 <span class="off">시세 95만 · -26%</span></div>
-    <div class="meta">강남구 역삼1동 · 31일 전</div>
+    <div class="meta">서울 강남구 역삼1동 · 31일 전</div>
     <div class="title">아이폰 16프로,512G</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/zwnjw2dv1473/" data-url="https://www.daangn.com/kr/buy-sell/zwnjw2dv1473/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강서구" data-created="1792636569" data-price="700000" data-disc="26"
+   href="https://www.daangn.com/kr/buy-sell/zwnjw2dv1473/" data-url="https://www.daangn.com/kr/buy-sell/zwnjw2dv1473/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792636401930faef3c3e5e8b49751428ac3fb7affb6a2bfbc6ec9301f24ed8d6b4728ab5f5c90.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 512</b></div>
     <div class="price">70만 원 <span class="off">시세 95만 · -26%</span></div>
-    <div class="meta">강서구 화곡동 · 2일 전</div>
+    <div class="meta">서울 강서구 화곡동 · 2일 전</div>
     <div class="title">애플 아이폰 16 프로 화이트 512기가</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/y6khs67sf1fk/" data-url="https://www.daangn.com/kr/buy-sell/y6khs67sf1fk/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="관악구" data-created="1792136448" data-price="590000" data-disc="26"
+   href="https://www.daangn.com/kr/buy-sell/y6khs67sf1fk/" data-url="https://www.daangn.com/kr/buy-sell/y6khs67sf1fk/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792136295385bced2843a86be5e5e5b91d9f16b1d3e9d50ae81f7b5b9d8ae0b83c89bd7879cc0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 128</b></div>
     <div class="price">59만 원 <span class="off">시세 80만 · -26%</span></div>
-    <div class="meta">관악구 낙성대동 · 8일 전</div>
+    <div class="meta">서울 관악구 낙성대동 · 8일 전</div>
     <div class="title">아이폰 16프로 128GB 배터리92% (수리이력x) 정상작동</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/qn4sjvcr4cvk/" data-url="https://www.daangn.com/kr/buy-sell/qn4sjvcr4cvk/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="은평구" data-created="1789815908" data-price="660000" data-disc="26"
+   href="https://www.daangn.com/kr/buy-sell/qn4sjvcr4cvk/" data-url="https://www.daangn.com/kr/buy-sell/qn4sjvcr4cvk/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/178981579965865e57fdf2c6289561fb1053434fa4fcf67d91d02b49a48c94794a884ed05313f0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 256</b></div>
     <div class="price">66만 원 <span class="off">시세 89만 · -26%</span></div>
-    <div class="meta">은평구 역촌동 · 35일 전</div>
+    <div class="meta">서울 은평구 역촌동 · 35일 전</div>
     <div class="title">아이폰 16프로 256</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/qr2w16xjh7ea/" data-url="https://www.daangn.com/kr/buy-sell/qr2w16xjh7ea/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1789981947" data-price="930000" data-disc="26"
+   href="https://www.daangn.com/kr/buy-sell/qr2w16xjh7ea/" data-url="https://www.daangn.com/kr/buy-sell/qr2w16xjh7ea/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1791259584617ba333b2bd906c354fd934e210456ccbc7e4703dfc8e531ec668866e4efe4c4840.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 17 프로 256</b></div>
     <div class="price">93만 원 <span class="off">시세 125만 · -26%</span></div>
-    <div class="meta">강남구 논현동 · 33일 전</div>
+    <div class="meta">서울 강남구 논현동 · 33일 전</div>
     <div class="title">아이폰17 256g 블랙 배터리 95프로 상태A급 판매합니다</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/tnofx2gpgvtu/" data-url="https://www.daangn.com/kr/buy-sell/tnofx2gpgvtu/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="관악구" data-created="1792833624" data-price="860000" data-disc="25"
+   href="https://www.daangn.com/kr/buy-sell/tnofx2gpgvtu/" data-url="https://www.daangn.com/kr/buy-sell/tnofx2gpgvtu/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/b9498732-1c98-45b5-86d1-5b3b87f96b91.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드7 256</b></div>
     <div class="price">86만 원 <span class="off">시세 115만 · -25%</span></div>
-    <div class="meta">관악구 서원동 · 4시간 전</div>
+    <div class="meta">서울 관악구 서원동 · 4시간 전</div>
     <div class="title">갤럭시z폴드7 256GB 실버 픽셀점하자있음 급처</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/mgdbob3xw56f/" data-url="https://www.daangn.com/kr/buy-sell/mgdbob3xw56f/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="성동구" data-created="1792827972" data-price="1700000" data-disc="25"
+   href="https://www.daangn.com/kr/buy-sell/mgdbob3xw56f/" data-url="https://www.daangn.com/kr/buy-sell/mgdbob3xw56f/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/2b4bcfef-aacf-432a-8d94-70bafaddf60b.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 18 프로 512 + 미개봉</b></div>
     <div class="price">170만 원 <span class="off">시세 226만 · -25%</span></div>
-    <div class="meta">성동구 금호동3가 · 6시간 전</div>
+    <div class="meta">서울 성동구 금호동3가 · 6시간 전</div>
     <div class="title">아이폰 18프로 512GB 글레이셔 색상 미개봉</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/bpxjcs3xfpz5/" data-url="https://www.daangn.com/kr/buy-sell/bpxjcs3xfpz5/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="송파구" data-created="1791631807" data-price="600000" data-disc="25"
+   href="https://www.daangn.com/kr/buy-sell/bpxjcs3xfpz5/" data-url="https://www.daangn.com/kr/buy-sell/bpxjcs3xfpz5/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/179163171028805381ae1f3617933f8ec1579f6012326e46784c6991204d091a1b91161bfec740.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 128</b></div>
     <div class="price">60만 원 <span class="off">시세 80만 · -25%</span></div>
-    <div class="meta">송파구 잠실4동 · 14일 전</div>
+    <div class="meta">서울 송파구 잠실4동 · 14일 전</div>
     <div class="title">아이폰 16프로 128 블랙</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/ism9z9e71k17/" data-url="https://www.daangn.com/kr/buy-sell/ism9z9e71k17/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1790690807" data-price="600000" data-disc="25"
+   href="https://www.daangn.com/kr/buy-sell/ism9z9e71k17/" data-url="https://www.daangn.com/kr/buy-sell/ism9z9e71k17/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/1790690708219278277a572a8bd82fca08a6b42816b63e151fb9141c6f2cfb3e11d7e53c4f8ff0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 128</b></div>
     <div class="price">60만 원 <span class="off">시세 80만 · -25%</span></div>
-    <div class="meta">강남구 청담동 · 24일 전</div>
+    <div class="meta">서울 강남구 청담동 · 25일 전</div>
     <div class="title">아이폰 16프로 실버 128기가</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/v2h41ewakqvv/" data-url="https://www.daangn.com/kr/buy-sell/v2h41ewakqvv/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="은평구" data-created="1792642485" data-price="600000" data-disc="25"
+   href="https://www.daangn.com/kr/buy-sell/v2h41ewakqvv/" data-url="https://www.daangn.com/kr/buy-sell/v2h41ewakqvv/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/17926423479222428cf54f2709bcefb5b829e46b4950f91304e10780d0e6394fad3df077df2020.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로 128</b></div>
     <div class="price">60만 원 <span class="off">시세 80만 · -25%</span></div>
-    <div class="meta">은평구 응암동 · 2일 전</div>
+    <div class="meta">서울 은평구 응암동 · 2일 전</div>
     <div class="title">아이폰 16 Pro 128GB 블랙 판매합니다.</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/bdurm6t5rd7d/" data-url="https://www.daangn.com/kr/buy-sell/bdurm6t5rd7d/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="송파구" data-created="1792760660" data-price="670000" data-disc="25"
+   href="https://www.daangn.com/kr/buy-sell/bdurm6t5rd7d/" data-url="https://www.daangn.com/kr/buy-sell/bdurm6t5rd7d/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/ab91e13f-4cd9-49c5-bf6e-7681f15b2a0c.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">67만 원 <span class="off">시세 89만 · -25%</span></div>
-    <div class="meta">송파구 오금동 · 1일 전</div>
+    <div class="meta">서울 송파구 오금동 · 1일 전</div>
     <div class="title">아이폰16 프로 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/6n5mh8mp4bcs/" data-url="https://www.daangn.com/kr/buy-sell/6n5mh8mp4bcs/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1792033367" data-price="1250000" data-disc="25"
+   href="https://www.daangn.com/kr/buy-sell/6n5mh8mp4bcs/" data-url="https://www.daangn.com/kr/buy-sell/6n5mh8mp4bcs/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/b9017973-6d66-4305-9e3e-4de032f61a6c.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 17 프로 1TB</b></div>
     <div class="price">125만 원 <span class="off">시세 166만 · -25%</span></div>
-    <div class="meta">강남구 역삼동 · 9일 전</div>
+    <div class="meta">서울 강남구 역삼동 · 9일 전</div>
     <div class="title">아이폰 17 프로 실버 1tb 팝니다.</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/16bgozqm2mdo/" data-url="https://www.daangn.com/kr/buy-sell/16bgozqm2mdo/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="양천구" data-created="1792128613" data-price="530000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/16bgozqm2mdo/" data-url="https://www.daangn.com/kr/buy-sell/16bgozqm2mdo/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/bf9aa14f-c2f7-4d11-80ba-8d2ce8d2c09f.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드6 용량?</b></div>
     <div class="price">53만 원 <span class="off">시세 70만 · -24%</span></div>
-    <div class="meta">양천구 신정동 · 8일 전</div>
+    <div class="meta">서울 양천구 신정동 · 8일 전</div>
     <div class="title">삼성 갤럭시 Z 폴드6 그레이</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/16mzreo7yj3g/" data-url="https://www.daangn.com/kr/buy-sell/16mzreo7yj3g/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1792820119" data-price="950000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/16mzreo7yj3g/" data-url="https://www.daangn.com/kr/buy-sell/16mzreo7yj3g/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/179282007884933409b57e799a3944d86df91af55b7797a4414f6b30fda22ee45351fd26c0d730.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드7 512</b></div>
     <div class="price">95만 원 <span class="off">시세 125만 · -24%</span></div>
-    <div class="meta">강남구 역삼2동 · 8시간 전</div>
+    <div class="meta">서울 강남구 역삼2동 · 8시간 전</div>
     <div class="title">갤럭시 Z 폴드7 512GB 블랙 + 정품 케이스</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/5jh9328rskx7/" data-url="https://www.daangn.com/kr/buy-sell/5jh9328rskx7/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="서초구" data-created="1786878842" data-price="950000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/5jh9328rskx7/" data-url="https://www.daangn.com/kr/buy-sell/5jh9328rskx7/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202608/04ddcd75-3b73-49a1-ae2b-5979af9112eb.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드7 512</b></div>
     <div class="price">95만 원 <span class="off">시세 125만 · -24%</span></div>
-    <div class="meta">서초구 양재동 · 69일 전</div>
+    <div class="meta">서울 서초구 양재동 · 69일 전</div>
     <div class="title">갤럭시 Z 폴드7 블랙 512GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/wm3o164czh26/" data-url="https://www.daangn.com/kr/buy-sell/wm3o164czh26/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1785126026" data-price="950000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/wm3o164czh26/" data-url="https://www.daangn.com/kr/buy-sell/wm3o164czh26/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202607/17851259991238c2a7ee508e89cdc0cb4b8dc306ec8300033bf8edfdb489acb9361ae1ec6af9f0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 17 프로 256</b></div>
     <div class="price">95만 원 <span class="off">시세 125만 · -24%</span></div>
-    <div class="meta">강남구 논현2동 · 89일 전</div>
+    <div class="meta">서울 강남구 논현2동 · 89일 전</div>
     <div class="title">아이폰 17 프로 실버 256GB 자급제</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/o4bad2hbggmr/" data-url="https://www.daangn.com/kr/buy-sell/o4bad2hbggmr/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1792580839" data-price="1140000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/o4bad2hbggmr/" data-url="https://www.daangn.com/kr/buy-sell/o4bad2hbggmr/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/17925807049937b5e03235cc53d41ab475af15f14c3bac84eb60a01f55968fce31dd4413ac6250.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 17 프로 512</b></div>
     <div class="price">114만 원 <span class="off">시세 150만 · -24%</span></div>
-    <div class="meta">강남구 논현동 · 3일 전</div>
+    <div class="meta">서울 강남구 논현동 · 3일 전</div>
     <div class="title">애플 아이폰 17 프로 512</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/wch5e8z15pi3/" data-url="https://www.daangn.com/kr/buy-sell/wch5e8z15pi3/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="구로구" data-created="1792823568" data-price="950000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/wch5e8z15pi3/" data-url="https://www.daangn.com/kr/buy-sell/wch5e8z15pi3/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792823527406714c043345561283334ae80e7d5bd759cda5ca35287e60d1e93180a833caf0b70.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 17 프로 256</b></div>
     <div class="price">95만 원 <span class="off">시세 125만 · -24%</span></div>
-    <div class="meta">구로구 개봉동 · 7시간 전</div>
+    <div class="meta">서울 구로구 개봉동 · 7시간 전</div>
     <div class="title">아이폰 17프로 자급제 모델 판매해요</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/rdy8ifpom6af/" data-url="https://www.daangn.com/kr/buy-sell/rdy8ifpom6af/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="구로구" data-created="1792837076" data-price="950000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/rdy8ifpom6af/" data-url="https://www.daangn.com/kr/buy-sell/rdy8ifpom6af/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792836960664e89dbe214bd48200058703a51fc044df5a191ab4247e271e80c384e827496ebd0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 17 프로 256</b></div>
     <div class="price">95만 원 <span class="off">시세 125만 · -24%</span></div>
-    <div class="meta">구로구 개봉제1동 · 3시간 전</div>
+    <div class="meta">서울 구로구 개봉제1동 · 3시간 전</div>
     <div class="title">아이폰 17프로 딥 블루 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/hd96e192mt6o/" data-url="https://www.daangn.com/kr/buy-sell/hd96e192mt6o/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강서구" data-created="1792715118" data-price="950000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/hd96e192mt6o/" data-url="https://www.daangn.com/kr/buy-sell/hd96e192mt6o/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/eee94b6d-afac-4dff-8081-dc7ec8398195.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드7 512</b></div>
     <div class="price">95만 원 <span class="off">시세 125만 · -24%</span></div>
-    <div class="meta">강서구 화곡제3동 · 1일 전</div>
+    <div class="meta">서울 강서구 화곡제3동 · 1일 전</div>
     <div class="title">갤럭시 Z폴드7 그라파이트 512GB</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/7wmfqputk4hi/" data-url="https://www.daangn.com/kr/buy-sell/7wmfqputk4hi/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="은평구" data-created="1792400448" data-price="830000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/7wmfqputk4hi/" data-url="https://www.daangn.com/kr/buy-sell/7wmfqputk4hi/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/17924000442513f4bd95fa03194eaf07d5453aed26ccc96de1fea0cbfcf5a510266d0fa80bd290.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이폰 16 프로맥스 256</b></div>
     <div class="price">83만 원 <span class="off">시세 109만 · -24%</span></div>
-    <div class="meta">은평구 진관동 · 5일 전</div>
+    <div class="meta">서울 은평구 진관동 · 5일 전</div>
     <div class="title">아이폰 16프로맥스 256기가</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/7d4ca1hqxtkq/" data-url="https://www.daangn.com/kr/buy-sell/7d4ca1hqxtkq/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="금천구" data-created="1791889533" data-price="610000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/7d4ca1hqxtkq/" data-url="https://www.daangn.com/kr/buy-sell/7d4ca1hqxtkq/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1791889421037f466bf09e8b33b2984b5cbccd16e76916fb5070669152c116aa0f485ee3a703e0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 128</b></div>
     <div class="price">61만 원 <span class="off">시세 80만 · -24%</span></div>
-    <div class="meta">금천구 가산동 · 11일 전</div>
+    <div class="meta">서울 금천구 가산동 · 11일 전</div>
     <div class="title">애플 아이폰 16 프로 128GB 블랙</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/xu5aq6981vb8/" data-url="https://www.daangn.com/kr/buy-sell/xu5aq6981vb8/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1792518725" data-price="610000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/xu5aq6981vb8/" data-url="https://www.daangn.com/kr/buy-sell/xu5aq6981vb8/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/45469f0b4e508d22b3f522fe0ef6adf7af56a567cd2862bbba7bc9f213cb311c_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 128</b></div>
     <div class="price">61만 원 <span class="off">시세 80만 · -24%</span></div>
-    <div class="meta">강남구 논현동 · 3일 전</div>
+    <div class="meta">서울 강남구 논현동 · 3일 전</div>
     <div class="title">아이폰 16 pro 128gb 판매합니다~</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/93b8utsr82bv/" data-url="https://www.daangn.com/kr/buy-sell/93b8utsr82bv/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1792664071" data-price="680000" data-disc="24"
+   href="https://www.daangn.com/kr/buy-sell/93b8utsr82bv/" data-url="https://www.daangn.com/kr/buy-sell/93b8utsr82bv/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/17926640330181e95c4f9ad552c66fc3e3c26c3694fa64e13e8cdd934096a18d75b729fb8da7d0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">68만 원 <span class="off">시세 89만 · -24%</span></div>
-    <div class="meta">강남구 청담동 · 2일 전</div>
+    <div class="meta">서울 강남구 청담동 · 2일 전</div>
     <div class="title">애플 아이폰 16 프로 블랙 256G</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/pqjypb5z3dun/" data-url="https://www.daangn.com/kr/buy-sell/pqjypb5z3dun/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1790602510" data-price="727000" data-disc="23"
+   href="https://www.daangn.com/kr/buy-sell/pqjypb5z3dun/" data-url="https://www.daangn.com/kr/buy-sell/pqjypb5z3dun/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/179060243592334b8b66af102267c3b51bf6b81836eaaffdd303734371ce45f8b66eceb1be07f0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 512</b></div>
     <div class="price">72만 원 <span class="off">시세 95만 · -23%</span></div>
-    <div class="meta">강남구 역삼1동 · 26일 전</div>
+    <div class="meta">서울 강남구 역삼1동 · 26일 전</div>
     <div class="title">아이폰 16프로 블랙 512기가 (기스X) S급!!</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/wmzgr46u4ihs/" data-url="https://www.daangn.com/kr/buy-sell/wmzgr46u4ihs/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="금천구" data-created="1792551081" data-price="960000" data-disc="23"
+   href="https://www.daangn.com/kr/buy-sell/wmzgr46u4ihs/" data-url="https://www.daangn.com/kr/buy-sell/wmzgr46u4ihs/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/e4940d3f-0381-4a7c-9479-7e5a7a66fb74.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드7 512</b></div>
     <div class="price">96만 원 <span class="off">시세 125만 · -23%</span></div>
-    <div class="meta">금천구 가산동 · 3일 전</div>
+    <div class="meta">서울 금천구 가산동 · 3일 전</div>
     <div class="title">갤럭시Z폴드7 512G 블랙색상</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/che24facm3gh/" data-url="https://www.daangn.com/kr/buy-sell/che24facm3gh/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="서초구" data-created="1789714993" data-price="1790000" data-disc="23"
+   href="https://www.daangn.com/kr/buy-sell/che24facm3gh/" data-url="https://www.daangn.com/kr/buy-sell/che24facm3gh/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/0e280b1c-5c81-48b3-8d7b-3053f48f8349.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 18 프로맥스 256 + 미개봉</b></div>
     <div class="price">179만 원 <span class="off">시세 232만 · -23%</span></div>
-    <div class="meta">서초구 서초3동 · 36일 전</div>
+    <div class="meta">서울 서초구 서초3동 · 36일 전</div>
     <div class="title">아이폰18프로 프로맥스256 512자급제 미개봉</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/ashgvy4ytc8c/" data-url="https://www.daangn.com/kr/buy-sell/ashgvy4ytc8c/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="서초구" data-created="1789973826" data-price="540000" data-disc="23"
+   href="https://www.daangn.com/kr/buy-sell/ashgvy4ytc8c/" data-url="https://www.daangn.com/kr/buy-sell/ashgvy4ytc8c/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/666d73a2-d250-4b79-b756-4aeb4234f8a6.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드6 256</b></div>
     <div class="price">54만 원 <span class="off">시세 70만 · -23%</span></div>
-    <div class="meta">서초구 서초2동 · 33일 전</div>
+    <div class="meta">서울 서초구 서초2동 · 33일 전</div>
     <div class="title">갤럭시 Z폴드6 256GB 저렴 정리</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/5i6dkwpgn1fn/" data-url="https://www.daangn.com/kr/buy-sell/5i6dkwpgn1fn/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="마포구" data-created="1792844590" data-price="1390000" data-disc="23"
+   href="https://www.daangn.com/kr/buy-sell/5i6dkwpgn1fn/" data-url="https://www.daangn.com/kr/buy-sell/5i6dkwpgn1fn/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792844430098584941648df1a283c407fd6cb00215797759ff8b804384a199e9e18007d7edf40.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이패드 프로 M4 13 256 + 셀룰러·매직키보드·펜슬</b></div>
     <div class="price">139만 원 <span class="off">시세 180만 · -23%</span></div>
-    <div class="meta">마포구 공덕동 · 1시간 전</div>
+    <div class="meta">서울 마포구 공덕동 · 1시간 전</div>
     <div class="title">Apple iPad Pro 13인치 M4 256GB 셀룰러 + 펜슬 + 매직키보드 + 정품케이스</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/nts1q8qchpmx/" data-url="https://www.daangn.com/kr/buy-sell/nts1q8qchpmx/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1787469095" data-price="1200000" data-disc="23"
+   href="https://www.daangn.com/kr/buy-sell/nts1q8qchpmx/" data-url="https://www.daangn.com/kr/buy-sell/nts1q8qchpmx/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202608/24f32558f7e1df296cbef61558302e9b215beed730bce918c6cc3fa1bfa82279_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드7 1TB</b></div>
     <div class="price">120만 원 <span class="off">시세 155만 · -23%</span></div>
-    <div class="meta">강남구 압구정동 · 62일 전</div>
+    <div class="meta">서울 강남구 압구정동 · 62일 전</div>
     <div class="title">갤럭시 Z 폴드7 1테라 블랙 자급제</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/rk9zph363176/" data-url="https://www.daangn.com/kr/buy-sell/rk9zph363176/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1789034334" data-price="1200000" data-disc="23"
+   href="https://www.daangn.com/kr/buy-sell/rk9zph363176/" data-url="https://www.daangn.com/kr/buy-sell/rk9zph363176/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202609/dadb5d0c-9e5e-445c-97b0-7e56633b0e98.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드7 1TB</b></div>
     <div class="price">120만 원 <span class="off">시세 155만 · -23%</span></div>
-    <div class="meta">강남구 역삼1동 · 44일 전</div>
+    <div class="meta">서울 강남구 역삼1동 · 44일 전</div>
     <div class="title">갤럭시 Z폴드7 1TB 블루 자급제</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/fvd69qnonkkw/" data-url="https://www.daangn.com/kr/buy-sell/fvd69qnonkkw/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강동구" data-created="1788351628" data-price="1200000" data-disc="23"
+   href="https://www.daangn.com/kr/buy-sell/fvd69qnonkkw/" data-url="https://www.daangn.com/kr/buy-sell/fvd69qnonkkw/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202608/5074bfbc-a83d-4de3-af0d-1f0374f2375d.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시 폴드7 1TB</b></div>
     <div class="price">120만 원 <span class="off">시세 155만 · -23%</span></div>
-    <div class="meta">강동구 암사동 · 52일 전</div>
+    <div class="meta">서울 강동구 암사동 · 52일 전</div>
     <div class="title">갤럭시 Z 폴드7 1TB 블랙 자급제 팝니다</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/3d9h1kyc5caz/" data-url="https://www.daangn.com/kr/buy-sell/3d9h1kyc5caz/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="금천구" data-created="1792120924" data-price="690000" data-disc="22"
+   href="https://www.daangn.com/kr/buy-sell/3d9h1kyc5caz/" data-url="https://www.daangn.com/kr/buy-sell/3d9h1kyc5caz/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/58953789-2227-487c-8af0-af806c6244b4.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">69만 원 <span class="off">시세 89만 · -22%</span></div>
-    <div class="meta">금천구 가산동 · 8일 전</div>
+    <div class="meta">서울 금천구 가산동 · 8일 전</div>
     <div class="title">아이폰16프로 블랙 256G</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/f3dgt72sazen/" data-url="https://www.daangn.com/kr/buy-sell/f3dgt72sazen/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="금천구" data-created="1792590957" data-price="690000" data-disc="22"
+   href="https://www.daangn.com/kr/buy-sell/f3dgt72sazen/" data-url="https://www.daangn.com/kr/buy-sell/f3dgt72sazen/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792590504380a6ad5eec3ff91444212b3eff687a872bf4d29a3ee3d9061f9f59b2a75280207b0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">69만 원 <span class="off">시세 89만 · -22%</span></div>
-    <div class="meta">금천구 가산동 · 3일 전</div>
+    <div class="meta">서울 금천구 가산동 · 3일 전</div>
     <div class="title">아이폰 16 프로 데저트 티타늄 256</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/3c43nabuy4s4/" data-url="https://www.daangn.com/kr/buy-sell/3c43nabuy4s4/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="서초구" data-created="1791943294" data-price="690000" data-disc="22"
+   href="https://www.daangn.com/kr/buy-sell/3c43nabuy4s4/" data-url="https://www.daangn.com/kr/buy-sell/3c43nabuy4s4/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/179194231784859afcf1f68e1602343558185abcfad33eae322fd64406735a48a1385c1dc82150.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 16 프로 256</b></div>
     <div class="price">69만 원 <span class="off">시세 89만 · -22%</span></div>
-    <div class="meta">서초구 반포1동 · 10일 전</div>
+    <div class="meta">서울 서초구 반포1동 · 10일 전</div>
     <div class="title">아이폰 16 프로 화이트 티타늄 256GB</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/dei731g4pxma/" data-url="https://www.daangn.com/kr/buy-sell/dei731g4pxma/">
+<a class="card" data-brand="갤럭시" data-cat="휴대폰" data-sido="서울"
+   data-sgg="강남구" data-created="1792562823" data-price="975000" data-disc="22"
+   href="https://www.daangn.com/kr/buy-sell/dei731g4pxma/" data-url="https://www.daangn.com/kr/buy-sell/dei731g4pxma/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/a45ec30797363333843b40d5761b206e7b331eab4435cfdfca5ea9abaebc97a8_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시 폴드7 512</b></div>
     <div class="price">97만 원 <span class="off">시세 125만 · -22%</span></div>
-    <div class="meta">강남구 삼성2동 · 3일 전</div>
+    <div class="meta">서울 강남구 삼성2동 · 3일 전</div>
     <div class="title">삼성 갤럭시z폴드7 512GB 상태 괜찮은 공기계 판매해요!!!</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="휴대폰" href="https://www.daangn.com/kr/buy-sell/tt3hy4nb296a/" data-url="https://www.daangn.com/kr/buy-sell/tt3hy4nb296a/">
+<a class="card" data-brand="애플" data-cat="휴대폰" data-sido="서울"
+   data-sgg="송파구" data-created="1791351142" data-price="1500000" data-disc="22"
+   href="https://www.daangn.com/kr/buy-sell/tt3hy4nb296a/" data-url="https://www.daangn.com/kr/buy-sell/tt3hy4nb296a/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/5773827765d6f69b7ce1ae52660da7706ad8b3b22bfc192987aa543f562b89a5_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이폰 18 프로 256 + 미개봉</b></div>
     <div class="price">150만 원 <span class="off">시세 191만 · -22%</span></div>
-    <div class="meta">송파구 잠실동 · 17일 전</div>
+    <div class="meta">서울 송파구 잠실동 · 17일 전</div>
     <div class="title">아이폰 18프로 실버 256기가 미개봉 자급제 판매해요</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/ffqjdggdqz1d/" data-url="https://www.daangn.com/kr/buy-sell/ffqjdggdqz1d/">
+<a class="card" data-brand="갤럭시" data-cat="태블릿" data-sido="서울"
+   data-sgg="은평구" data-created="1792605718" data-price="1200000" data-disc="20"
+   href="https://www.daangn.com/kr/buy-sell/ffqjdggdqz1d/" data-url="https://www.daangn.com/kr/buy-sell/ffqjdggdqz1d/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/eb47403c02aa146b78a559e1b40892f0c30d8bcb6c3000d5371c1e1f3ce70de0_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>갤럭시탭 S12 울트라 256</b></div>
     <div class="price">120만 원 <span class="off">시세 150만 · -20%</span></div>
-    <div class="meta">은평구 진관동 · 2일 전</div>
+    <div class="meta">서울 은평구 진관동 · 2일 전</div>
     <div class="title">갤럭시탭S12 울트라 256GB wifi 최신형 태블릿</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/74ir2nfhet3e/" data-url="https://www.daangn.com/kr/buy-sell/74ir2nfhet3e/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="서초구" data-created="1792809217" data-price="1300000" data-disc="20"
+   href="https://www.daangn.com/kr/buy-sell/74ir2nfhet3e/" data-url="https://www.daangn.com/kr/buy-sell/74ir2nfhet3e/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792809099506d37c6bd8b24f2793d75128cd0b013bcdb62ba8690af2a2910837cd24d5ed08a20.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이패드 프로 M5 11 512</b></div>
     <div class="price">130만 원 <span class="off">시세 162만 · -20%</span></div>
-    <div class="meta">서초구 서초동 · 11시간 전</div>
+    <div class="meta">서울 서초구 서초동 · 11시간 전</div>
     <div class="title">애플 아이패드 프로 11인치 M5, 512GB, wifi, 스페이스 그레이</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/2c9oapvxofc7/" data-url="https://www.daangn.com/kr/buy-sell/2c9oapvxofc7/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="성동구" data-created="1792468655" data-price="2600000" data-disc="20"
+   href="https://www.daangn.com/kr/buy-sell/2c9oapvxofc7/" data-url="https://www.daangn.com/kr/buy-sell/2c9oapvxofc7/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/1792468291576478340114583d5c1c49e8541695ced4ce32d12779f91fbc0e9077cee598e3f570.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이패드 프로 M5 13 1TB + 셀룰러·미개봉</b></div>
     <div class="price">260만 원 <span class="off">시세 323만 · -20%</span></div>
-    <div class="meta">성동구 응봉동 · 4일 전</div>
+    <div class="meta">서울 성동구 응봉동 · 4일 전</div>
     <div class="title">(새제품급) 아이패드 프로 M5 13인치 1TB Wi-Fi + Cellular 실버</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/ky85rid84cxy/" data-url="https://www.daangn.com/kr/buy-sell/ky85rid84cxy/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="중구" data-created="1786077142" data-price="1050000" data-disc="19"
+   href="https://www.daangn.com/kr/buy-sell/ky85rid84cxy/" data-url="https://www.daangn.com/kr/buy-sell/ky85rid84cxy/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202607/dbfbf35ed77907356d8f7cc9b4234f5967da89f6d06b707a0c2d32c0067b14ad_0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이패드 프로 M4 11 256 + 매직키보드</b></div>
     <div class="price">105만 원 <span class="off">시세 130만 · -19%</span></div>
-    <div class="meta">중구 명동 · 78일 전</div>
+    <div class="meta">서울 중구 명동 · 78일 전</div>
     <div class="title">아이패드 프로11 M4 스페이스 그레이 246gb + 매직키보드 (풀박스)</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/pxf2ucbtx8gj/" data-url="https://www.daangn.com/kr/buy-sell/pxf2ucbtx8gj/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="양천구" data-created="1787733684" data-price="1050000" data-disc="19"
+   href="https://www.daangn.com/kr/buy-sell/pxf2ucbtx8gj/" data-url="https://www.daangn.com/kr/buy-sell/pxf2ucbtx8gj/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202608/17877336604495f77a057804435fba63abbc02b6b6eb8a74ffeae916f9c69e0fc7829f57e82e20.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이패드 프로 M5 11 256</b></div>
     <div class="price">105만 원 <span class="off">시세 129만 · -19%</span></div>
-    <div class="meta">양천구 신월동 · 59일 전</div>
+    <div class="meta">서울 양천구 신월동 · 59일 전</div>
     <div class="title">아이패드 프로 11인치 M5 256G 스페이스그레이wifi 모델 팝니다</div>
   </div>
 </a>
-<a class="card" data-brand="갤럭시" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/numxp5ibaatx/" data-url="https://www.daangn.com/kr/buy-sell/numxp5ibaatx/">
+<a class="card" data-brand="갤럭시" data-cat="태블릿" data-sido="서울"
+   data-sgg="금천구" data-created="1752374500" data-price="530000" data-disc="19"
+   href="https://www.daangn.com/kr/buy-sell/numxp5ibaatx/" data-url="https://www.daangn.com/kr/buy-sell/numxp5ibaatx/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202507/1752374349263f7e0fc303f398c1e99b5245f643759d7e99828866f710bd10dbae35fd74d19d50.jpg?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>갤럭시탭 S10 FE 용량? + 셀룰러·미개봉</b></div>
     <div class="price">53만 원 <span class="off">시세 65만 · -19%</span></div>
-    <div class="meta">금천구 시흥동 · 468일 전</div>
+    <div class="meta">서울 금천구 시흥동 · 468일 전</div>
     <div class="title">갤럭시 탭 S10 FE 5G 미개봉</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/bpw8vovvvaa2/" data-url="https://www.daangn.com/kr/buy-sell/bpw8vovvvaa2/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="구로구" data-created="1792773148" data-price="1450000" data-disc="16"
+   href="https://www.daangn.com/kr/buy-sell/bpw8vovvvaa2/" data-url="https://www.daangn.com/kr/buy-sell/bpw8vovvvaa2/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/8a565c71-0a1d-46ed-b6ca-7965b3776658.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이패드 프로 M4 13 1TB</b></div>
     <div class="price">145만 원 <span class="off">시세 172만 · -16%</span></div>
-    <div class="meta">구로구 구로제3동 · 21시간 전</div>
+    <div class="meta">서울 구로구 구로제3동 · 21시간 전</div>
     <div class="title">아이패드 프로 13 m4 1tb wifi</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/5nd4k6ni7a1a/" data-url="https://www.daangn.com/kr/buy-sell/5nd4k6ni7a1a/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="양천구" data-created="1791435360" data-price="1100000" data-disc="15"
+   href="https://www.daangn.com/kr/buy-sell/5nd4k6ni7a1a/" data-url="https://www.daangn.com/kr/buy-sell/5nd4k6ni7a1a/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/17914353114521cc65357741a79b8cf35b933e9275275e5f80d852ec89a9088c3f08187e444ce0.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이패드 프로 M4 13 256</b></div>
     <div class="price">110만 원 <span class="off">시세 130만 · -15%</span></div>
-    <div class="meta">양천구 목1동 · 16일 전</div>
+    <div class="meta">서울 양천구 목1동 · 16일 전</div>
     <div class="title">Apple iPad Pro M4 13인치 wi-fi 256gb</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/bmhtouski9vv/" data-url="https://www.daangn.com/kr/buy-sell/bmhtouski9vv/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="양천구" data-created="1787292846" data-price="1100000" data-disc="15"
+   href="https://www.daangn.com/kr/buy-sell/bmhtouski9vv/" data-url="https://www.daangn.com/kr/buy-sell/bmhtouski9vv/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202608/1787292109152c2e6761aaf5cd3d3b29b73b32e525d97e20caab647dea906fe237de6fcc573f80.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><span class="new">NEW</span><b>아이패드 프로 M4 13 256</b></div>
     <div class="price">110만 원 <span class="off">시세 130만 · -15%</span></div>
-    <div class="meta">양천구 목1동 · 64일 전</div>
+    <div class="meta">서울 양천구 목1동 · 64일 전</div>
     <div class="title">Apple iPad Pro M4 13인치 256gb</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/43bgwfhr8r3y/" data-url="https://www.daangn.com/kr/buy-sell/43bgwfhr8r3y/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="서초구" data-created="1792590826" data-price="3000000" data-disc="15"
+   href="https://www.daangn.com/kr/buy-sell/43bgwfhr8r3y/" data-url="https://www.daangn.com/kr/buy-sell/43bgwfhr8r3y/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/d543d75d-9582-48e0-a2b0-395098af14d7.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이패드 프로 M5 13 1TB + 매직키보드·펜슬·미개봉</b></div>
     <div class="price">300만 원 <span class="off">시세 353만 · -15%</span></div>
-    <div class="meta">서초구 서초동 · 3일 전</div>
+    <div class="meta">서울 서초구 서초동 · 3일 전</div>
     <div class="title">급처 애플 아이패드 프로 M5 13인치 M5 1TB 와이파이 나노텍스쳐 매직키보드 애플펜슬프로 (새제품)</div>
   </div>
 </a>
-<a class="card" data-brand="애플" data-cat="태블릿" href="https://www.daangn.com/kr/buy-sell/zk78kkmywgq9/" data-url="https://www.daangn.com/kr/buy-sell/zk78kkmywgq9/">
+<a class="card" data-brand="애플" data-cat="태블릿" data-sido="서울"
+   data-sgg="종로구" data-created="1792393554" data-price="950000" data-disc="14"
+   href="https://www.daangn.com/kr/buy-sell/zk78kkmywgq9/" data-url="https://www.daangn.com/kr/buy-sell/zk78kkmywgq9/">
   <img src="https://img.kr.gcp-karroter.net/origin/article/202610/c6d34b50-45a5-44b7-b67e-51b81ac1c19e.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
   <div class="info">
     <div class="top"><b>아이패드 프로 M4 11 256 + 펜슬</b></div>
     <div class="price">95만 원 <span class="off">시세 110만 · -14%</span></div>
-    <div class="meta">종로구 숭인동 · 5일 전</div>
+    <div class="meta">서울 종로구 숭인동 · 5일 전</div>
     <div class="title">아이패드 프로 11 M4 스그 256, 스마트폴리오케이스, 애플펜슬 프로</div>
   </div>
 </a><p class="empty" hidden>지금은 기준가 이하 매물이 없어요.</p></div>
 <script>
 var cards = document.querySelectorAll('a.card'), empty = document.querySelector('.empty');
 var chipBar = document.querySelector('.chips'), SUB = {"애플|휴대폰": 58, "애플|태블릿": 11, "갤럭시|휴대폰": 25, "갤럭시|태블릿": 3};
-var st = {b: '전체', c: '전체'};
-try { st = JSON.parse(localStorage.getItem('dg-filter')) || st; } catch (e) {}
+var st = {b: '전체', c: '전체', sido: '전국', sgg: '전체', sort: 'disc'};
+var list = document.querySelector('.list'), selSido = document.getElementById('sido'),
+    selSgg = document.getElementById('sgg'), selSort = document.getElementById('sort');
+function opts(sel, items, cur) {
+  sel.innerHTML = items.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === cur ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('');
+}
+function countBy(key, pred) {
+  var m = {};
+  cards.forEach(function (c) { if (pred(c)) m[c.dataset[key]] = (m[c.dataset[key]] || 0) + 1; });
+  return Object.keys(m).sort(function (a, b) { return m[b] - m[a]; }).map(function (k) { return [k, k + ' ' + m[k]]; });
+}
+try { Object.assign(st, JSON.parse(localStorage.getItem('dg-filter')) || {}); } catch (e) {}
 function render() {
   var withChips = st.b === '애플' || st.b === '갤럭시';
   if (!withChips) st.c = '전체';
@@ -1018,9 +1250,27 @@ function render() {
     b.classList.toggle('on', b.dataset.c === st.c);
   });
   document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.b === st.b); });
+  var kind = function (c) { return (st.b === '전체' || c.dataset.brand === st.b) && (st.c === '전체' || c.dataset.cat === st.c); };
+  // 지역: 지금 고른 종류 안에서 시·도별 개수 → 시·도를 고르면 그 안의 시·군·구
+  var sidos = countBy('sido', kind);
+  if (st.sido !== '전국' && !sidos.some(function (x) { return x[0] === st.sido; })) st.sido = '전국';
+  opts(selSido, [['전국', '전국 ' + cards.length]].concat(sidos), st.sido);
+  selSido.options[0].text = '전국 ' + sidos.reduce(function (t, x) { return t + +x[1].split(' ').pop(); }, 0);
+  if (st.sido === '전국') { st.sgg = '전체'; selSgg.hidden = true; }
+  else {
+    var sggs = countBy('sgg', function (c) { return kind(c) && c.dataset.sido === st.sido; });
+    if (st.sgg !== '전체' && !sggs.some(function (x) { return x[0] === st.sgg; })) st.sgg = '전체';
+    opts(selSgg, [['전체', st.sido + ' 전체']].concat(sggs), st.sgg);
+    selSgg.hidden = false;
+  }
+  selSort.value = st.sort;
+  var key = {disc: function (c) { return -c.dataset.disc; }, new: function (c) { return -c.dataset.created; },
+             low: function (c) { return +c.dataset.price; }, high: function (c) { return -c.dataset.price; }}[st.sort];
+  Array.prototype.slice.call(cards).sort(function (a, b) { return key(a) - key(b); })
+    .forEach(function (c) { list.insertBefore(c, empty); });
   var n = 0;
   cards.forEach(function (c) {
-    var on = (st.b === '전체' || c.dataset.brand === st.b) && (st.c === '전체' || c.dataset.cat === st.c);
+    var on = kind(c) && (st.sido === '전국' || c.dataset.sido === st.sido) && (st.sgg === '전체' || c.dataset.sgg === st.sgg);
     c.hidden = !on; if (on) n++;
   });
   empty.hidden = n > 0;
@@ -1028,6 +1278,9 @@ function render() {
 }
 document.querySelectorAll('.tabs button').forEach(function (b) { b.onclick = function () { st.b = b.dataset.b; st.c = '전체'; render(); }; });
 document.querySelectorAll('.chips button').forEach(function (b) { b.onclick = function () { st.c = b.dataset.c; render(); }; });
+selSido.onchange = function () { st.sido = selSido.value; st.sgg = '전체'; render(); };
+selSgg.onchange = function () { st.sgg = selSgg.value; render(); };
+selSort.onchange = function () { st.sort = selSort.value; render(); };
 render();
 function reloadNow() { location.replace(location.pathname + '?t=' + Date.now()); }
 // 앱으로 깔았을 때: 다시 열면(10분 넘게 지났으면) 알아서 최신으로
