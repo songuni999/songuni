@@ -35,12 +35,11 @@ header{padding:16px 16px 2px} h1{margin:0;font-size:20px} .sub{color:var(--sub);
 .empty{text-align:center;color:var(--sub);padding:40px 0}
 [hidden]{display:none!important}
 .head{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.other{color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;margin-right:6px}
 .reload{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 12px;font-size:14px;font-family:inherit}
 </style></head><body>
 <header><div class="head"><h1>🥕 당근 득템</h1>
-<div><a class="other" href="daangn-ultra.html">📱 울트라 창</a><button class="reload" onclick="reloadNow()">↻ 새로고침</button></div></div>
-<div class="sub">전국 · 휴대폰·태블릿은 시세보다 싼 것만, 글러브·배트는 조건 맞으면 전부<br>마지막 확인 10월 26일 09:55 · 15분마다 자동 갱신 · 시세 2026-10-26 · 누르면 당근 앱으로 · NEW = 3시간 안에 새로 잡힌 매물</div></header>
+<button class="reload" onclick="reloadNow()">↻ 새로고침</button></div>
+<div class="sub">전국 · 휴대폰·태블릿은 시세보다 싼 것만, 글러브·배트는 조건 맞으면 전부<br>마지막 확인 10월 26일 09:56 · 15분마다 자동 갱신 · 시세 2026-10-26 · 누르면 당근 앱으로 · NEW = 3시간 안에 새로 잡힌 매물</div></header>
 <div class="bar">
 <nav class="tabs"><button data-b="전체">전체 850</button><button data-b="애플">애플 133</button><button data-b="갤럭시">갤럭시 158</button><button data-b="글러브">글러브 427</button><button data-b="배트">배트 132</button></nav>
 <nav class="chips" hidden><button data-c="전체">전체</button><button data-c="휴대폰">휴대폰</button><button data-c="태블릿">태블릿</button></nav>
@@ -9472,7 +9471,8 @@ var loadedAt = Date.now();
 document.addEventListener('visibilitychange', function () {
   if (document.visibilityState === 'visible' && Date.now() - loadedAt > 10 * 60 * 1000) reloadNow();
 });
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('daangn-sw.js', {scope: './daangn'}).catch(function () {});
+// 두 창은 완전히 따로 (2026-10-26 대표): 오프라인 도우미도 각자 자기 창만 맡는다
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('daangn-sw.js', {scope: './daangn.html'}).catch(function () {});
 // 안드로이드는 intent:// 로 당근 앱(com.towneers.www)을 직접 연다. 앱이 없으면 웹으로.
 // 아이폰은 당근이 유니버설 링크를 걸어둔 주소라 그대로 누르면 앱이 열린다.
 if (/Android/i.test(navigator.userAgent)) {
