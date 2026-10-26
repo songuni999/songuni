@@ -1,6 +1,6 @@
 // 당근 득템 앱: 항상 인터넷에서 최신 목록을 먼저 받고, 안 되면(지하철 등) 마지막으로 본 목록을 보여준다.
-var CACHE = 'daangn-v2';
-var PAGES = ['daangn.html', 'daangn-ultra.html'];   // 본 창 + 울트라 전용 창
+var CACHE = 'daangn-main-v3';
+var PAGES = ['daangn.html'];   // 본 창만 (울트라 창은 daangn-ultra-sw.js)
 
 self.addEventListener('install', function (e) { self.skipWaiting(); });
 self.addEventListener('activate', function (e) { e.waitUntil(self.clients.claim()); });
