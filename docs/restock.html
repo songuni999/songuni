@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>재입고 알림</title>
+<style>
+  body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:#f5f6f8;color:#111}
+  .wrap{max-width:480px;margin:0 auto;padding:28px 16px}
+  h1{font-size:22px;margin:0 0 6px}
+  p{color:#555;margin:0 0 20px;line-height:1.5;word-break:break-all}
+  a.btn{display:block;text-align:center;text-decoration:none;font-weight:700;font-size:18px;
+        padding:18px;border-radius:12px;margin:0 0 12px}
+  .naver{background:#03c75a;color:#fff}
+  .ext{background:#fff;color:#111;border:1px solid #ccc}
+  .here{background:#fff;color:#555;border:1px solid #ddd;font-size:15px!important}
+  .err{color:#c00}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title">🔔 재입고!</h1>
+  <p id="desc">네이버 상품 페이지로 넘어갑니다. 안 넘어가면 아래 버튼을 누르세요.</p>
+  <a class="btn naver" id="app">네이버 앱으로 열기 (로그인 상태라 바로 구매)</a>
+  <a class="btn ext" id="ext">기본 브라우저로 열기</a>
+  <a class="btn here" id="here">여기서 그냥 열기</a>
+</div>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var u = q.get("u") || "";
+  var host = "";
+  try { host = new URL(u).hostname; } catch (e) {}
+  // 네이버 주소만 연다 (아무 주소나 넘기는 통로가 되지 않게)
+  if (!/(^|\.)naver\.com$/.test(host)) {
+    document.getElementById("title").textContent = "주소가 잘못됐어요";
+    document.getElementById("desc").className = "err";
+    document.getElementById("desc").textContent = "네이버 상품 주소가 아닙니다: " + u;
+    ["app", "ext", "here"].forEach(function (id) { document.getElementById(id).style.display = "none"; });
+    return;
+  }
+  if (q.get("t")) document.getElementById("title").textContent = q.get("t");
+
+  var ua = navigator.userAgent;
+  var android = /Android/i.test(ua);
+  var ios = /iPhone|iPad|iPod/i.test(ua);
+  var enc = encodeURIComponent(u);
+  var appUrl = android
+    ? "intent://inappbrowser?url=" + enc + "&target=new&version=6#Intent;scheme=naversearchapp;package=com.nhn.android.search;S.browser_fallback_url=" + enc + ";end"
+    : ios ? "naversearchapp://inappbrowser?url=" + enc + "&target=new&version=6" : u;
+  // 카카오톡 안의 브라우저에서 휴대폰 기본 브라우저로 빼내기
+  var extUrl = /KAKAOTALK/i.test(ua) ? "kakaotalk://web/openExternal?url=" + enc : u;
+
+  document.getElementById("app").href = appUrl;
+  document.getElementById("ext").href = extUrl;
+  document.getElementById("here").href = u;
+  if (!android && !ios) document.getElementById("app").style.display = "none";
+
+  // 들어오자마자 네이버 앱으로 한 번 시도
+  if (android || ios) setTimeout(function () { location.href = appUrl; }, 300);
+})();
+</script>
+</body>
+</html>
