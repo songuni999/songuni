@@ -20,8 +20,9 @@
 <body>
 <div class="wrap">
   <h1 id="title">🔔 재입고!</h1>
-  <p id="desc">네이버 상품 페이지로 넘어갑니다. 안 넘어가면 아래 버튼을 누르세요.</p>
-  <a class="btn naver" id="app">네이버 앱으로 열기 (로그인 상태라 바로 구매)</a>
+  <p id="desc">아래 버튼을 누르면 네이버 상품 페이지가 열립니다.</p>
+  <a class="btn naver" id="app">네이버 앱으로 열기</a>
+  <a class="btn naver" id="whale">웨일로 열기</a>
   <a class="btn ext" id="ext">기본 브라우저로 열기</a>
   <a class="btn here" id="here">여기서 그냥 열기</a>
 </div>
@@ -36,28 +37,31 @@
     document.getElementById("title").textContent = "주소가 잘못됐어요";
     document.getElementById("desc").className = "err";
     document.getElementById("desc").textContent = "네이버 상품 주소가 아닙니다: " + u;
-    ["app", "ext", "here"].forEach(function (id) { document.getElementById(id).style.display = "none"; });
+    ["app", "whale", "ext", "here"].forEach(function (id) { document.getElementById(id).style.display = "none"; });
     return;
   }
   if (q.get("t")) document.getElementById("title").textContent = q.get("t");
 
   var ua = navigator.userAgent;
   var android = /Android/i.test(ua);
-  var ios = /iPhone|iPad|iPod/i.test(ua);
   var enc = encodeURIComponent(u);
-  var appUrl = android
-    ? "intent://inappbrowser?url=" + enc + "&target=new&version=6#Intent;scheme=naversearchapp;package=com.nhn.android.search;S.browser_fallback_url=" + enc + ";end"
-    : ios ? "naversearchapp://inappbrowser?url=" + enc + "&target=new&version=6" : u;
+  // 당근 창에서 이미 되는 방식: 안드로이드 intent://주소#Intent;scheme=https;package=앱 (앱이 없으면 웹으로)
+  function intent(pkg) {
+    return "intent://" + u.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=" + pkg +
+           ";S.browser_fallback_url=" + enc + ";end";
+  }
+  var appUrl = android ? intent("com.nhn.android.search") : u;
   // 카카오톡 안의 브라우저에서 휴대폰 기본 브라우저로 빼내기
   var extUrl = /KAKAOTALK/i.test(ua) ? "kakaotalk://web/openExternal?url=" + enc : u;
 
   document.getElementById("app").href = appUrl;
+  document.getElementById("whale").href = android ? intent("com.naver.whale") : u;
   document.getElementById("ext").href = extUrl;
   document.getElementById("here").href = u;
-  if (!android && !ios) document.getElementById("app").style.display = "none";
-
-  // 들어오자마자 네이버 앱으로 한 번 시도
-  if (android || ios) setTimeout(function () { location.href = appUrl; }, 300);
+  if (!android) {
+    document.getElementById("app").style.display = "none";
+    document.getElementById("whale").style.display = "none";
+  }
 })();
 </script>
 </body>
