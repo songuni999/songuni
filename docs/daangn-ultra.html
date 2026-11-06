@@ -39,9 +39,9 @@ header{padding:16px 16px 2px} h1{margin:0;font-size:20px} .sub{color:var(--sub);
 </style></head><body>
 <header><div class="head"><h1>📱 갤럭시 울트라</h1>
 <button class="reload" onclick="reloadNow()">↻ 새로고침</button></div>
-<div class="sub">서울·남양주·하남·구리는 가격 상관없이 전부(파손 포함) · 그 밖 전국은 바로구매되는 것 전부<br>마지막 확인 11월 06일 16:48 · 15분마다 자동 갱신 · 시세 2026-11-03 · 누르면 당근 앱으로 · NEW = 3시간 안에 새로 잡힌 매물</div></header>
+<div class="sub">서울·남양주·하남·구리는 가격 상관없이 전부(파손 포함) · 그 밖 전국은 바로구매되는 것 전부<br>마지막 확인 11월 06일 17:07 · 15분마다 자동 갱신 · 시세 2026-11-03 · 누르면 당근 앱으로 · NEW = 3시간 안에 새로 잡힌 매물</div></header>
 <div class="bar">
-<nav class="tabs"><button data-b="전체">전체 36</button><button data-b="서울권">서울권 13</button><button data-b="전국">전국 바로구매 23</button></nav>
+<nav class="tabs"><button data-b="전체">전체 36</button><button data-b="서울권">서울권 12</button><button data-b="전국">전국 바로구매 24</button></nav>
 <nav class="chips" hidden></nav>
 <div class="ctrl">
   <select id="sido" aria-label="시·도"></select>
@@ -53,6 +53,17 @@ header{padding:16px 16px 2px} h1{margin:0;font-size:20px} .sub{color:var(--sub);
 </div>
 </div>
 <div class="list">
+<a class="card" data-brand="전국" data-cat="S26" data-sido="경기"
+   data-sgg="이천시" data-created="1793951776" data-price="75000" data-disc="94"
+   href="https://www.daangn.com/kr/buy-sell/ofu5nm9ucox4/" data-url="https://www.daangn.com/kr/buy-sell/ofu5nm9ucox4/">
+  <img src="https://img.kr.gcp-karroter.net/origin/article/202611/39bed86d-7409-4438-8655-16f693907235.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
+  <div class="info">
+    <div class="top"><span class="new">NEW</span><span class="new">바로구매</span><b>갤럭시 S26 울트라 용량? + 미개봉</b></div>
+    <div class="price">7만 원 <span class="off">시세 118만 · -94%</span></div>
+    <div class="meta">경기 이천시 신둔면 · 11분 전</div>
+    <div class="title">(새상품)피타카 케언 갤럭시 S26 울트라</div>
+  </div>
+</a>
 <a class="card" data-brand="전국" data-cat="S26" data-sido="부산"
    data-sgg="연제구" data-created="1786975593" data-price="70000" data-disc="94"
    href="https://www.daangn.com/kr/buy-sell/jenecigizs88/" data-url="https://www.daangn.com/kr/buy-sell/jenecigizs88/">
@@ -205,17 +216,6 @@ header{padding:16px 16px 2px} h1{margin:0;font-size:20px} .sub{color:var(--sub);
     <div class="price">14만 원 <span class="off">시세 17만 · -16%</span></div>
     <div class="meta">대전 대덕구 석봉동 · 3일 전</div>
     <div class="title">삼성 갤럭시 S20 울트라 5G 블랙</div>
-  </div>
-</a>
-<a class="card" data-brand="서울권" data-cat="S24" data-sido="서울"
-   data-sgg="동작구" data-created="1793686938" data-price="530000" data-disc="15"
-   href="https://www.daangn.com/kr/buy-sell/55t16xmmvxr2/" data-url="https://www.daangn.com/kr/buy-sell/55t16xmmvxr2/">
-  <img src="https://img.kr.gcp-karroter.net/origin/article/202611/f6101d4c-beee-4eda-b2b7-b9c4fe071581.webp?q=95&amp;s=1440x1440&amp;t=inside&amp;service=web-mixer" alt="" loading="lazy">
-  <div class="info">
-    <div class="top"><b>갤럭시 S24 울트라 256</b></div>
-    <div class="price">53만 원 <span class="off">시세 62만 · -15%</span></div>
-    <div class="meta">서울 동작구 신대방동 · 3일 전</div>
-    <div class="title">갤럭시S24울트라  퍼플 256G 판매합니다</div>
   </div>
 </a>
 <a class="card" data-brand="전국" data-cat="S20" data-sido="인천"
@@ -451,7 +451,7 @@ header{padding:16px 16px 2px} h1{margin:0;font-size:20px} .sub{color:var(--sub);
 </a><p class="empty" hidden>지금은 기준가 이하 매물이 없어요.</p></div>
 <script>
 var cards = document.querySelectorAll('a.card'), empty = document.querySelector('.empty');
-var chipBar = document.querySelector('.chips'), SUB = {"전체|전체": 0, "전체|S26": 8, "전체|S25": 5, "전체|S24": 11, "전체|S23": 2, "전체|S22": 0, "전체|S21": 0, "전체|S20": 10, "서울권|전체": 0, "서울권|S26": 3, "서울권|S25": 2, "서울권|S24": 4, "서울권|S23": 1, "서울권|S22": 0, "서울권|S21": 0, "서울권|S20": 3, "전국|전체": 0, "전국|S26": 5, "전국|S25": 3, "전국|S24": 7, "전국|S23": 1, "전국|S22": 0, "전국|S21": 0, "전국|S20": 7}, CHIPS = {"전체": ["전체", "S26", "S25", "S24", "S23", "S22", "S21", "S20"], "서울권": ["전체", "S26", "S25", "S24", "S23", "S22", "S21", "S20"], "전국": ["전체", "S26", "S25", "S24", "S23", "S22", "S21", "S20"]};
+var chipBar = document.querySelector('.chips'), SUB = {"전체|전체": 0, "전체|S26": 9, "전체|S25": 5, "전체|S24": 10, "전체|S23": 2, "전체|S22": 0, "전체|S21": 0, "전체|S20": 10, "서울권|전체": 0, "서울권|S26": 3, "서울권|S25": 2, "서울권|S24": 3, "서울권|S23": 1, "서울권|S22": 0, "서울권|S21": 0, "서울권|S20": 3, "전국|전체": 0, "전국|S26": 6, "전국|S25": 3, "전국|S24": 7, "전국|S23": 1, "전국|S22": 0, "전국|S21": 0, "전국|S20": 7}, CHIPS = {"전체": ["전체", "S26", "S25", "S24", "S23", "S22", "S21", "S20"], "서울권": ["전체", "S26", "S25", "S24", "S23", "S22", "S21", "S20"], "전국": ["전체", "S26", "S25", "S24", "S23", "S22", "S21", "S20"]};
 var STORE = 'dg-ultra-filter';
 var st = {b: '전체', c: '전체', sido: '전국', sgg: '전체', sort: 'new'};
 var list = document.querySelector('.list'), selSido = document.getElementById('sido'),
