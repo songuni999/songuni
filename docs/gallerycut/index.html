@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>갤러리컷 - 사진·영상 편집기</title>
+<meta name="description" content="브라우저에서 바로 쓰는 사진·영상 편집기. 파일은 내 기기 밖으로 나가지 않아요.">
+<meta name="theme-color" content="#141418">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="갤러리컷">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gaegu:wght@400;700&family=Jua&family=Nanum+Myeongjo:wght@400;800&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <header id="m-top" aria-label="위 막대"></header>
+  <header id="topbar"></header>
+  <main id="workspace">
+    <aside id="left" aria-label="재료"></aside>
+    <section id="center" aria-label="미리보기"></section>
+    <aside id="right" aria-label="속성"></aside>
+  </main>
+  <div id="resizer" title="끌어서 타임라인 높이 바꾸기"></div>
+  <section id="bottom" aria-label="타임라인">
+    <div id="timeline"></div>
+    <div id="photobar"></div>
+  </section>
+  <nav id="mobilebar"></nav>
+  <nav id="m-tools" aria-label="편집 도구"></nav>
+</div>
+<div id="drop-overlay"><div class="drop-msg"><span class="drop-plus">＋</span><b>여기에 놓으면 가져와요</b><span>사진 · 영상 · 음악</span></div></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="tip" role="tooltip"></div>
+<div id="media-holder" aria-hidden="true"></div>
+<noscript>자바스크립트를 켜야 갤러리컷을 쓸 수 있어요.</noscript>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
